@@ -1,0 +1,123 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.commands;
+
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AlignConstants;
+import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.ControlConstants;
+import org.littletonrobotics.junction.Logger;
+
+public class AlignToPoseCommand extends Command {
+    private final Pose2d targetPose;
+    private final ProfiledPIDController pidControllerX;
+    private final ProfiledPIDController pidControllerY;
+    private final PIDController pidControllerAngle;
+    private final Trigger alignedTrigger;
+
+    private final Swerve swerve;
+
+    /**
+     * Aligns the robot to a given pose (translation + rotation).
+     *
+     * @param targetPose The target pose to align to.
+     * @param linearControlConstants The control constants for linear movement (meters).
+     * @param angleControlConstants The control constants for angular movement (degrees).
+     * @param swerve The swerve subsystem.
+     */
+    public AlignToPoseCommand(
+            Pose2d targetPose,
+            ControlConstants linearControlConstants,
+            ControlConstants angleControlConstants,
+            Swerve swerve) {
+        this.targetPose = targetPose;
+        this.swerve = swerve;
+
+        pidControllerX = linearControlConstants.getProfiledPIDController();
+        pidControllerY = linearControlConstants.getProfiledPIDController();
+        pidControllerAngle = angleControlConstants.getPIDController();
+        pidControllerAngle.enableContinuousInput(-180, 180);
+
+        pidControllerX.setGoal(targetPose.getX());
+        pidControllerY.setGoal(targetPose.getY());
+        pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
+
+        alignedTrigger = new Trigger(
+                        () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
+                .debounce(AlignConstants.ALIGN_TIME.in(Seconds), DebounceType.kRising);
+
+        addRequirements(swerve);
+    }
+
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        // Reset PIDControllers to initial position and velocity
+        ChassisSpeeds chassisSpeeds = swerve.getFieldSpeeds();
+        pidControllerX.reset(swerve.getPose().getX(), chassisSpeeds.vxMetersPerSecond);
+        pidControllerY.reset(swerve.getPose().getY(), chassisSpeeds.vyMetersPerSecond);
+        pidControllerAngle.reset();
+
+        pidControllerX.setGoal(targetPose.getX());
+        pidControllerY.setGoal(targetPose.getY());
+        pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
+
+        Logger.recordOutput("Alignment/Aligned", false);
+        Logger.recordOutput("Alignment/TargetPose", targetPose);
+    }
+
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        LinearVelocity xVel =
+                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX()));
+        LinearVelocity yVel =
+                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY()));
+        AngularVelocity omega = DegreesPerSecond.of(
+                pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
+
+        swerve.driveFieldCentric(xVel, yVel, omega);
+
+        Logger.recordOutput(
+                "Alignment/Setpoint",
+                new Pose2d(
+                        pidControllerX.getSetpoint().position,
+                        pidControllerY.getSetpoint().position,
+                        Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
+    }
+
+    public Trigger withinDistanceToTarget(Distance distance) {
+        return new Trigger(
+                () -> swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()) < distance.in(Meters));
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        Logger.recordOutput("Alignment/Aligned", !interrupted);
+        swerve.brake();
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return alignedTrigger.getAsBoolean();
+    }
+}

@@ -55,6 +55,7 @@ public class RobotContainer {
     // Subsystems
     @SuppressWarnings("unused")
     private final Vision vision;
+
     private final Swerve swerve;
     private final Elevator elevator;
     private final EndEffector endEffector;
@@ -210,7 +211,9 @@ public class RobotContainer {
                 Map.entry('4', elevator.goToL4Command(false)));
 
         elevatorCommand = Commands.defer(
-                () -> elevatorCommands.get(NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1)), Set.of(elevator));
+                () -> elevatorCommands.get(
+                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1)),
+                Set.of(elevator));
 
         swerve.setDefaultCommand(teleopSwerveCommand);
 

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Second;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.util.LoggedTunableNumber;
@@ -32,21 +34,13 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-    private Angle goal = ElevatorConstants.INTAKE_HEIGHT;
+    private Distance goal = ElevatorConstants.INTAKE_HEIGHT;
     private final Debouncer atGoalDebouncer = new Debouncer(ElevatorConstants.AT_GOAL_DEBOUNCE_TIME.in(Seconds));
 
     private final Alert leadDisconnectedAlert;
     private final Alert followDisconnectedAlert;
     private final Alert encoderDisconnectedAlert;
 
-    // Tunable parameters (radians)
-    private final LoggedTunableNumber kP = new LoggedTunableNumber("Elevator/kP", ElevatorConstants.GAINS.kP);
-    private final LoggedTunableNumber kI = new LoggedTunableNumber("Elevator/kI", ElevatorConstants.GAINS.kI);
-    private final LoggedTunableNumber kD = new LoggedTunableNumber("Elevator/kD", ElevatorConstants.GAINS.kD);
-    private final LoggedTunableNumber kA = new LoggedTunableNumber("Elevator/kA", ElevatorConstants.GAINS.kA);
-    private final LoggedTunableNumber kV = new LoggedTunableNumber("Elevator/kV", ElevatorConstants.GAINS.kV);
-    private final LoggedTunableNumber kS = new LoggedTunableNumber("Elevator/kS", ElevatorConstants.GAINS.kS);
-    private final LoggedTunableNumber kG = new LoggedTunableNumber("Elevator/kG", ElevatorConstants.GAINS.kG);
     private final LoggedTunableNumber tolerance =
             new LoggedTunableNumber("Elevator/Tolerance", ElevatorConstants.TOLERANCE.in(Radians));
 
@@ -55,8 +49,12 @@ public class Elevator extends SubsystemBase {
     private final ElevatorVisualizer measuredVisualizer;
     private final ElevatorVisualizer setpointVisualizer;
 
+    private final Trigger stageIs2 = new Trigger(() -> heightToStage(inputs.position) == Stage.STAGE2);
+
     public Elevator(ElevatorIO io, BooleanSupplier hasCoral, Supplier<Pose2d> poseSupplier) {
         this.io = io;
+
+        stageIs2.onChange(setStageCommand());
 
         leadDisconnectedAlert = new Alert("Disconnected elevator lead motor.", Alert.AlertType.kError);
         followDisconnectedAlert = new Alert("Disconnected elevator follow motor.", Alert.AlertType.kError);
@@ -90,34 +88,24 @@ public class Elevator extends SubsystemBase {
         followDisconnectedAlert.set(!inputs.followMotorConnected);
         encoderDisconnectedAlert.set(!inputs.encoderConnected);
 
-        // Update tunable parameters
-        if (kP.hasChanged(hashCode())
-                || kI.hasChanged(hashCode())
-                || kD.hasChanged(hashCode())
-                || kA.hasChanged(hashCode())
-                || kV.hasChanged(hashCode())
-                || kS.hasChanged(hashCode())
-                || kG.hasChanged(hashCode())) {
-            io.setPIDConstants(kP.get(), kI.get(), kD.get(), kV.get(), kA.get(), kS.get(), kG.get());
-        }
-
         // Logging
         Logger.recordOutput("Elevator/SetpointPosition", inputs.setpointPos);
         Logger.recordOutput("Elevator/SetpointVelocity", inputs.setpointVel);
         Logger.recordOutput("Elevator/Goal", goal);
+        Logger.recordOutput("Elevator/Stage", heightToStage(inputs.position));
 
-        measuredVisualizer.update(angleToHeight(inputs.position));
-        setpointVisualizer.update(angleToHeight(inputs.setpointPos));
+        measuredVisualizer.update(inputs.position);
+        setpointVisualizer.update(inputs.setpointPos);
     }
 
-    public void setGoal(Angle goal) {
+    public void setGoal(Distance goal) {
         this.goal = goal;
         io.setGoal(goal);
     }
 
     @AutoLogOutput
     public boolean atGoal() {
-        return atGoalDebouncer.calculate(inputs.position.isNear(goal, Radians.of(tolerance.get())));
+        return atGoalDebouncer.calculate(inputs.position.isNear(goal, Inches.of(tolerance.get())));
     }
 
     public void resetAtPosition() {
@@ -126,12 +114,17 @@ public class Elevator extends SubsystemBase {
         io.resetAtPosition();
     }
 
-    private Distance angleToHeight(Angle angle) {
-        return Meters.of(ElevatorConstants.MIN_HEIGHT.in(Meters)
-                + angle.in(Radians) * ElevatorConstants.DRUM_RADIUS.in(Meters) * 3);
+    public static Distance encoderAngleToHeight(Angle angle) {
+        return Meters.of(
+                ElevatorConstants.MIN_HEIGHT.in(Meters) + angle.in(Radians) * ElevatorConstants.DRUM_RADIUS.in(Meters));
     }
 
-    public Command goToHeightCommand(boolean instant, Angle goal) {
+    public static Angle heightToEncoderAngle(Distance height) {
+        return Radians.of((height.in(Meters) - ElevatorConstants.MIN_HEIGHT.in(Meters))
+                / ElevatorConstants.DRUM_RADIUS.in(Meters));
+    }
+
+    public Command goToHeightCommand(boolean instant, Distance goal) {
         if (instant) {
             return this.runOnce(() -> setGoal(goal));
         }
@@ -185,5 +178,49 @@ public class Elevator extends SubsystemBase {
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return sysIdRoutine.dynamic(direction);
+    }
+
+    private Command setStageCommand() {
+        return Commands.runOnce(() -> io.setStage(heightToStage(inputs.position)));
+    }
+
+    public enum Stage {
+        STAGE3(0), // end effector, first to move
+        STAGE2(1), // middle stage, second to move
+        STAGE1(2); // final stage to move
+
+        public int slot;
+
+        private Stage(int slot) {
+            this.slot = slot;
+        }
+    }
+
+    public static Stage heightToStage(Distance height) {
+        if (height.gt(ElevatorConstants.STAGE1_HEIGHT)) {
+            return Stage.STAGE1;
+        }
+        if (height.gt(ElevatorConstants.STAGE2_HEIGHT)) {
+            return Stage.STAGE2;
+        }
+        return Stage.STAGE3;
+    }
+
+    public static Stage levelToStage(char level) {
+        Distance height;
+        switch (level) {
+            case '1':
+                height = ElevatorConstants.L1_HEIGHT;
+            case '2':
+                height = ElevatorConstants.L2_HEIGHT;
+            case '3':
+                height = ElevatorConstants.L3_HEIGHT;
+            case '4':
+                height = ElevatorConstants.L4_HEIGHT;
+            default:
+                height = ElevatorConstants.L4_HEIGHT;
+        }
+
+        return heightToStage(height);
     }
 }

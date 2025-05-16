@@ -7,20 +7,21 @@ package frc.robot.subsystems.elevator;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.subsystems.elevator.Elevator.Stage;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final DCMotor gearbox = DCMotor.getKrakenX60Foc(2);
@@ -44,6 +45,22 @@ public class ElevatorIOSim implements ElevatorIO {
     private Voltage manualVoltage = Volts.zero();
     private boolean manualOverride = false;
 
+    // Tunable parameters (radians)
+    private final LoggedTunableNumber kP =
+            new LoggedTunableNumber("Elevator/Sim_kP", ElevatorConstants.STAGE3_GAINS.kP);
+    private final LoggedTunableNumber kI =
+            new LoggedTunableNumber("Elevator/Sim_kI", ElevatorConstants.STAGE3_GAINS.kI);
+    private final LoggedTunableNumber kD =
+            new LoggedTunableNumber("Elevator/Sim_kD", ElevatorConstants.STAGE3_GAINS.kD);
+    private final LoggedTunableNumber kA =
+            new LoggedTunableNumber("Elevator/Sim_kA", ElevatorConstants.STAGE3_GAINS.kA);
+    private final LoggedTunableNumber kV =
+            new LoggedTunableNumber("Elevator/Sim_kV", ElevatorConstants.STAGE3_GAINS.kV);
+    private final LoggedTunableNumber kS =
+            new LoggedTunableNumber("Elevator/Sim_kS", ElevatorConstants.STAGE3_GAINS.kS);
+    private final LoggedTunableNumber kG =
+            new LoggedTunableNumber("Elevator/Sim_kG", ElevatorConstants.STAGE3_GAINS.kG);
+
     public ElevatorIOSim() {}
 
     @Override
@@ -59,8 +76,8 @@ public class ElevatorIOSim implements ElevatorIO {
         sim.update(0.02);
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(sim.getCurrentDrawAmps()));
 
-        inputs.position = Radians.of(metersToRadians(sim.getPositionMeters()));
-        inputs.velocity = RadiansPerSecond.of(metersToRadians(sim.getVelocityMetersPerSecond()));
+        inputs.position = Meters.of(sim.getPositionMeters());
+        inputs.velocity = MetersPerSecond.of(sim.getVelocityMetersPerSecond());
 
         inputs.leadMotorConnected = true;
         inputs.followMotorConnected = true;
@@ -70,9 +87,24 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.outputVoltage = Volts.of(gearbox.getVoltage(
                 gearbox.getTorque(sim.getCurrentDrawAmps()), metersToRadians(sim.getVelocityMetersPerSecond())));
 
-        inputs.setpointPos = Radians.of(controller.getSetpoint().position);
-        inputs.setpointVel = RadiansPerSecond.of(controller.getSetpoint().velocity);
+        inputs.setpointPos = Meters.of(controller.getSetpoint().position);
+        inputs.setpointVel = MetersPerSecond.of(controller.getSetpoint().velocity);
         inputs.manualOverride = manualOverride;
+
+        updateTunableParameters();
+    }
+
+    private void updateTunableParameters() {
+        // Update tunable parameters
+        if (kP.hasChanged(hashCode())
+                || kI.hasChanged(hashCode())
+                || kD.hasChanged(hashCode())
+                || kA.hasChanged(hashCode())
+                || kV.hasChanged(hashCode())
+                || kS.hasChanged(hashCode())
+                || kG.hasChanged(hashCode())) {
+            setPIDConstants(kP.get(), kI.get(), kD.get(), kV.get(), kA.get(), kS.get(), kG.get());
+        }
     }
 
     @SuppressWarnings("unused")
@@ -90,9 +122,9 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     @Override
-    public void setGoal(Angle goal) {
+    public void setGoal(Distance goal) {
         manualOverride = false;
-        controller.setGoal(goal.in(Radians));
+        controller.setGoal(goal.in(Meters));
     }
 
     @Override
@@ -101,7 +133,6 @@ public class ElevatorIOSim implements ElevatorIO {
         controller.reset(metersToRadians(sim.getPositionMeters()), 0);
     }
 
-    @Override
     public void setPIDConstants(double kP, double kI, double kD, double kV, double kA, double kS, double kG) {
         controller.setPID(kP, kI, kD);
         feedforward.setKa(kA);
@@ -113,5 +144,10 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setManualOverride(boolean override) {
         manualOverride = override;
+    }
+
+    @Override
+    public void setStage(Stage stage) {
+        System.out.println(stage);
     }
 }

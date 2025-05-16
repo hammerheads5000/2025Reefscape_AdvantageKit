@@ -7,6 +7,7 @@ package frc.robot.subsystems.climber;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Voltage;
 
@@ -15,8 +16,7 @@ public class ClimberIOSim implements ClimberIO {
     private final DCMotor motor = DCMotor.getKrakenX60(1);
     private Voltage output = Volts.zero();
 
-    public ClimberIOSim() {
-    }
+    public ClimberIOSim() {}
 
     @Override
     public void updateInputs(ClimberIOInputs inputs) {

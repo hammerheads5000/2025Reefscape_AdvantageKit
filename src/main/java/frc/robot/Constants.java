@@ -16,6 +16,8 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -365,7 +367,7 @@ public class Constants {
         public static final int ENCODER_ID = 5; // fd bus
 
         // Motor Configs
-        public static final double GEAR_RATIO = 16;
+        public static final double GEAR_RATIO = 4;
 
         public static final boolean OPPOSE_FOLLOWER = true;
 
@@ -382,8 +384,9 @@ public class Constants {
                 .withRotorToSensorRatio(GEAR_RATIO);
 
         // volts, radians
-        public static final Slot0Configs GAINS = CURRENT_MODE == SIM_MODE
-                ? new Slot0Configs() // sim gains
+        // used for sim
+        public static final Slot0Configs STAGE3_GAINS = CURRENT_MODE == SIM_MODE
+                ? new Slot0Configs() // sim gains (all stages)
                         .withKP(0.35)
                         .withKI(0.02)
                         .withKD(0.0)
@@ -400,6 +403,24 @@ public class Constants {
                         .withKS(0.09)
                         .withKG(0.48)
                         .withGravityType(GravityTypeValue.Elevator_Static);
+        public static final Slot1Configs STAGE2_GAINS = new Slot1Configs() // real gains
+                .withKP(3.2)
+                .withKI(2.4)
+                .withKD(0.08)
+                .withKV(0.118)
+                .withKA(0.0)
+                .withKS(0.09)
+                .withKG(0.48)
+                .withGravityType(GravityTypeValue.Elevator_Static);
+        public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
+                .withKP(3.2)
+                .withKI(2.4)
+                .withKD(0.08)
+                .withKV(0.118)
+                .withKA(0.0)
+                .withKS(0.09)
+                .withKG(0.48)
+                .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(0.2).per(RotationsPerSecond))
@@ -409,14 +430,17 @@ public class Constants {
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
                 .withMotorOutput(OUTPUT_CONFIGS)
                 .withFeedback(FEEDBACK_CONFIGS)
-                .withMotionMagic(MOTION_MAGIC_CONFIGS);
+                .withMotionMagic(MOTION_MAGIC_CONFIGS)
+                .withSlot0(STAGE3_GAINS)
+                .withSlot1(STAGE2_GAINS)
+                .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
                 .withMagnetOffset(-0.258)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.1);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.6);
+        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1);
 
         public static final Angle TOLERANCE = Rotations.of(0.05);
 
@@ -429,20 +453,20 @@ public class Constants {
         // Sim constants
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
         public static final Distance DRUM_RADIUS = Inches.of(1.756 / 2);
-        public static final Distance MIN_HEIGHT = Meters.zero();
+        public static final Distance MIN_HEIGHT = Inches.of(9);
         public static final Distance MAX_HEIGHT = Inches.of(72.154); // from base plate
-        public static final Per<DistanceUnit, AngleUnit> HEIGHT_PER_MOTOR_ROTATIONS =
-                Inches.of(0.82).div(Rotations.of(1));
 
         // Setpoints
-        public static final Angle L1_HEIGHT = Rotations.of(1.325);
-        public static final Angle L2_HEIGHT = Rotations.of(1.975);
-        public static final Angle L3_HEIGHT = Rotations.of(2.83);
-        public static final Angle L4_HEIGHT = Rotations.of(4.3675);
-        public static final Angle INTAKE_HEIGHT = Rotations.of(0.017);
+        public static final Distance L1_HEIGHT = Inches.of(25);
+        public static final Distance L2_HEIGHT = Inches.of(35);
+        public static final Distance L3_HEIGHT = Inches.of(55);
+        public static final Distance L4_HEIGHT = Inches.of(70);
+        public static final Distance INTAKE_HEIGHT = Inches.of(12);
 
-        public static final Angle INTAKE_JITTER_AMOUNT = Rotations.of(0.025);
-        public static final Time INTAKE_JITTER_PERIOD = Seconds.of(0.75);
+        public static final Distance STAGE2_HEIGHT = Inches.of(30); // height when stage 2 starts being lifted
+        public static final Distance STAGE1_HEIGHT = Inches.of(50); // height when stage 1 starts being lifted
+
+        public static final Angle SHOOT_ANGLE = Degrees.of(35);
     }
 
     public static class EndEffectorConstants {
@@ -476,9 +500,9 @@ public class Constants {
 
     public static class ClimberConstants {
         public static final int MOTOR_ID = 14;
-        public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(Amps.of(40));
-        
+        public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
+
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);

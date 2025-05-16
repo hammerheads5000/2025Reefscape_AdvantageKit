@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.PathConstants;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -42,7 +44,7 @@ public class Elevator extends SubsystemBase {
     private final Alert encoderDisconnectedAlert;
 
     private final LoggedTunableNumber tolerance =
-            new LoggedTunableNumber("Elevator/Tolerance", ElevatorConstants.TOLERANCE.in(Radians));
+            new LoggedTunableNumber("Elevator/Tolerance", ElevatorConstants.TOLERANCE.in(Inches));
 
     private final SysIdRoutine sysIdRoutine;
 
@@ -92,6 +94,7 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/SetpointPosition", inputs.setpointPos);
         Logger.recordOutput("Elevator/SetpointVelocity", inputs.setpointVel);
         Logger.recordOutput("Elevator/Goal", goal);
+        Logger.recordOutput("Elevator/Pos", inputs.position);
         Logger.recordOutput("Elevator/Stage", heightToStage(inputs.position));
 
         measuredVisualizer.update(inputs.position);
@@ -99,8 +102,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setGoal(Distance goal) {
-        this.goal = goal;
-        io.setGoal(goal);
+        this.goal = Meters.of(MathUtil.clamp(goal.in(Meters), 0, ElevatorConstants.MAX_HEIGHT.in(Meters)));
+        io.setGoal(this.goal);
     }
 
     @AutoLogOutput
@@ -133,17 +136,17 @@ public class Elevator extends SubsystemBase {
 
     public Command goToL1Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L1_HEIGHT)
-                .andThen(Commands.waitTime(ElevatorConstants.ELEVATOR_SETTLE_TIME));
+                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME));
     }
 
     public Command goToL2Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L2_HEIGHT)
-                .andThen(Commands.waitTime(ElevatorConstants.ELEVATOR_SETTLE_TIME));
+                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME));
     }
 
     public Command goToL3Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L3_HEIGHT)
-                .andThen(Commands.waitTime(ElevatorConstants.ELEVATOR_SETTLE_TIME));
+                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME));
     }
 
     public Command goToL4Command(boolean instant) {
@@ -152,6 +155,31 @@ public class Elevator extends SubsystemBase {
 
     public Command goToIntakePosCommand(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.INTAKE_HEIGHT);
+    }
+
+    public Command trackHeightCommand(Supplier<Distance> distanceToReef, Distance height) {
+        return this.run(() -> {
+                    Distance additionalHeight =
+                            distanceToReef.get().times(Math.tan(ElevatorConstants.SHOOT_ANGLE.in(Radians)));
+                    setGoal(height.plus(additionalHeight));
+                })
+                .handleInterrupt(this::resetAtPosition);
+    }
+
+    public Command trackL1Command(Supplier<Distance> distanceToReef) {
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L1_HEIGHT);
+    }
+
+    public Command trackL2Command(Supplier<Distance> distanceToReef) {
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L2_HEIGHT);
+    }
+
+    public Command trackL3Command(Supplier<Distance> distanceToReef) {
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L3_HEIGHT);
+    }
+
+    public Command trackL4Command(Supplier<Distance> distanceToReef) {
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L4_HEIGHT);
     }
 
     public Command elevatorUpCommand() {

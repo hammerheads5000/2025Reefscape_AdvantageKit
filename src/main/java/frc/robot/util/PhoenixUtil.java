@@ -21,7 +21,9 @@ public class PhoenixUtil {
     public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
         for (int i = 0; i < maxAttempts; i++) {
             var error = command.get();
+            System.out.println("Applying configs attempt " + i + "...");
             if (error.isOK()) break;
         }
+        System.out.println("Configs applied.");
     }
 }

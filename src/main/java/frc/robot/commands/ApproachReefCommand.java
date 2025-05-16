@@ -35,6 +35,10 @@ public class ApproachReefCommand extends SequentialCommandGroup {
         addCommands(followPathCommand, alignToReefCommand);
     }
 
+    public Distance getDistanceToTarget() {
+        return alignToReefCommand.getDistanceToTarget();
+    }
+
     public Trigger withinRangeTrigger(Distance range) {
         return alignToReefCommand.withinDistanceToTarget(range);
     }

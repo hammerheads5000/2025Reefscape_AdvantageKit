@@ -45,6 +45,7 @@ import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class RobotContainer {
     // Controllers
@@ -57,7 +58,7 @@ public class RobotContainer {
     private final Vision vision;
 
     private final Swerve swerve;
-    private final Elevator elevator;
+    public final Elevator elevator;
     private final EndEffector endEffector;
     private final Climber climber;
 
@@ -68,7 +69,7 @@ public class RobotContainer {
     private final Command reefCommand;
     private final Command stationCommand;
     private final Command sweepCommand;
-    private final Map<Character, Command> elevatorCommands;
+    private final Map<Character, Supplier<Command>> elevatorCommands;
     private final Command elevatorCommand;
 
     // Triggers
@@ -205,14 +206,15 @@ public class RobotContainer {
         sweepCommand = Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve));
 
         elevatorCommands = Map.ofEntries(
-                Map.entry('1', elevator.goToL1Command(false)),
-                Map.entry('2', elevator.goToL2Command(false)),
-                Map.entry('3', elevator.goToL3Command(false)),
-                Map.entry('4', elevator.goToL4Command(false)));
+                Map.entry('1', () -> elevator.goToL1Command(false)),
+                Map.entry('2', () -> elevator.goToL2Command(false)),
+                Map.entry('3', () -> elevator.goToL3Command(false)),
+                Map.entry('4', () -> elevator.goToL4Command(false)));
 
         elevatorCommand = Commands.defer(
-                () -> elevatorCommands.get(
-                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1)),
+                () -> elevatorCommands
+                        .get(NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1))
+                        .get(),
                 Set.of(elevator));
 
         swerve.setDefaultCommand(teleopSwerveCommand);

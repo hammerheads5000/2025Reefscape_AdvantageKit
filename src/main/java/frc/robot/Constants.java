@@ -53,8 +53,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -64,7 +62,6 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -128,10 +125,10 @@ public class Constants {
                 Meters.of(Math.sqrt(2 * MODULE_DISTANCE.in(Meters) * MODULE_DISTANCE.in(Meters)));
 
         private static final Slot0Configs STEER_GAINS = new Slot0Configs()
-                .withKP(250)
+                .withKP(50)
                 .withKI(5)
-                .withKD(8)
-                .withKS(0.5)
+                .withKD(0.5)
+                .withKS(0.05)
                 .withKV(2.54)
                 .withKA(0.09)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
@@ -368,6 +365,7 @@ public class Constants {
 
         // Motor Configs
         public static final double GEAR_RATIO = 4;
+        public static final Distance DRUM_RADIUS = Inches.of(1);
 
         public static final boolean OPPOSE_FOLLOWER = true;
 
@@ -395,36 +393,36 @@ public class Constants {
                         .withKS(0.09)
                         .withKG(0.12)
                 : new Slot0Configs() // real gains
-                        .withKP(3.2)
-                        .withKI(2.4)
-                        .withKD(0.08)
-                        .withKV(0.118)
+                        .withKP(15)
+                        .withKI(8)
+                        .withKD(0.1)
+                        .withKV(0.114)
                         .withKA(0.0)
                         .withKS(0.09)
-                        .withKG(0.48)
+                        .withKG(0.0)
                         .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot1Configs STAGE2_GAINS = new Slot1Configs() // real gains
-                .withKP(3.2)
-                .withKI(2.4)
-                .withKD(0.08)
-                .withKV(0.118)
+                .withKP(18)
+                .withKI(8)
+                .withKD(0.1)
+                .withKV(0.114)
                 .withKA(0.0)
-                .withKS(0.09)
-                .withKG(0.48)
+                .withKS(0.12)
+                .withKG(0.44)
                 .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
-                .withKP(3.2)
-                .withKI(2.4)
-                .withKD(0.08)
-                .withKV(0.118)
+                .withKP(18)
+                .withKI(8)
+                .withKD(0.1)
+                .withKV(0.114)
                 .withKA(0.0)
-                .withKS(0.09)
-                .withKG(0.48)
+                .withKS(0.15)
+                .withKG(0.52)
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.2).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.55).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.1).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.2).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -436,13 +434,12 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.258)
+                .withMagnetOffset(0.108642578125)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.1);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1);
 
-        public static final Angle TOLERANCE = Rotations.of(0.05);
+        public static final Distance TOLERANCE = Inches.of(0.5);
 
         // Manual control (duty cycle)
         public static final Voltage MANUAL_UP_SPEED = Volts.of(3.6);
@@ -452,21 +449,23 @@ public class Constants {
 
         // Sim constants
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
-        public static final Distance DRUM_RADIUS = Inches.of(1.756 / 2);
-        public static final Distance MIN_HEIGHT = Inches.of(9);
-        public static final Distance MAX_HEIGHT = Inches.of(72.154); // from base plate
 
-        // Setpoints
+        // Setpoints (from floor)
+        public static final Distance MIN_HEIGHT = Inches.of(9);
+        public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(25);
         public static final Distance L2_HEIGHT = Inches.of(35);
         public static final Distance L3_HEIGHT = Inches.of(55);
         public static final Distance L4_HEIGHT = Inches.of(70);
         public static final Distance INTAKE_HEIGHT = Inches.of(12);
 
-        public static final Distance STAGE2_HEIGHT = Inches.of(30); // height when stage 2 starts being lifted
-        public static final Distance STAGE1_HEIGHT = Inches.of(50); // height when stage 1 starts being lifted
+        public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
+        public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
 
-        public static final Angle SHOOT_ANGLE = Degrees.of(35);
+        public static final Angle SHOOT_ANGLE = Degrees.of(30.73124803);
+
+        public static final Distance MAX_SHOOT_DISTANCE =
+                MAX_HEIGHT.minus(L4_HEIGHT).times(Math.tan(SHOOT_ANGLE.in(Radians)));
     }
 
     public static class EndEffectorConstants {
@@ -624,7 +623,7 @@ public class Constants {
                 Inches.of(29).plus(Dimensions.BUMPER_THICKNESS).div(2);
 
         public static final Time INTAKE_WAIT_TIME = Seconds.of(0.5);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.6); // for L1-L3
+        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
 
         public static final Distance MIN_PATH_DISTANCE = Inches.of(30);

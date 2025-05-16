@@ -103,9 +103,12 @@ public class AlignToPoseCommand extends Command {
                         Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
     }
 
+    public Distance getDistanceToTarget() {
+        return Meters.of(swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()));
+    }
+
     public Trigger withinDistanceToTarget(Distance distance) {
-        return new Trigger(
-                () -> swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()) < distance.in(Meters));
+        return new Trigger(() -> getDistanceToTarget().lt(distance));
     }
 
     // Called once the command ends or is interrupted.

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -91,11 +92,26 @@ public class FullAutoCommand extends SequentialCommandGroup {
         final Translation2d target =
                 AlignToReefCommands.getReefPose(side, relativePos).getTranslation();
 
+        Distance deployDistance;
+        switch (Elevator.levelToStage(level)) {
+            case STAGE1:
+                deployDistance = PathConstants.STAGE1_DEPLOY_DISTANCE;
+                break;
+            case STAGE2:
+                deployDistance = PathConstants.STAGE2_DEPLOY_DISTANCE;
+                break;
+            case STAGE3:
+                deployDistance = PathConstants.STAGE3_DEPLOY_DISTANCE;
+                break;
+            default:
+                deployDistance = PathConstants.STAGE1_DEPLOY_DISTANCE;
+        }
+
         commandToAdd = new ApproachReefCommand(side, relativePos, swerve);
         commandToAdd = commandToAdd
                 .alongWith(Commands.waitUntil(
                                 () -> swerve.getPose().getTranslation().getDistance(target)
-                                        <= PathConstants.ELEVATOR_DEPLOY_DISTANCE.in(Meters))
+                                        <= deployDistance.in(Meters))
                         .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
                         .andThen(elevatorPosCommand))
                 .andThen(endEffectorCommand.asProxy())

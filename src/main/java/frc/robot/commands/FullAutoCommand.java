@@ -175,7 +175,9 @@ public class FullAutoCommand extends SequentialCommandGroup {
                 .alongWith(Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
                         .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
                         .andThen(elevatorPosCommand))
-                .until(approachReefCommand.withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE))
+                .until(approachReefCommand
+                        .withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE)
+                        .and(elevator::atGoal))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME))
                 .andThen(elevator.goToIntakePosCommand(true));
@@ -226,8 +228,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
             int side = sidePosPair.getFirst();
             int relativePos = sidePosPair.getSecond();
 
-            commandToAdd =
-                    Commands.defer(() -> getReefCommand(side, relativePos, token.charAt(1)), Set.of(swerve, elevator));
+            commandToAdd = Commands.defer(
+                    () -> getTrackedReefCommand(side, relativePos, token.charAt(1)), Set.of(swerve, elevator));
         }
 
         return commandToAdd;

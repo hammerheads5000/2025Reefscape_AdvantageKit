@@ -111,4 +111,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 throw new IllegalArgumentException("Invalid stage: " + currentStage);
         }
     }
+
+    @Override
+    public void zeroEncoder() {
+        encoder.setPosition(encoder.getAbsolutePosition().getValue());
+    }
 }

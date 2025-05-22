@@ -41,4 +41,7 @@ public interface ElevatorIO {
     public default void setStage(Elevator.Stage stage) {}
 
     public default void setManualOverride(boolean override) {}
+
+    /** Resets encoder position to current absolute position */
+    public default void zeroEncoder() {}
 }

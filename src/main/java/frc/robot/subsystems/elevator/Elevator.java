@@ -78,6 +78,7 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putData("L3", goToL3Command(true));
         SmartDashboard.putData("L4", goToL4Command(true));
         SmartDashboard.putData("Intake", goToIntakePosCommand(true));
+        SmartDashboard.putData("Zero Encoder", zeroEncoderCommand());
     }
 
     @Override
@@ -125,6 +126,10 @@ public class Elevator extends SubsystemBase {
     public static Angle heightToEncoderAngle(Distance height) {
         return Radians.of((height.in(Meters) - ElevatorConstants.MIN_HEIGHT.in(Meters))
                 / ElevatorConstants.DRUM_RADIUS.in(Meters));
+    }
+
+    public Command zeroEncoderCommand() {
+        return this.runOnce(io::zeroEncoder);
     }
 
     public Command goToHeightCommand(boolean instant, Distance goal) {

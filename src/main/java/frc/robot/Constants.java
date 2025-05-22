@@ -125,20 +125,20 @@ public class Constants {
                 Meters.of(Math.sqrt(2 * MODULE_DISTANCE.in(Meters) * MODULE_DISTANCE.in(Meters)));
 
         private static final Slot0Configs STEER_GAINS = new Slot0Configs()
-                .withKP(50)
+                .withKP(100)
                 .withKI(5)
                 .withKD(0.5)
-                .withKS(0.05)
-                .withKV(2.54)
-                .withKA(0.09)
+                .withKS(0.1)
+                .withKV(2.66)
+                .withKA(0.0)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
         private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-                .withKP(0.25)
+                .withKP(1.0)
                 .withKI(0.01)
                 .withKD(0.0)
-                .withKS(0.182)
-                .withKV(0.124);
+                .withKS(0.175)
+                .withKV(0.132);
 
         private static final ClosedLoopOutputType STEER_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
         private static final ClosedLoopOutputType DRIVE_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
@@ -168,7 +168,7 @@ public class Constants {
                 .withMountPose(
                         new MountPoseConfigs().withMountPoseYaw(Degrees.of(-90)).withMountPosePitch(Degrees.of(180)));
 
-        public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.5); // maybe needs tuning
+        public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.44); // maybe needs tuning
 
         // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
         private static final double COUPLE_RATIO = 3.5714285714285716;
@@ -457,7 +457,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(35);
         public static final Distance L3_HEIGHT = Inches.of(55);
         public static final Distance L4_HEIGHT = Inches.of(70);
-        public static final Distance INTAKE_HEIGHT = Inches.of(12);
+        public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -478,7 +478,7 @@ public class Constants {
         public static final MotorOutputConfigs MOTOR_RIGHT_CONFIGS =
                 new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive);
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(10));
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(30));
 
         // Lidar
         public static final int FRONT_LIDAR_ID = 9;
@@ -486,11 +486,11 @@ public class Constants {
         public static final int INTAKE_LIDAR_ID = 7;
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(1.8);
-        public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
-        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(1.2);
+        public static final Voltage INTAKE_SPEED = Volts.of(7.2);
+        public static final Voltage SLOW_INTAKE_SPEED = Volts.of(7.2);
+        public static final Voltage SCORE_SPEED = Volts.of(3.6);
+        public static final Voltage FAST_TROUGH_SPEED = Volts.of(7.2);
+        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2.4);
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(5);

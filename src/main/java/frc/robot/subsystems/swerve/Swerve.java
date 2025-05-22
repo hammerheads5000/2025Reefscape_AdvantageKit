@@ -30,9 +30,11 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PathConstants;
@@ -95,12 +97,17 @@ public class Swerve extends SubsystemBase {
         sysIdRoutine = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, // Use default ramp rate (1 V/s)
-                        Volts.of(12), // Reduce dynamic step voltage to 4 V to prevent
+                        Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent
                         // brownout
                         null, // Use default timeout (10 s)
                         // Log state with SignalLogger class
                         (state) -> Logger.recordOutput("Swerve/SysIdTranslation_State", state.toString())),
                 new SysIdRoutine.Mechanism((output) -> runCharacterization(output), null, this));
+
+        SmartDashboard.putData("SysId Dynamic Forward", sysIdDynamic(Direction.kForward));
+        SmartDashboard.putData("SysId Dynamic Reverse", sysIdDynamic(Direction.kReverse));
+        SmartDashboard.putData("SysId Quasi Forward", sysIdQuasistatic(Direction.kForward));
+        SmartDashboard.putData("SysId Quasi Reverse", sysIdQuasistatic(Direction.kReverse));
     }
 
     @Override

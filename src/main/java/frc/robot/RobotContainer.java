@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -202,6 +203,9 @@ public class RobotContainer {
         stationCommand = Commands.defer(
                 () -> new FullAutoCommand(NTConstants.STATION_TELEOP_AUTO_ENTRY.get(), swerve, elevator, endEffector),
                 Set.of(swerve, elevator));
+
+        SmartDashboard.putData("Station Auto", stationCommand);
+        SmartDashboard.putData("Reef Auto", reefCommand);
 
         sweepCommand = Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve));
 

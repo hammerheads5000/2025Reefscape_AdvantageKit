@@ -124,7 +124,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setGoal(Distance goal) {
         manualOverride = false;
-        controller.setGoal(goal.in(Meters));
+        controller.setGoal(metersToRadians(goal.in(Meters)));
     }
 
     @Override

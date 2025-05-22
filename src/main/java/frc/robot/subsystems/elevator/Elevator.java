@@ -164,8 +164,10 @@ public class Elevator extends SubsystemBase {
 
     public Command trackHeightCommand(Supplier<Distance> distanceToReef, Distance height) {
         return this.run(() -> {
-                    Distance additionalHeight =
-                            distanceToReef.get().times(Math.tan(ElevatorConstants.SHOOT_ANGLE.in(Radians)));
+                    Distance dist = Meters.of(Math.min(
+                            ElevatorConstants.MAX_SHOOT_DISTANCE.in(Meters),
+                            distanceToReef.get().in(Meters)));
+                    Distance additionalHeight = dist.times(Math.tan(ElevatorConstants.SHOOT_ANGLE.in(Radians)));
                     setGoal(height.plus(additionalHeight));
                 })
                 .handleInterrupt(this::resetAtPosition);
@@ -244,14 +246,19 @@ public class Elevator extends SubsystemBase {
         switch (level) {
             case '1':
                 height = ElevatorConstants.L1_HEIGHT;
+                break;
             case '2':
                 height = ElevatorConstants.L2_HEIGHT;
+                break;
             case '3':
                 height = ElevatorConstants.L3_HEIGHT;
+                break;
             case '4':
                 height = ElevatorConstants.L4_HEIGHT;
+                break;
             default:
                 height = ElevatorConstants.L4_HEIGHT;
+                break;
         }
 
         return heightToStage(height);

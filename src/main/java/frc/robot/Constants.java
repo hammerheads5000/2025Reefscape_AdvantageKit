@@ -385,13 +385,13 @@ public class Constants {
         // used for sim
         public static final Slot0Configs STAGE3_GAINS = CURRENT_MODE == SIM_MODE
                 ? new Slot0Configs() // sim gains (all stages)
-                        .withKP(0.35)
-                        .withKI(0.02)
-                        .withKD(0.0)
-                        .withKV(0.35)
-                        .withKA(0.01)
-                        .withKS(0.09)
-                        .withKG(0.12)
+                        .withKP(3)
+                        .withKI(1)
+                        .withKD(0.01)
+                        .withKV(0.3)
+                        .withKA(0.0)
+                        .withKS(0.01)
+                        .withKG(0.54)
                 : new Slot0Configs() // real gains
                         .withKP(15)
                         .withKI(8)

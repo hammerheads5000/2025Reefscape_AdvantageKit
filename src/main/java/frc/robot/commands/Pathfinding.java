@@ -99,7 +99,8 @@ public class Pathfinding {
                 new Translation2d(PathConstants.APPROACH_DISTANCE.unaryMinus(), Meters.zero()), Rotation2d.kZero);
         approachEndPose = approachEndPose.transformBy(shiftApproachTransform);
         // if (poses.size() > 0) {
-        //     poses.set(poses.size()-1, pointPoseTowards(poses.get(poses.size()-1), endPose));
+        // poses.set(poses.size()-1, pointPoseTowards(poses.get(poses.size()-1),
+        // endPose));
         // }
         poses.add(approachEndPose);
         poses.add(endPose);
@@ -200,5 +201,43 @@ public class Pathfinding {
 
     public static PathPlannerPath generateStationPath(Pose2d currentPose, int station, int relativePos) {
         return generateStationPath(currentPose, station, relativePos, new ChassisSpeeds());
+    }
+
+    public static PathPlannerPath generateBargePath(Pose2d currentPose, char pos, ChassisSpeeds startSpeeds) {
+        int side = 4;
+        ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
+        Pose2d endPose = ApproachBargeCommands.getBargePose(pos);
+        poses.add(endPose);
+
+        Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
+
+        Pose2d startPose;
+        if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {
+            startPose = pointPoseTowards(currentPose, poses.get(0));
+        } else {
+            Rotation2d startHeading = chassisSpeedsToHeading(startSpeeds);
+            startPose = new Pose2d(currentPose.getTranslation(), startHeading);
+        }
+        poses.add(0, startPose);
+
+        ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();
+        constraintsZones.add(
+                new ConstraintsZone(poses.size() - 1.3, poses.size() - 1, PathConstants.APPROACH_CONSTRAINTS));
+
+        PathPlannerPath path = new PathPlannerPath(
+                PathPlannerPath.waypointsFromPoses(poses),
+                new ArrayList<RotationTarget>(),
+                new ArrayList<PointTowardsZone>(),
+                constraintsZones,
+                new ArrayList<EventMarker>(),
+                PathConstants.FAST_CONSTRAINTS,
+                new IdealStartingState(chassisSpeedsToVelocity(startSpeeds), currentPose.getRotation()),
+                new GoalEndState(0, endPose.getRotation()),
+                false);
+
+        if (AutoBuilder.shouldFlip()) {
+            path = path.flipPath();
+        }
+        return path;
     }
 }

@@ -19,9 +19,16 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToReefCommands;
 import frc.robot.commands.ApproachCoralStationCommands;
+import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.FullAutoCommand;
+import frc.robot.commands.RemoveAlgaeCommand;
+import frc.robot.commands.ScoreInBargeCommand;
 import frc.robot.commands.SweepCommand;
 import frc.robot.commands.TeleopSwerve;
+import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
+import frc.robot.subsystems.algaemanipulator.AlgaeManipulatorIO;
+import frc.robot.subsystems.algaemanipulator.AlgaeManipulatorIOSim;
+import frc.robot.subsystems.algaemanipulator.AlgaeManipulatorIOTalonFX;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
@@ -51,8 +58,8 @@ import java.util.function.Supplier;
 public class RobotContainer {
     // Controllers
     private final CommandXboxController driveController = new CommandXboxController(0);
-    CommandGenericHID buttonBoardReef = new CommandGenericHID(1);
-    CommandGenericHID buttonBoardOther = new CommandGenericHID(2);
+    private final CommandGenericHID buttonBoardReef = new CommandGenericHID(1);
+    private final CommandGenericHID buttonBoardOther = new CommandGenericHID(2);
 
     // Subsystems
     @SuppressWarnings("unused")
@@ -62,6 +69,7 @@ public class RobotContainer {
     public final Elevator elevator;
     private final EndEffector endEffector;
     private final Climber climber;
+    private final AlgaeManipulator algaeManipulator;
 
     // Commands
     private final TeleopSwerve teleopSwerveCommand;
@@ -69,6 +77,8 @@ public class RobotContainer {
     private final Command rumbleCommand;
     private final Command reefCommand;
     private final Command stationCommand;
+    private final Command algaeCommand;
+    private final Command bargeCommand;
     private final Command sweepCommand;
     private final Map<Character, Supplier<Command>> elevatorCommands;
     private final Command elevatorCommand;
@@ -80,18 +90,21 @@ public class RobotContainer {
     private final Trigger elevatorUpTrigger = driveController.povUp();
     private final Trigger elevatorDownTrigger = driveController.povDown();
     private final Trigger elevatorIntakeTrigger = driveController.povLeft();
-    private final Trigger elevatorTrigger = driveController.povRight();
+    // private final Trigger elevatorTrigger = driveController.povRight();
 
     private final Trigger intakeTrigger = driveController.rightBumper();
     private final Trigger reverseIntakeTrigger = driveController.leftBumper();
 
     private final Trigger reefTrigger = driveController.a();
     private final Trigger stationTrigger = driveController.b();
-    private final Trigger sweepTrigger = driveController.x();
+    private final Trigger algaeTrigger = driveController.y();
+    private final Trigger bargeTrigger = driveController.x();
+    private final Trigger sweepTrigger = driveController.povRight();
     private final Trigger climbTrigger = driveController.start();
     private final Trigger unclimbTrigger = driveController.back();
+    private final Trigger algaeAndCoralToggle = buttonBoardOther.button(2);
 
-    Map<Integer, Character> BUTTON_TO_REEF = Map.ofEntries(
+    private final Map<Integer, Character> BUTTON_TO_REEF = Map.ofEntries(
             Map.entry(5, 'A'),
             Map.entry(7, 'B'),
             Map.entry(9, 'C'),
@@ -105,7 +118,7 @@ public class RobotContainer {
             Map.entry(1, 'K'),
             Map.entry(3, 'L'));
 
-    Map<Integer, String> BUTTON_TO_STATION = Map.ofEntries(
+    private final Map<Integer, String> BUTTON_TO_STATION = Map.ofEntries(
             Map.entry(3, "S1L"),
             Map.entry(4, "S1C"),
             Map.entry(5, "S1R"),
@@ -113,15 +126,15 @@ public class RobotContainer {
             Map.entry(7, "S0C"),
             Map.entry(8, "S0R"));
 
-    Trigger[] reefTriggers = new Trigger[12];
-    Trigger[] levelTriggers = new Trigger[] {
+    private final Trigger[] reefTriggers = new Trigger[12];
+    private final Trigger[] levelTriggers = new Trigger[] {
         buttonBoardOther.button(9),
         buttonBoardOther.button(10),
         buttonBoardOther.button(11),
         buttonBoardOther.button(12)
     };
 
-    Trigger[] stationTriggers = new Trigger[6];
+    private final Trigger[] stationTriggers = new Trigger[6];
 
     public RobotContainer() {
         AlignToReefCommands.testReefPoses();
@@ -143,6 +156,7 @@ public class RobotContainer {
                 endEffector = new EndEffector(new EndEffectorIOTalonFX());
                 elevator = new Elevator(new ElevatorIOTalonFX(), endEffector.hasCoralTrigger, swerve::getPose);
                 climber = new Climber(new ClimberIOTalonFX());
+                algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -163,6 +177,7 @@ public class RobotContainer {
                 endEffector = new EndEffector(new EndEffectorIOSim());
                 elevator = new Elevator(new ElevatorIOSim(), endEffector.hasCoralTrigger, swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
+                algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOSim());
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -183,6 +198,7 @@ public class RobotContainer {
                 endEffector = new EndEffector(new EndEffectorIO() {});
                 elevator = new Elevator(new ElevatorIO() {}, endEffector.hasCoralTrigger, swerve::getPose);
                 climber = new Climber(new ClimberIO() {});
+                algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIO() {});
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;
@@ -196,16 +212,36 @@ public class RobotContainer {
 
         reefCommand = Commands.defer(
                         () -> new FullAutoCommand(
-                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get(), swerve, elevator, endEffector),
+                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
+                                swerve,
+                                elevator,
+                                endEffector,
+                                algaeManipulator),
                         Set.of(swerve, elevator))
                 .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME));
 
         stationCommand = Commands.defer(
-                () -> new FullAutoCommand(NTConstants.STATION_TELEOP_AUTO_ENTRY.get(), swerve, elevator, endEffector),
+                () -> new FullAutoCommand(
+                        NTConstants.STATION_TELEOP_AUTO_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator),
                 Set.of(swerve, elevator));
+
+        algaeCommand = Commands.defer(
+                () -> new RemoveAlgaeCommand(
+                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get(), swerve, elevator, algaeManipulator),
+                Set.of(swerve, elevator, algaeManipulator));
+
+        bargeCommand = Commands.defer(
+                () -> new ScoreInBargeCommand(
+                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1), swerve, elevator, algaeManipulator),
+                Set.of(swerve, elevator, algaeManipulator));
 
         SmartDashboard.putData("Station Auto", stationCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
+        SmartDashboard.putData("Algae Auto", algaeCommand);
+        SmartDashboard.putData("Barge Auto", bargeCommand);
+
+        ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
+        SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
 
         sweepCommand = Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve));
 
@@ -233,14 +269,18 @@ public class RobotContainer {
         elevatorUpTrigger.whileTrue(elevator.elevatorUpCommand());
         elevatorDownTrigger.whileTrue(elevator.elevatorDownCommand());
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
-        elevatorTrigger.whileTrue(elevatorCommand);
+        // elevatorTrigger.whileTrue(elevatorCommand);
 
         intakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED));
         reverseIntakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus()));
 
         reefTrigger.whileTrue(reefCommand);
         stationTrigger.whileTrue(stationCommand);
+        algaeTrigger.whileTrue(algaeCommand);
+        bargeTrigger.whileTrue(bargeCommand);
         sweepTrigger.whileTrue(sweepCommand);
+
+        algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 
         climbTrigger.whileTrue(climber.climbCommand());
         unclimbTrigger.whileTrue(climber.reverseCommand());
@@ -284,7 +324,17 @@ public class RobotContainer {
         NTConstants.STATION_TELEOP_AUTO_ENTRY.set(station);
     }
 
+    private void setAlgaeAutoDescriptor(boolean doAlgae) {
+        String descriptor = NTConstants.AUTO_DESCRIPTOR_ENTRY.get();
+        NTConstants.REEF_TELEOP_AUTO_ENTRY.set(descriptor.substring(0, 2) + (doAlgae ? "A" : ""));
+    }
+
+    private Command setAlgaeCommand() {
+        return Commands.startEnd(() -> setAlgaeAutoDescriptor(true), () -> setAlgaeAutoDescriptor(false));
+    }
+
     public Command getAutonomousCommand() {
-        return new FullAutoCommand(NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector);
+        return new FullAutoCommand(
+                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator);
     }
 }

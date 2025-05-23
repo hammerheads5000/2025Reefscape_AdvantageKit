@@ -32,7 +32,7 @@ public class ApproachReefCommand extends SequentialCommandGroup {
         Command followPathCommand = AutoBuilder.followPath(
                 Pathfinding.generateReefPath(swerve.getPose(), side, relativePos, swerve.getFieldSpeeds()));
 
-        addCommands(followPathCommand.handleInterrupt(() -> alignToReefCommand.end(false)), alignToReefCommand);
+        addCommands(followPathCommand.handleInterrupt(alignToReefCommand::cancel), alignToReefCommand);
     }
 
     public Distance getDistanceToTarget() {

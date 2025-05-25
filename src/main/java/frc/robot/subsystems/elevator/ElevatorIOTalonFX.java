@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.configs.SlotConfigs;
@@ -60,7 +61,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.setpointPos = Elevator.encoderAngleToHeight(
                 Rotations.of(leadMotor.getClosedLoopReference().getValueAsDouble()));
         inputs.setpointVel = MetersPerSecond.of(
-                leadMotor.getClosedLoopReferenceSlope().getValue() * ElevatorConstants.DRUM_RADIUS.in(Meters));
+                RotationsPerSecond.of(leadMotor.getClosedLoopReferenceSlope().getValueAsDouble())
+                                .in(RadiansPerSecond)
+                        * ElevatorConstants.DRUM_RADIUS.in(Meters));
         inputs.manualOverride = manualOverride;
     }
 

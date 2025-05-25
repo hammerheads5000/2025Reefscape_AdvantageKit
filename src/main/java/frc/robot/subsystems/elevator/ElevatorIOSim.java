@@ -8,6 +8,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -69,7 +72,8 @@ public class ElevatorIOSim implements ElevatorIO {
         if (inputs.manualOverride) {
             voltage = manualVoltage.in(Volts);
         } else {
-            voltage = controller.calculate(metersToRadians(sim.getPositionMeters()));
+            voltage = controller.calculate(Elevator.heightToEncoderAngle(Meters.of(sim.getPositionMeters()))
+                    .in(Rotations));
             voltage += feedforward.calculate(controller.getSetpoint().velocity);
         }
         sim.setInput(voltage);
@@ -85,10 +89,13 @@ public class ElevatorIOSim implements ElevatorIO {
 
         inputs.outputCurrent = Amps.of(sim.getCurrentDrawAmps());
         inputs.outputVoltage = Volts.of(gearbox.getVoltage(
-                gearbox.getTorque(sim.getCurrentDrawAmps()), metersToRadians(sim.getVelocityMetersPerSecond())));
+                gearbox.getTorque(sim.getCurrentDrawAmps()),
+                sim.getVelocityMetersPerSecond() / ElevatorConstants.DRUM_RADIUS.in(Meters)));
 
-        inputs.setpointPos = Meters.of(controller.getSetpoint().position);
-        inputs.setpointVel = MetersPerSecond.of(controller.getSetpoint().velocity);
+        inputs.setpointPos = Elevator.encoderAngleToHeight(Rotations.of(controller.getSetpoint().position));
+        inputs.setpointVel = MetersPerSecond.of(
+                RotationsPerSecond.of(controller.getSetpoint().velocity).in(RadiansPerSecond)
+                        * ElevatorConstants.DRUM_RADIUS.in(Meters));
         inputs.manualOverride = manualOverride;
 
         updateTunableParameters();
@@ -107,15 +114,6 @@ public class ElevatorIOSim implements ElevatorIO {
         }
     }
 
-    @SuppressWarnings("unused")
-    private double radiansToMeters(double radians) {
-        return ElevatorConstants.MIN_HEIGHT.in(Meters) + radians * ElevatorConstants.DRUM_RADIUS.in(Meters) * 3;
-    }
-
-    private double metersToRadians(double meters) {
-        return (meters - ElevatorConstants.MIN_HEIGHT.in(Meters)) / ElevatorConstants.DRUM_RADIUS.in(Meters) / 3;
-    }
-
     @Override
     public void setOpenLoopOutput(Voltage output) {
         manualVoltage = output;
@@ -124,13 +122,16 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setGoal(Distance goal) {
         manualOverride = false;
-        controller.setGoal(metersToRadians(goal.in(Meters)));
+        controller.setGoal(Elevator.heightToEncoderAngle(goal).in(Rotations));
     }
 
     @Override
     public void resetAtPosition() {
         manualVoltage = Volts.of(feedforward.getKg());
-        controller.reset(metersToRadians(sim.getPositionMeters()), 0);
+        controller.reset(
+                Elevator.heightToEncoderAngle(Meters.of(sim.getPositionMeters()))
+                        .in(Rotations),
+                0);
     }
 
     public void setPIDConstants(double kP, double kI, double kD, double kV, double kA, double kS, double kG) {

@@ -22,7 +22,9 @@ public class ScoreInBargeCommand extends SequentialCommandGroup {
         }
         addCommands(
                 ApproachBargeCommands.pathfindCommand(pos, swerve),
+                swerve.runOnce(swerve::stop),
                 elevator.goToBargeCommand(false),
-                algaeManipulator.ejectCommand());
+                algaeManipulator.ejectCommand(),
+                elevator.goToIntakePosCommand(true));
     }
 }

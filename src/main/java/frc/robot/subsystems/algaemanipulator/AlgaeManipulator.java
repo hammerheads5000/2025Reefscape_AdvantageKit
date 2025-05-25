@@ -4,11 +4,13 @@
 
 package frc.robot.subsystems.algaemanipulator;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -26,10 +28,13 @@ public class AlgaeManipulator extends SubsystemBase {
 
     private Trigger isSim = new Trigger(() -> Constants.CURRENT_MODE == Constants.SIM_MODE);
     private boolean simHasAlgae = false;
+    private boolean deployed = false;
 
     @AutoLogOutput
     public Trigger algaeDetectedTrigger =
-            new Trigger(() -> inputs.lidarSeesAlgae).debounce(0.1).or(isSim.and(() -> simHasAlgae));
+            new Trigger(this::stalled).debounce(0.4, DebounceType.kFalling).or(isSim.and(() -> simHasAlgae));
+
+    public Trigger deployedTrigger = new Trigger(() -> deployed);
 
     private final Alert motorDisconnectedAlert = new Alert("Disconnected algae manipulator motor.", AlertType.kError);
 
@@ -50,13 +55,24 @@ public class AlgaeManipulator extends SubsystemBase {
         motorDisconnectedAlert.set(!inputs.motorConnected);
     }
 
+    public void stop() {
+        io.stop();
+    }
+
+    public Command stopCommand() {
+        return this.runOnce(this::stop);
+    }
+
     private Command runCommand(Voltage speed) {
         return this.startEnd(() -> io.setSpeed(speed), io::stop);
     }
 
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasAlgae = true);
+            return this.runOnce(() -> {
+                simHasAlgae = true;
+                deployed = true;
+            });
         }
         return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
                 .until(algaeDetectedTrigger)
@@ -75,8 +91,16 @@ public class AlgaeManipulator extends SubsystemBase {
     }
 
     public Command flipUpAndHoldCommand() {
-        return runCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED)
+        if (isSim.getAsBoolean()) {
+            return this.runOnce(() -> deployed = false);
+        }
+        return new ScheduleCommand(runCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED.unaryMinus())
                 .withTimeout(AlgaeManipulatorConstants.FLIP_UP_TIME)
-                .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_UP_SPEED)));
+                .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_UP_SPEED.unaryMinus()))));
+    }
+
+    private boolean stalled() {
+        return inputs.velocity.lt(AlgaeManipulatorConstants.MIN_VEL)
+                && inputs.torqueCurrent.gt(AlgaeManipulatorConstants.STALL_CURRENT);
     }
 }

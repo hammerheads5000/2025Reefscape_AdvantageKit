@@ -130,18 +130,23 @@ public class FullAutoCommand extends SequentialCommandGroup {
         }
 
         commandToAdd = approachReefCommand
-                .alongWith(Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
-                        .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
-                        .andThen(elevatorPosCommand))
+                .alongWith(
+                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
+                                .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
+                                .andThen(elevatorPosCommand),
+                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
+                                .andThen(algaeManipulator.flipUpAndHoldCommand()))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
-            commandToAdd = commandToAdd.andThen(elevator.goToIntakePosCommand(true));
+            commandToAdd = commandToAdd.andThen(Commands.defer(
+                    () -> new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator),
+                    Set.of(swerve, elevator, algaeManipulator)));
         } else {
-            commandToAdd = commandToAdd.andThen(new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator));
+            commandToAdd = commandToAdd.andThen(elevator.goToIntakePosCommand(true));
         }
 
-        return commandToAdd;
+        return commandToAdd.finallyDo(algaeManipulator::stop);
     }
 
     private Command getTrackedReefCommand(int side, double relativePos, char level, boolean algae) {
@@ -179,9 +184,12 @@ public class FullAutoCommand extends SequentialCommandGroup {
         }
 
         commandToAdd = approachReefCommand
-                .alongWith(Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
-                        .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
-                        .andThen(elevatorPosCommand))
+                .alongWith(
+                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
+                                .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
+                                .andThen(elevatorPosCommand),
+                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
+                                .andThen(algaeManipulator.flipUpAndHoldCommand()))
                 .until(approachReefCommand
                         .withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE)
                         .and(elevator::atGoal))
@@ -189,12 +197,14 @@ public class FullAutoCommand extends SequentialCommandGroup {
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
-            commandToAdd = commandToAdd.andThen(elevator.goToIntakePosCommand(true));
+            commandToAdd = commandToAdd.andThen(Commands.defer(
+                    () -> new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator),
+                    Set.of(swerve, elevator, algaeManipulator)));
         } else {
-            commandToAdd = commandToAdd.andThen(new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator));
+            commandToAdd = commandToAdd.andThen(elevator.goToIntakePosCommand(true));
         }
 
-        return commandToAdd;
+        return commandToAdd.finallyDo(algaeManipulator::stop);
     }
 
     private Command commandFromToken(String token) {

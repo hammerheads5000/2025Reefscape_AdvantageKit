@@ -53,7 +53,12 @@ public class Elevator extends SubsystemBase {
 
     private final Trigger stageIs2 = new Trigger(() -> heightToStage(inputs.position) == Stage.STAGE2);
 
-    public Elevator(ElevatorIO io, BooleanSupplier hasCoral, Supplier<Pose2d> poseSupplier) {
+    public Elevator(
+            ElevatorIO io,
+            BooleanSupplier hasCoral,
+            BooleanSupplier algaeDeployed,
+            BooleanSupplier hasAlgae,
+            Supplier<Pose2d> poseSupplier) {
         this.io = io;
 
         stageIs2.onChange(setStageCommand());
@@ -70,8 +75,8 @@ public class Elevator extends SubsystemBase {
                         state -> SignalLogger.writeString("SysId_Elevator_State", state.toString())),
                 new SysIdRoutine.Mechanism(output -> io.setOpenLoopOutput(output), null, this));
 
-        measuredVisualizer = new ElevatorVisualizer("Measured", hasCoral, poseSupplier);
-        setpointVisualizer = new ElevatorVisualizer("Setpoint", hasCoral, poseSupplier);
+        measuredVisualizer = new ElevatorVisualizer("Measured", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
+        setpointVisualizer = new ElevatorVisualizer("Setpoint", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
 
         SmartDashboard.putData("L1", goToL1Command(true));
         SmartDashboard.putData("L2", goToL2Command(true));

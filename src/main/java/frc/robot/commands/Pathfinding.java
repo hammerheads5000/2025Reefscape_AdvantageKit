@@ -204,10 +204,11 @@ public class Pathfinding {
     }
 
     public static PathPlannerPath generateBargePath(Pose2d currentPose, char pos, ChassisSpeeds startSpeeds) {
-        int side = 4;
+        int side = 2;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
         Pose2d endPose = ApproachBargeCommands.getBargePose(pos);
-        poses.add(endPose);
+        poses.add(
+                new Pose2d(endPose.getTranslation(), AutoBuilder.shouldFlip() ? Rotation2d.k180deg : Rotation2d.kZero));
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 

@@ -39,7 +39,7 @@ public class EndEffector extends SubsystemBase {
             .or(isSim);
     public Trigger stalledTrigger = new Trigger(this::isStalled)
             .debounce(EndEffectorConstants.STALL_TIME.in(Seconds))
-            .or(isSim.negate());
+            .and(isSim.negate());
 
     private final Alert leftDisconnectedAlert = new Alert("Disconnected left end effector motor.", AlertType.kError);
     private final Alert rightDisconnectedAlert = new Alert("Disconnected right end effector motor.", AlertType.kError);

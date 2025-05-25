@@ -6,13 +6,10 @@ package frc.robot.subsystems.algaemanipulator;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
@@ -20,10 +17,6 @@ import frc.robot.Constants.AlgaeManipulatorConstants;
 
 public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
     private final TalonFX motor;
-
-    private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<Voltage> voltage;
-    private final StatusSignal<Current> torqueCurrent;
 
     private final DigitalInput lidar;
 
@@ -39,19 +32,15 @@ public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(AlgaeManipulatorConstants.CURRENT_LIMITS_CONFIGS));
 
-        velocity = motor.getVelocity();
-        voltage = motor.getMotorVoltage();
-        torqueCurrent = motor.getTorqueCurrent();
-
         lidar = new DigitalInput(AlgaeManipulatorConstants.LIDAR_ID);
     }
 
     @Override
     public void updateInputs(AlgaeManipulatorIOInputs inputs) {
         inputs.motorConnected = connectedDebouncer.calculate(motor.isConnected());
-        inputs.velocity = velocity.getValue();
-        inputs.appliedVolts = voltage.getValue();
-        inputs.torqueCurrent = torqueCurrent.getValue();
+        inputs.velocity = motor.getVelocity().getValue();
+        inputs.appliedVolts = motor.getMotorVoltage().getValue();
+        inputs.torqueCurrent = motor.getTorqueCurrent().getValue();
         inputs.lidarSeesAlgae = !lidar.get();
     }
 

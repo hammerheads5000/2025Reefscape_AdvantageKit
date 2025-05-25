@@ -18,6 +18,7 @@ import frc.robot.Constants.NTConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToReefCommands;
+import frc.robot.commands.ApproachBargeCommands;
 import frc.robot.commands.ApproachCoralStationCommands;
 import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.FullAutoCommand;
@@ -139,6 +140,7 @@ public class RobotContainer {
     public RobotContainer() {
         AlignToReefCommands.testReefPoses();
         ApproachCoralStationCommands.testStationPoses();
+        ApproachBargeCommands.testBargePoses();
 
         NTConstants.AUTO_DESCRIPTOR_ENTRY.set("");
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set("A4");
@@ -154,9 +156,14 @@ public class RobotContainer {
                         new ModuleIOTalonFX(SwerveConstants.BackRight.MODULE_CONSTANTS));
 
                 endEffector = new EndEffector(new EndEffectorIOTalonFX());
-                elevator = new Elevator(new ElevatorIOTalonFX(), endEffector.hasCoralTrigger, swerve::getPose);
-                climber = new Climber(new ClimberIOTalonFX());
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
+                elevator = new Elevator(
+                        new ElevatorIOTalonFX(),
+                        endEffector.hasCoralTrigger,
+                        algaeManipulator.deployedTrigger,
+                        algaeManipulator.algaeDetectedTrigger,
+                        swerve::getPose);
+                climber = new Climber(new ClimberIOTalonFX());
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -175,9 +182,14 @@ public class RobotContainer {
                         new ModuleIOSim(SwerveConstants.BackRight.MODULE_CONSTANTS));
 
                 endEffector = new EndEffector(new EndEffectorIOSim());
-                elevator = new Elevator(new ElevatorIOSim(), endEffector.hasCoralTrigger, swerve::getPose);
-                climber = new Climber(new ClimberIOSim());
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOSim());
+                elevator = new Elevator(
+                        new ElevatorIOSim(),
+                        endEffector.hasCoralTrigger,
+                        algaeManipulator.deployedTrigger,
+                        algaeManipulator.algaeDetectedTrigger,
+                        swerve::getPose);
+                climber = new Climber(new ClimberIOSim());
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -196,9 +208,14 @@ public class RobotContainer {
                         new GyroIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {}, new ModuleIO() {});
 
                 endEffector = new EndEffector(new EndEffectorIO() {});
-                elevator = new Elevator(new ElevatorIO() {}, endEffector.hasCoralTrigger, swerve::getPose);
-                climber = new Climber(new ClimberIO() {});
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIO() {});
+                elevator = new Elevator(
+                        new ElevatorIO() {},
+                        endEffector.hasCoralTrigger,
+                        algaeManipulator.deployedTrigger,
+                        algaeManipulator.algaeDetectedTrigger,
+                        swerve::getPose);
+                climber = new Climber(new ClimberIO() {});
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;
@@ -232,7 +249,7 @@ public class RobotContainer {
 
         bargeCommand = Commands.defer(
                 () -> new ScoreInBargeCommand(
-                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1), swerve, elevator, algaeManipulator),
+                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
                 Set.of(swerve, elevator, algaeManipulator));
 
         SmartDashboard.putData("Station Auto", stationCommand);
@@ -325,7 +342,7 @@ public class RobotContainer {
     }
 
     private void setAlgaeAutoDescriptor(boolean doAlgae) {
-        String descriptor = NTConstants.AUTO_DESCRIPTOR_ENTRY.get();
+        String descriptor = NTConstants.REEF_TELEOP_AUTO_ENTRY.get();
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set(descriptor.substring(0, 2) + (doAlgae ? "A" : ""));
     }
 

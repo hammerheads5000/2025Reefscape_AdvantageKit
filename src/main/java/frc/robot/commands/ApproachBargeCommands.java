@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
-import static frc.robot.Constants.FieldConstants.*;
 import static frc.robot.Constants.INST;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,23 +20,39 @@ import frc.robot.subsystems.swerve.Swerve;
 
 /** Container class for approaching/moving to barge */
 public class ApproachBargeCommands {
-    /**
-     * @param pos F,G,H,I for barge positions from right to left
-     * @return Barge pose
-     */
-    public static Pose2d getBargePose(char pos) {
+    public static Pose2d getBargePose(char pos, boolean isRed) {
         Pose2d pose = FieldConstants.BARGE_POSES.get(pos);
 
-        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        if (isRed) {
             pose = AlignToReefCommands.flipPose(pose);
         }
         return pose;
     }
 
+    /**
+     * @param pos F,G,H,I for barge positions from right to left
+     * @return Barge pose
+     */
+    public static Pose2d getBargePose(char pos) {
+        return getBargePose(pos, DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red);
+    }
+
     /** Publishes barge poses to NetworkTables */
     public static void testBargePoses() {
-        Pose2d[] poses = new Pose2d[] {getBargePose('F'), getBargePose('G'), getBargePose('H'), getBargePose('I')};
-        INST.getStructArrayTopic("Barge Poses", Pose2d.struct).publish().set(poses);
+        Pose2d[] bluePoses = new Pose2d[] {
+            getBargePose('F', false), getBargePose('G', false), getBargePose('H', false), getBargePose('I', false)
+        };
+
+        Pose2d[] redPoses = new Pose2d[] {
+            getBargePose('F', true), getBargePose('G', true), getBargePose('H', true), getBargePose('I', true)
+        };
+
+        INST.getStructArrayTopic("Barge Poses/Blue Barge Poses", Pose2d.struct)
+                .publish()
+                .set(bluePoses);
+        INST.getStructArrayTopic("Barge Poses/Red Barge Poses", Pose2d.struct)
+                .publish()
+                .set(redPoses);
     }
 
     /**

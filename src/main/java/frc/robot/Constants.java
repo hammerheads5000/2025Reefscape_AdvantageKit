@@ -341,14 +341,14 @@ public class Constants {
                 .withProfile(2.5, 5);
 
         public static final ControlConstants ALGAE_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
-                .withTolerance(Inches.of(2).in(Meters));
+                .withTolerance(Inches.of(3).in(Meters));
 
         public static final ControlConstants SWEEP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withTolerance(Inches.of(4).in(Meters));
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(5, 2, 0.0).withTolerance(2);
+                new ControlConstants().withPID(5, 2, 0.0).withTolerance(1.5);
 
         public static final ControlConstants ALGAE_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
 
@@ -385,7 +385,7 @@ public class Constants {
         // used for sim
         public static final Slot0Configs STAGE3_GAINS = CURRENT_MODE == SIM_MODE
                 ? new Slot0Configs() // sim gains (all stages)
-                        .withKP(3)
+                        .withKP(4)
                         .withKI(1)
                         .withKD(0.01)
                         .withKV(0.3)
@@ -434,7 +434,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.421142578125)
+                .withMagnetOffset(0.397216796875)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.1);
@@ -462,8 +462,8 @@ public class Constants {
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
 
-        public static final Distance LOW_ALGAE_HEIGHT = Inches.of(30);
-        public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(63);
+        public static final Distance LOW_ALGAE_HEIGHT = Inches.of(29);
+        public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(43.5);
         public static final Distance BARGE_HEIGHT = Inches.of(80);
 
         public static final Map<Integer, Distance> ALGAE_HEIGHTS = Map.of(
@@ -498,14 +498,14 @@ public class Constants {
         public static final int INTAKE_LIDAR_ID = 7;
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(7.2);
-        public static final Voltage SLOW_INTAKE_SPEED = Volts.of(7.2);
-        public static final Voltage SCORE_SPEED = Volts.of(3.6);
-        public static final Voltage FAST_TROUGH_SPEED = Volts.of(7.2);
-        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2.4);
+        public static final Voltage INTAKE_SPEED = Volts.of(3.6);
+        public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
+        public static final Voltage SCORE_SPEED = Volts.of(1.8);
+        public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
+        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(1.2);
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
-        public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(5);
+        public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
         public static final Time STALL_TIME = Seconds.of(0.3);
     }
 
@@ -514,22 +514,29 @@ public class Constants {
         public static final int MOTOR_ID = 32;
 
         public static final MotorOutputConfigs MOTOR_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
+                .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
-        public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(30));
+        public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(Amps.of(50))
+                .withSupplyCurrentLowerLimit(Amps.of(29.5))
+                .withSupplyCurrentLowerTime(Seconds.of(1))
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false);
 
         // Lidar
         public static final int LIDAR_ID = 6;
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(14);
-        public static final Voltage HOLD_SPEED = Volts.of(8);
-        public static final Voltage EJECT_SPEED = Volts.of(8);
-        public static final Voltage FLIP_UP_SPEED = Volts.of(16);
+        public static final Voltage INTAKE_SPEED = Volts.of(12);
+        public static final Voltage HOLD_SPEED = Volts.of(2.);
+        public static final Voltage EJECT_SPEED = Volts.of(12);
+        public static final Voltage FLIP_UP_SPEED = Volts.of(12);
         public static final Voltage HOLD_UP_SPEED = Volts.of(3.5);
 
-        public static final Time FLIP_UP_TIME = Seconds.of(0.5);
+        public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
+        public static final Current STALL_CURRENT = Amps.of(20);
+
+        public static final Time FLIP_UP_TIME = Seconds.of(3);
     }
 
     public static class ClimberConstants {
@@ -555,7 +562,7 @@ public class Constants {
     public static class VisionConstants {
         // Standard deviation baselines for 1 meter distance to single tag
         public static final double LINEAR_STD_DEV_BASELINE = 0.04; // Meters
-        public static final double ANGULAR_STD_DEV_BASELINE = 0.12; // Radians
+        public static final double ANGULAR_STD_DEV_BASELINE = 0.4; // Radians
 
         public static final String FRONT_LEFT_CAM_NAME = "Arducam_OV9281_FL01";
         public static final String FRONT_RIGHT_CAM_NAME = "Arducam_OV9281_FR01";
@@ -638,14 +645,14 @@ public class Constants {
         public static final Translation2d CENTERED_TO_LEFT_BRANCH =
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
-        private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-60);
-        private static final Distance BARGE_X = Meters.of(10);
+        private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-45);
+        private static final Distance BARGE_X = Meters.of(7.4);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
-                'I', new Pose2d(Meters.of(1), BARGE_X, BARGE_SHOOT_ROTATION),
-                'H', new Pose2d(Meters.of(2), BARGE_X, BARGE_SHOOT_ROTATION),
-                'G', new Pose2d(Meters.of(3), BARGE_X, BARGE_SHOOT_ROTATION),
-                'F', new Pose2d(Meters.of(4), BARGE_X, BARGE_SHOOT_ROTATION));
+                'I', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
+                'H', new Pose2d(BARGE_X, Meters.of(6.7), BARGE_SHOOT_ROTATION),
+                'G', new Pose2d(BARGE_X, Meters.of(6), BARGE_SHOOT_ROTATION),
+                'F', new Pose2d(BARGE_X, Meters.of(5.4), BARGE_SHOOT_ROTATION));
     }
 
     public static class PathConstants {
@@ -656,10 +663,11 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(15);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(25);
         public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(60);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(10);
+        public static final Distance FLIP_DISTANCE = Inches.of(80);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side

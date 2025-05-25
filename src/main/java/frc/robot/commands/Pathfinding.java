@@ -49,12 +49,12 @@ public class Pathfinding {
         return Math.min(diff, 6 - diff);
     }
 
-    private static Pose2d pointPoseTowards(Pose2d pose, Translation2d other) {
+    public static Pose2d pointPoseTowards(Pose2d pose, Translation2d other) {
         Translation2d translation = other.minus(pose.getTranslation());
         return new Pose2d(pose.getTranslation(), translation.getAngle());
     }
 
-    private static Pose2d pointPoseTowards(Pose2d pose, Pose2d other) {
+    public static Pose2d pointPoseTowards(Pose2d pose, Pose2d other) {
         return pointPoseTowards(pose, other.getTranslation());
     }
 

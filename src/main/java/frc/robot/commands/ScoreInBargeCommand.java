@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
@@ -24,6 +26,7 @@ public class ScoreInBargeCommand extends SequentialCommandGroup {
                 ApproachBargeCommands.pathfindCommand(pos, swerve),
                 swerve.runOnce(swerve::stop),
                 elevator.goToBargeCommand(false),
+                Commands.waitTime(PathConstants.BARGE_SETTLE_TIME),
                 algaeManipulator.ejectCommand(),
                 elevator.goToIntakePosCommand(true));
     }

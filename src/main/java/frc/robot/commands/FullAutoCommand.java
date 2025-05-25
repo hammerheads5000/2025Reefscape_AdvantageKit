@@ -201,10 +201,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
                     () -> new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator),
                     Set.of(swerve, elevator, algaeManipulator)));
         } else {
-            commandToAdd = commandToAdd.andThen(elevator.goToIntakePosCommand(true));
+            commandToAdd =
+                    commandToAdd.andThen(elevator.goToIntakePosCommand(true)).finallyDo(algaeManipulator::stop);
         }
 
-        return commandToAdd.finallyDo(algaeManipulator::stop);
+        return commandToAdd;
     }
 
     private Command commandFromToken(String token) {

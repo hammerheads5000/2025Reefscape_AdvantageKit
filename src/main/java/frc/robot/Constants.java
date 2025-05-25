@@ -94,7 +94,7 @@ public class Constants {
     public static final NetworkTableInstance INST = NetworkTableInstance.getDefault();
 
     public static class Dimensions { // unfinished
-        public static final Distance BUMPER_THICKNESS = Inches.of(3.5);
+        public static final Distance BUMPER_THICKNESS = Inches.of(3.2);
         public static final Distance FRAME_SIZE = Inches.of(29);
         public static final Distance ROBOT_SIZE = FRAME_SIZE.plus(BUMPER_THICKNESS.times(2));
     }
@@ -336,14 +336,18 @@ public class Constants {
     public static class AlignConstants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
-                .withPID(5, 0.75, 0.0)
+                .withPID(2, 0.5, 0.0)
                 .withTolerance(Inches.of(2).in(Meters), 0.1)
-                .withProfile(2.5, 5);
+                .withProfile(2, 3);
 
         public static final ControlConstants ALGAE_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withTolerance(Inches.of(3).in(Meters));
 
         public static final ControlConstants SWEEP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withTolerance(Inches.of(4).in(Meters));
+
+        public static final ControlConstants LOLLIPOP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withProfile(3, 7)
                 .withTolerance(Inches.of(4).in(Meters));
 
         // output: deg/s, measure: deg
@@ -353,6 +357,9 @@ public class Constants {
         public static final ControlConstants ALGAE_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
 
         public static final ControlConstants SWEEP_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
+
+        public static final ControlConstants LOLLIPOP_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
 
         public static final Time ALIGN_TIME = Seconds.of(0.1); // amount to wait to make sure aligned
     }
@@ -393,36 +400,36 @@ public class Constants {
                         .withKS(0.01)
                         .withKG(0.54)
                 : new Slot0Configs() // real gains
-                        .withKP(15)
-                        .withKI(8)
+                        .withKP(10)
+                        .withKI(3)
                         .withKD(0.1)
-                        .withKV(0.114)
-                        .withKA(0.0)
-                        .withKS(0.09)
+                        .withKV(0.48)
+                        .withKA(0.017)
+                        .withKS(0.3)
                         .withKG(0.0)
                         .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot1Configs STAGE2_GAINS = new Slot1Configs() // real gains
-                .withKP(18)
-                .withKI(8)
-                .withKD(0.1)
-                .withKV(0.114)
-                .withKA(0.0)
+                .withKP(12)
+                .withKI(4)
+                .withKD(0.15)
+                .withKV(0.5)
+                .withKA(0.01)
                 .withKS(0.12)
-                .withKG(0.44)
+                .withKG(0.35)
                 .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
-                .withKP(23)
-                .withKI(12)
+                .withKP(15)
+                .withKI(5)
                 .withKD(0.1)
-                .withKV(0.114)
-                .withKA(0.0)
+                .withKV(0.55)
+                .withKA(0.015)
                 .withKS(0.15)
-                .withKG(0.52)
+                .withKG(0.38)
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.15).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.3).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.2).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.2).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -456,7 +463,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(75.49);
+        public static final Distance L4_HEIGHT = Inches.of(76.3);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -464,7 +471,8 @@ public class Constants {
 
         public static final Distance LOW_ALGAE_HEIGHT = Inches.of(29);
         public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(43.5);
-        public static final Distance BARGE_HEIGHT = Inches.of(80);
+        public static final Distance BARGE_HEIGHT = Inches.of(82.4);
+        public static final Distance LOLLIPOP_HEIGHT = Inches.of(9.3);
 
         public static final Map<Integer, Distance> ALGAE_HEIGHTS = Map.of(
                 0, LOW_ALGAE_HEIGHT,
@@ -528,16 +536,18 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(2.5);
-        public static final Voltage EJECT_SPEED = Volts.of(12);
-        public static final Voltage FLIP_UP_SPEED = Volts.of(12);
-        public static final Voltage HOLD_UP_SPEED = Volts.of(3.5);
+        public static final Voltage HOLD_SPEED = Volts.of(4);
+        public static final Voltage EJECT_SPEED = Volts.of(-12);
+        public static final Voltage FLIP_UP_SPEED = Volts.of(-12);
+        public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
 
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
         public static final Current STALL_CURRENT = Amps.of(20);
 
         public static final Time FLIP_UP_TIME = Seconds.of(3);
         public static final Time HOLD_TIME = Seconds.of(3);
+        public static final Time HOLD_CYCLE_ON = Seconds.of(1);
+        public static final Time HOLD_CYCLE_OFF = Seconds.of(4);
     }
 
     public static class ClimberConstants {
@@ -646,14 +656,21 @@ public class Constants {
         public static final Translation2d CENTERED_TO_LEFT_BRANCH =
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
-        private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-45);
-        private static final Distance BARGE_X = Meters.of(7.4);
+        private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-20);
+        private static final Distance BARGE_X = Meters.of(7.5);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 'I', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
                 'H', new Pose2d(BARGE_X, Meters.of(6.7), BARGE_SHOOT_ROTATION),
-                'G', new Pose2d(BARGE_X, Meters.of(6), BARGE_SHOOT_ROTATION),
-                'F', new Pose2d(BARGE_X, Meters.of(5.4), BARGE_SHOOT_ROTATION));
+                'G', new Pose2d(BARGE_X, Meters.of(5.4), BARGE_SHOOT_ROTATION.unaryMinus()),
+                'F', new Pose2d(BARGE_X, Meters.of(4.8), BARGE_SHOOT_ROTATION.unaryMinus()));
+
+        private static final Distance LOLLIPOP_X = Inches.of(48);
+        public static final Pose2d[] LOLLIPOP_POSES = {
+            new Pose2d(LOLLIPOP_X, Inches.of(158.5 - 72), Rotation2d.fromDegrees(225)),
+            new Pose2d(LOLLIPOP_X, Inches.of(158.5), Rotation2d.k180deg),
+            new Pose2d(LOLLIPOP_X, Inches.of(158.5 + 72), Rotation2d.fromDegrees(135)),
+        };
     }
 
     public static class PathConstants {
@@ -664,11 +681,12 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(25);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(60);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(50);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(80);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance FLIP_DISTANCE = Inches.of(80);
+        public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side
@@ -680,6 +698,7 @@ public class Constants {
         public static final Time INTAKE_WAIT_TIME = Seconds.of(0.5);
         public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
+        public static final Time BARGE_SETTLE_TIME = Seconds.of(0.3);
 
         public static final Distance MIN_PATH_DISTANCE = Inches.of(30);
 

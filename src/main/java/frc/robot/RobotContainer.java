@@ -22,6 +22,7 @@ import frc.robot.commands.ApproachBargeCommands;
 import frc.robot.commands.ApproachCoralStationCommands;
 import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.FullAutoCommand;
+import frc.robot.commands.LollipopCommands;
 import frc.robot.commands.RemoveAlgaeCommand;
 import frc.robot.commands.ScoreInBargeCommand;
 import frc.robot.commands.SweepCommand;
@@ -83,8 +84,10 @@ public class RobotContainer {
     private final Command sweepCommand;
     private final Map<Character, Supplier<Command>> elevatorCommands;
     private final Command elevatorCommand;
+    private final Command lollipopCommand;
 
     // Triggers
+    private final Trigger algaeButtonLayerTrigger = driveController.povRight();
     private final Trigger speedUpTrigger = driveController.rightTrigger();
     private final Trigger slowDownTrigger = driveController.leftTrigger();
 
@@ -93,17 +96,22 @@ public class RobotContainer {
     private final Trigger elevatorIntakeTrigger = driveController.povLeft();
     // private final Trigger elevatorTrigger = driveController.povRight();
 
-    private final Trigger intakeTrigger = driveController.rightBumper();
-    private final Trigger reverseIntakeTrigger = driveController.leftBumper();
+    private final Trigger intakeTrigger = driveController.rightBumper().and(algaeButtonLayerTrigger.negate());
+    private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger reefTrigger = driveController.a();
-    private final Trigger stationTrigger = driveController.b();
-    private final Trigger algaeTrigger = driveController.y();
-    private final Trigger bargeTrigger = driveController.x();
-    private final Trigger sweepTrigger = driveController.povRight();
+    private final Trigger stationTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
+    private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
     private final Trigger climbTrigger = driveController.start();
     private final Trigger unclimbTrigger = driveController.back();
-    private final Trigger algaeAndCoralToggle = buttonBoardOther.button(2);
+    private final Trigger algaeAndCoralToggle = buttonBoardOther.button(2).or(algaeButtonLayerTrigger);
+
+    private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
+    private final Trigger bargeTrigger = driveController.b().and(algaeButtonLayerTrigger);
+    private final Trigger lollipopTrigger = driveController.x().and(algaeButtonLayerTrigger);
+    private final Trigger algaeManualIntakeTrigger =
+            driveController.rightBumper().and(algaeButtonLayerTrigger);
+    private final Trigger algaeManualEjectTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger);
 
     private final Map<Integer, Character> BUTTON_TO_REEF = Map.ofEntries(
             Map.entry(5, 'A'),
@@ -252,10 +260,15 @@ public class RobotContainer {
                         NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
                 Set.of(swerve, elevator, algaeManipulator));
 
+        lollipopCommand = Commands.defer(
+                () -> LollipopCommands.lollipopCommand(swerve, algaeManipulator, elevator),
+                Set.of(swerve, algaeManipulator, elevator));
+
         SmartDashboard.putData("Station Auto", stationCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
         SmartDashboard.putData("Algae Auto", algaeCommand);
         SmartDashboard.putData("Barge Auto", bargeCommand);
+        SmartDashboard.putData("Nearest Lollipop", lollipopCommand);
 
         ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
         SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
@@ -296,6 +309,10 @@ public class RobotContainer {
         algaeTrigger.whileTrue(algaeCommand);
         bargeTrigger.whileTrue(bargeCommand);
         sweepTrigger.whileTrue(sweepCommand);
+        lollipopTrigger.whileTrue(lollipopCommand);
+
+        algaeManualIntakeTrigger.whileTrue(algaeManipulator.forwardCommand());
+        algaeManualEjectTrigger.whileTrue(algaeManipulator.reverseCommand());
 
         algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 

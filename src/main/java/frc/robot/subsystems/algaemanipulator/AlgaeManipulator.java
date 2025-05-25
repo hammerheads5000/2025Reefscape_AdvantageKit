@@ -77,8 +77,22 @@ public class AlgaeManipulator extends SubsystemBase {
         }
         return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
                 .until(algaeDetectedTrigger)
-                .andThen(new ScheduleCommand(Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME))
-                    .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_SPEED))));
+                .andThen(
+                        this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.INTAKE_SPEED)),
+                        new ScheduleCommand(Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME)
+                                .andThen(intakeCycleCommand())));
+    }
+
+    private Command intakeCycleCommand() {
+        return Commands.repeatingSequence(
+                Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_SPEED)),
+                Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_OFF),
+                Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.INTAKE_SPEED)),
+                Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_ON));
+    }
+
+    public Command forwardCommand() {
+        return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED);
     }
 
     public Command reverseCommand() {
@@ -96,9 +110,10 @@ public class AlgaeManipulator extends SubsystemBase {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> deployed = false);
         }
-        return new ScheduleCommand(runCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED.unaryMinus())
+        return new ScheduleCommand(Commands.runOnce(
+                        () -> io.setSpeed(AlgaeManipulatorConstants.FLIP_UP_SPEED.unaryMinus()))
                 .withTimeout(AlgaeManipulatorConstants.FLIP_UP_TIME)
-                .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_UP_SPEED.unaryMinus()))));
+                .andThen(Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_UP_SPEED.unaryMinus()))));
     }
 
     private boolean stalled() {

@@ -175,6 +175,10 @@ public class Elevator extends SubsystemBase {
         return goToHeightCommand(instant, ElevatorConstants.BARGE_HEIGHT);
     }
 
+    public Command goToLollipopCommand(boolean instant) {
+        return goToHeightCommand(instant, ElevatorConstants.LOLLIPOP_HEIGHT);
+    }
+
     public Command trackHeightCommand(Supplier<Distance> distanceToReef, Distance height) {
         return this.run(() -> {
                     Distance dist = Meters.of(Math.min(

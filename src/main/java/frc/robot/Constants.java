@@ -421,8 +421,8 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.3).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.6).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.15).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.3).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -537,6 +537,7 @@ public class Constants {
         public static final Current STALL_CURRENT = Amps.of(20);
 
         public static final Time FLIP_UP_TIME = Seconds.of(3);
+        public static final Time HOLD_TIME = Seconds.of(0.75);
     }
 
     public static class ClimberConstants {

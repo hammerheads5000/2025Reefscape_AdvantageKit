@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -76,7 +77,8 @@ public class AlgaeManipulator extends SubsystemBase {
         }
         return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
                 .until(algaeDetectedTrigger)
-                .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_SPEED)));
+                .andThen(new ScheduleCommand(Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME))
+                    .andThen(this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_SPEED))));
     }
 
     public Command reverseCommand() {

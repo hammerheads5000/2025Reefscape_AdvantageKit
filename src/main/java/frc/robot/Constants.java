@@ -528,7 +528,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(2.);
+        public static final Voltage HOLD_SPEED = Volts.of(2.5);
         public static final Voltage EJECT_SPEED = Volts.of(12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(12);
         public static final Voltage HOLD_UP_SPEED = Volts.of(3.5);
@@ -537,7 +537,7 @@ public class Constants {
         public static final Current STALL_CURRENT = Amps.of(20);
 
         public static final Time FLIP_UP_TIME = Seconds.of(3);
-        public static final Time HOLD_TIME = Seconds.of(0.75);
+        public static final Time HOLD_TIME = Seconds.of(3);
     }
 
     public static class ClimberConstants {
@@ -667,7 +667,7 @@ public class Constants {
         public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(25);
         public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(60);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
-        public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(10);
+        public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance FLIP_DISTANCE = Inches.of(80);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving

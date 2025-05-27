@@ -23,7 +23,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.SlewRateLimiter2d;
 import java.util.function.DoubleSupplier;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/** Default swerve command to run that drives based on controller input */
 public class TeleopSwerve extends Command {
     private final Swerve swerve;
     private final DoubleSupplier xSupplier;

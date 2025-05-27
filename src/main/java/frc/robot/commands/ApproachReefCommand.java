@@ -12,9 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.swerve.Swerve;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/** Follow generated path to reef if necessary, then align */
 public class ApproachReefCommand extends SequentialCommandGroup {
     private final AlignToPoseCommand alignToReefCommand;
     /** Creates a new ApproachReefCommand. */

@@ -25,7 +25,10 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-/** Add your docs here. */
+/**
+ * Visualizer for elevator and algae manipualtor that includes Mechanism2d and 3d. Also visualizes currently held game
+ * pieces
+ */
 public class ElevatorVisualizer {
     private final String name;
     private final BooleanSupplier hasCoral;

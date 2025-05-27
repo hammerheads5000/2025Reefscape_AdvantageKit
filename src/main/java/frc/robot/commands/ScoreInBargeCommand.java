@@ -12,11 +12,13 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.Set;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/** Pathfind to and score algae in barge */
 public class ScoreInBargeCommand extends SequentialCommandGroup {
-    /** Creates a new ScoreInBargeCommand. */
+    /**
+     * Creates a new ScoreInBargeCommand.
+     *
+     * @param pos F,G,H,I for barge positions from right to left
+     */
     public ScoreInBargeCommand(char pos, Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
         if (!Set.of('F', 'G', 'H', 'I').contains(pos)) {
             pos = 'I';

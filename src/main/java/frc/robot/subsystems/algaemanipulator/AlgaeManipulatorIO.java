@@ -16,8 +16,6 @@ public interface AlgaeManipulatorIO {
         public AngularVelocity velocity = RadiansPerSecond.zero();
         public Current torqueCurrent = Amps.zero();
         public Voltage appliedVolts = Volts.zero();
-
-        public boolean lidarSeesAlgae = false;
     }
 
     default void updateInputs(AlgaeManipulatorIOInputs inputs) {}

@@ -17,7 +17,7 @@ import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 
-/** Add your docs here. */
+/** Container class to pick up algae from lollipops (those things with alge on top of coral). */
 public class LollipopCommands {
     private static Command lollipopCommand(
             Pose2d lollipopPose, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
@@ -36,12 +36,29 @@ public class LollipopCommands {
                         .andThen(algaeManipulator.intakeCommand()));
     }
 
+    /**
+     * Command to align to a given lollipop and intake algae from it.
+     *
+     * @param lollipop the index of the lollipop to align to (0-3 right to left)
+     * @param swerve
+     * @param algaeManipulator
+     * @param elevator
+     * @return Lollipop command
+     */
     public static Command lollipopCommand(
             int lollipop, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
         Pose2d lollipopPose = FieldConstants.LOLLIPOP_POSES[lollipop];
         return lollipopCommand(lollipopPose, swerve, algaeManipulator, elevator);
     }
 
+    /**
+     * Command to align to the closest lollipop and intake algae from it.
+     *
+     * @param swerve
+     * @param algaeManipulator
+     * @param elevator
+     * @return Lollipop command
+     */
     public static Command lollipopCommand(Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
         Pose2d closest = FieldConstants.LOLLIPOP_POSES[0];
         final boolean flip = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;

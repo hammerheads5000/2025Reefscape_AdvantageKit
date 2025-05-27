@@ -23,7 +23,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import java.util.Set;
 import java.util.function.Supplier;
 
-/** Command that executes an auto built from a descriptor string */
+/** Command that executes an auto built from a descriptor string (can be used in teleop) */
 public class FullAutoCommand extends SequentialCommandGroup {
     Swerve swerve;
     Elevator elevator;

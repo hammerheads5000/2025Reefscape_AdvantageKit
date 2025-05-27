@@ -25,6 +25,10 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.ControlConstants;
 import org.littletonrobotics.junction.Logger;
 
+/**
+ * Command to align the robot to a specific pose (translation + rotation) using PID controllers. It uses profiled PID
+ * controllers for translation and a standard PID controller for rotation.
+ */
 public class AlignToPoseCommand extends Command {
     private final Pose2d targetPose;
     private final ProfiledPIDController pidControllerX;

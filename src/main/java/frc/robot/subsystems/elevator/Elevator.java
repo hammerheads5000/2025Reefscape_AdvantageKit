@@ -51,6 +51,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorVisualizer measuredVisualizer;
     private final ElevatorVisualizer setpointVisualizer;
 
+    // Triggers to detect stage changes
     private final Trigger stageIs2 = new Trigger(() -> heightToStage(inputs.position) == Stage.STAGE2);
 
     public Elevator(
@@ -97,42 +98,48 @@ public class Elevator extends SubsystemBase {
         encoderDisconnectedAlert.set(!inputs.encoderConnected);
 
         // Logging
-        Logger.recordOutput("Elevator/SetpointPosition", inputs.setpointPos);
-        Logger.recordOutput("Elevator/SetpointVelocity", inputs.setpointVel);
         Logger.recordOutput("Elevator/Goal", goal);
-        Logger.recordOutput("Elevator/Pos", inputs.position);
         Logger.recordOutput("Elevator/Stage", heightToStage(inputs.position));
 
         measuredVisualizer.update(inputs.position);
         setpointVisualizer.update(inputs.setpointPos);
     }
 
+    /** Sets the desired height to go to (measured from ground) */
     public void setGoal(Distance goal) {
         this.goal = Meters.of(MathUtil.clamp(goal.in(Meters), 0, ElevatorConstants.MAX_HEIGHT.in(Meters)));
         io.setGoal(this.goal);
     }
 
     @AutoLogOutput
+    /** Whether position is within tolerance of goal */
     public boolean atGoal() {
         return atGoalDebouncer.calculate(inputs.position.isNear(goal, Inches.of(tolerance.get())));
     }
 
+    /** Stops elevator in place and sets goal to current position */
     public void resetAtPosition() {
         this.goal = inputs.position;
         io.setManualOverride(true);
         io.resetAtPosition();
     }
 
+    /** Converts encoder angle (0 = min height) to height (measured from ground). DO NOT USE FOR VELOCITY */
     public static Distance encoderAngleToHeight(Angle angle) {
         return Meters.of(
                 ElevatorConstants.MIN_HEIGHT.in(Meters) + angle.in(Radians) * ElevatorConstants.DRUM_RADIUS.in(Meters));
     }
 
+    /** Converts height (measured from ground) to encoder angle (0 = min height). DO NOT USE FOR VELOCITY */
     public static Angle heightToEncoderAngle(Distance height) {
         return Radians.of((height.in(Meters) - ElevatorConstants.MIN_HEIGHT.in(Meters))
                 / ElevatorConstants.DRUM_RADIUS.in(Meters));
     }
 
+    /**
+     * Resets encoder to within a rotation. Note this does not zero the encoder to the exact current position, but to
+     * the aboslute position within a rotation that represents 0
+     */
     public Command zeroEncoderCommand() {
         return this.runOnce(io::zeroEncoder);
     }
@@ -179,6 +186,7 @@ public class Elevator extends SubsystemBase {
         return goToHeightCommand(instant, ElevatorConstants.LOLLIPOP_HEIGHT);
     }
 
+    /** Continually adjust height of elevator so that shooting a coral will work (within a certain distance) */
     public Command trackHeightCommand(Supplier<Distance> distanceToReef, Distance height) {
         return this.run(() -> {
                     Distance dist = Meters.of(Math.min(
@@ -232,6 +240,7 @@ public class Elevator extends SubsystemBase {
         return sysIdRoutine.dynamic(direction);
     }
 
+    /** Updates stage and corresponding PID constants */
     private Command setStageCommand() {
         return Commands.runOnce(() -> io.setStage(heightToStage(inputs.position)));
     }

@@ -83,7 +83,10 @@ public class RobotContainer {
     private final Command bargeCommand;
     private final Command sweepCommand;
     private final Map<Character, Supplier<Command>> elevatorCommands;
+
+    @SuppressWarnings("unused")
     private final Command elevatorCommand;
+
     private final Command lollipopCommand;
 
     // Triggers

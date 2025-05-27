@@ -30,6 +30,8 @@ public class ApproachBargeCommands {
     }
 
     /**
+     * Get given barge pose, flipped based on alliance
+     *
      * @param pos F,G,H,I for barge positions from right to left
      * @return Barge pose
      */

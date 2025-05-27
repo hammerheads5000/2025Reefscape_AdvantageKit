@@ -11,14 +11,11 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.Constants.AlgaeManipulatorConstants;
 
 public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
     private final TalonFX motor;
-
-    private final DigitalInput lidar;
 
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final NeutralOut neutralRequest = new NeutralOut();
@@ -31,8 +28,6 @@ public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
         tryUntilOk(5, () -> motor.getConfigurator().apply(AlgaeManipulatorConstants.MOTOR_CONFIGS));
 
         tryUntilOk(5, () -> motor.getConfigurator().apply(AlgaeManipulatorConstants.CURRENT_LIMITS_CONFIGS));
-
-        lidar = new DigitalInput(AlgaeManipulatorConstants.LIDAR_ID);
     }
 
     @Override
@@ -41,7 +36,6 @@ public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
         inputs.velocity = motor.getVelocity().getValue();
         inputs.appliedVolts = motor.getMotorVoltage().getValue();
         inputs.torqueCurrent = motor.getTorqueCurrent().getValue();
-        inputs.lidarSeesAlgae = !lidar.get();
     }
 
     @Override

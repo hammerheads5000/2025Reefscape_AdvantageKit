@@ -514,7 +514,7 @@ public class Constants {
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
-        public static final Time STALL_TIME = Seconds.of(0.3);
+        public static final Time STALL_TIME = Seconds.of(0.5);
     }
 
     public static class AlgaeManipulatorConstants {
@@ -530,9 +530,6 @@ public class Constants {
                 .withSupplyCurrentLowerTime(Seconds.of(1))
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimitEnable(false);
-
-        // Lidar
-        public static final int LIDAR_ID = 6;
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);

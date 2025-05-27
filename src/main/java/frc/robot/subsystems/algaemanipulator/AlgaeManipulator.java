@@ -25,7 +25,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     private Trigger isSim = new Trigger(() -> Constants.CURRENT_MODE == Constants.SIM_MODE);
     private boolean simHasAlgae = false;
-    private boolean deployed = false;
+    private boolean deployed = false; // whether bottom part of the manipulator is down or not
 
     @AutoLogOutput
     public Trigger algaeDetectedTrigger =
@@ -41,6 +41,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
         SmartDashboard.putData("Algae Intake", intakeCommand());
         SmartDashboard.putData("Eject Algae", ejectCommand());
+        SmartDashboard.putData("Algae Forward", forwardCommand());
         SmartDashboard.putData("Algae Reverse", reverseCommand());
         SmartDashboard.putData("Algae Flip Up and Hold", flipUpAndHoldCommand());
     }
@@ -61,17 +62,12 @@ public class AlgaeManipulator extends SubsystemBase {
         return this.runOnce(this::stop);
     }
 
-    public Command setSpeedCommand(Voltage speed, boolean requireSubsystem) {
-        if (!requireSubsystem) {
-            return Commands.runOnce(() -> io.setSpeed(speed));
-        }
+    /** Set speed and immediately end */
+    public Command setSpeedCommand(Voltage speed) {
         return this.runOnce(() -> io.setSpeed(speed));
     }
 
-    public Command setSpeedCommand(Voltage speed) {
-        return setSpeedCommand(speed, true);
-    }
-
+    /** Intake algae. Ends when algae is detected, but continues with intakeCycleCommand to hold algae */
     public Command intakeCommand() {
         return Commands.sequence(
                         this.runOnce(() -> {
@@ -86,6 +82,7 @@ public class AlgaeManipulator extends SubsystemBase {
                 .withName("Algae Intake");
     }
 
+    /** Holds algae in with short cycles of max speed and longer cycles of slower speed */
     private Command intakeCycleCommand() {
         return Commands.repeatingSequence(
                         setSpeedCommand(AlgaeManipulatorConstants.HOLD_SPEED),
@@ -95,22 +92,28 @@ public class AlgaeManipulator extends SubsystemBase {
                 .withName("Algae Intake Cycle");
     }
 
+    /** Manually move algae manipulator motor forward (intake) and stop on interrupt */
     public Command forwardCommand() {
         return setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
                 .andThen(Commands.idle(this))
-                .finallyDo(this::stop);
+                .finallyDo(this::stop)
+                .withName("Algae Forward");
     }
 
+    /** Manually move algae manipulator motor backward (eject) and stop on interrupt */
     public Command reverseCommand() {
         return setSpeedCommand(AlgaeManipulatorConstants.EJECT_SPEED)
                 .andThen(Commands.idle(this))
-                .finallyDo(this::stop);
+                .finallyDo(this::stop)
+                .withName("Algae Reverse");
     }
 
+    /** Eject algae by running the motor backwards until algae is no longer detected */
     public Command ejectCommand() {
         return this.runOnce(() -> simHasAlgae = false).andThen(reverseCommand().until(algaeDetectedTrigger.negate()));
     }
 
+    /** Stows the algae manipulator by flipping it up and holding it in place (ends naturally after FLIP_UP_TIME) */
     public Command flipUpAndHoldCommand() {
         return Commands.sequence(
                 this.runOnce(() -> deployed = false),
@@ -119,6 +122,7 @@ public class AlgaeManipulator extends SubsystemBase {
                 setSpeedCommand(AlgaeManipulatorConstants.HOLD_UP_SPEED));
     }
 
+    /** Detects whether motor is stalled (not moving and has sufficient current) to determine if it is holding algae */
     private boolean stalled() {
         return inputs.velocity.lt(AlgaeManipulatorConstants.MIN_VEL)
                 && inputs.torqueCurrent.gt(AlgaeManipulatorConstants.STALL_CURRENT);

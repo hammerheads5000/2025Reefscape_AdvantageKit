@@ -21,18 +21,18 @@ import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/** Command to remove algae from the reef by following a path, aligning to the reef, and removing the algae. */
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
-    /** Creates a new RemoveAlgaeCommand. */
+    /**
+     * Creates a new RemoveAlgaeCommand.
+     *
+     * @param side The side of the reef (0-5 starting at A/B going clockwise)
+     */
     public RemoveAlgaeCommand(int side, Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
-        // Add your commands in the addCommands() call, e.g.
-        // addCommands(new FooCommand(), new BarCommand());
-
         Command pathfindCommand = AutoBuilder.followPath(
                 Pathfinding.generateReefPath(swerve.getPose(), side, 0, swerve.getFieldSpeeds()));
 
+        // offset from reef
         Pose2d farPose = AlignToReefCommands.getReefPose(side, 0)
                 .transformBy(new Transform2d(
                         new Translation2d(PathConstants.ALGAE_DEPLOY_DISTANCE.unaryMinus(), Meters.zero()),
@@ -60,6 +60,11 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                         .andThen(elevator.goToIntakePosCommand(true))));
     }
 
+    /**
+     * Creates a new RemoveAlgaeCommand
+     *
+     * @param token The token from the reef descriptor to determine side
+     */
     public RemoveAlgaeCommand(String token, Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
         this(
                 FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.get(token.charAt(0)).getFirst(),

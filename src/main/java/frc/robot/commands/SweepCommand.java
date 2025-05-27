@@ -15,9 +15,7 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.swerve.Swerve;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+/** Sweep the nearest reef side to remove coral from being in the way */
 public class SweepCommand extends SequentialCommandGroup {
     /** Creates a new SweepCommand. */
     public SweepCommand(Swerve swerve) {

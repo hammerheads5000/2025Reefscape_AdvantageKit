@@ -23,8 +23,6 @@ public class AlgaeManipulatorIOSim implements AlgaeManipulatorIO {
         inputs.velocity = RotationsPerSecond.of(0.5).times(2);
         inputs.appliedVolts = speed;
         inputs.torqueCurrent = Amps.of(5);
-
-        inputs.lidarSeesAlgae = false;
     }
 
     @Override

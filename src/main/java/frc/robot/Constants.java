@@ -95,6 +95,8 @@ public class Constants {
 
     public static final NetworkTableInstance INST = NetworkTableInstance.getDefault();
 
+    public static final Voltage LOW_BATTERY_VOLTAGE = Volts.of(12.4);
+
     public static class Dimensions { // unfinished
         public static final Distance BUMPER_THICKNESS = Inches.of(3.2);
         public static final Distance FRAME_SIZE = Inches.of(29);

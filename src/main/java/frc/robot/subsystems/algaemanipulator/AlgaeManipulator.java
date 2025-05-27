@@ -19,10 +19,6 @@ import frc.robot.Constants.AlgaeManipulatorConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Button 2 on button board 2 if true remove algae while doing coral Y is remove algae no coral X is barge - depends on
- * F,G,H,I for pose To remove coral, back up, flip down + move elevator, move forward, wait for pickup, move back, drop
- */
 public class AlgaeManipulator extends SubsystemBase {
     private final AlgaeManipulatorIO io;
     private final AlgaeManipulatorIOInputsAutoLogged inputs = new AlgaeManipulatorIOInputsAutoLogged();
@@ -35,6 +31,7 @@ public class AlgaeManipulator extends SubsystemBase {
     public Trigger algaeDetectedTrigger =
             new Trigger(this::stalled).debounce(0.4, DebounceType.kFalling).or(isSim.and(() -> simHasAlgae));
 
+    @AutoLogOutput
     public Trigger deployedTrigger = new Trigger(() -> deployed);
 
     private final Alert motorDisconnectedAlert = new Alert("Disconnected algae manipulator motor.", AlertType.kError);
@@ -64,56 +61,62 @@ public class AlgaeManipulator extends SubsystemBase {
         return this.runOnce(this::stop);
     }
 
-    private Command runCommand(Voltage speed) {
-        return this.startEnd(() -> io.setSpeed(speed), io::stop);
+    public Command setSpeedCommand(Voltage speed, boolean requireSubsystem) {
+        if (!requireSubsystem) {
+            return Commands.runOnce(() -> io.setSpeed(speed));
+        }
+        return this.runOnce(() -> io.setSpeed(speed));
+    }
+
+    public Command setSpeedCommand(Voltage speed) {
+        return setSpeedCommand(speed, true);
     }
 
     public Command intakeCommand() {
-        if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> {
-                simHasAlgae = true;
-                deployed = true;
-            });
-        }
-        return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
-                .until(algaeDetectedTrigger)
-                .andThen(
-                        this.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.INTAKE_SPEED)),
+        return Commands.sequence(
+                        this.runOnce(() -> {
+                            simHasAlgae = true;
+                            deployed = true;
+                        }),
+                        setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
+                        Commands.waitUntil(algaeDetectedTrigger),
+                        setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
                         new ScheduleCommand(Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME)
-                                .andThen(intakeCycleCommand())));
+                                .andThen(intakeCycleCommand())))
+                .withName("Algae Intake");
     }
 
     private Command intakeCycleCommand() {
         return Commands.repeatingSequence(
-                Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_SPEED)),
-                Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_OFF),
-                Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.INTAKE_SPEED)),
-                Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_ON));
+                        setSpeedCommand(AlgaeManipulatorConstants.HOLD_SPEED),
+                        Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_OFF),
+                        setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
+                        Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_ON))
+                .withName("Algae Intake Cycle");
     }
 
     public Command forwardCommand() {
-        return runCommand(AlgaeManipulatorConstants.INTAKE_SPEED);
+        return setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
+                .andThen(Commands.idle(this))
+                .finallyDo(this::stop);
     }
 
     public Command reverseCommand() {
-        return runCommand(AlgaeManipulatorConstants.EJECT_SPEED.unaryMinus());
+        return setSpeedCommand(AlgaeManipulatorConstants.EJECT_SPEED)
+                .andThen(Commands.idle(this))
+                .finallyDo(this::stop);
     }
 
     public Command ejectCommand() {
-        if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasAlgae = false);
-        }
-        return reverseCommand().until(algaeDetectedTrigger.negate());
+        return this.runOnce(() -> simHasAlgae = false).andThen(reverseCommand().until(algaeDetectedTrigger.negate()));
     }
 
     public Command flipUpAndHoldCommand() {
-        if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> deployed = false);
-        }
-        return new ScheduleCommand(Commands.runOnce(
-                        () -> io.setSpeed(AlgaeManipulatorConstants.FLIP_UP_SPEED.unaryMinus()))
-                .withTimeout(AlgaeManipulatorConstants.FLIP_UP_TIME)
-                .andThen(Commands.runOnce(() -> io.setSpeed(AlgaeManipulatorConstants.HOLD_UP_SPEED.unaryMinus()))));
+        return Commands.sequence(
+                this.runOnce(() -> deployed = false),
+                setSpeedCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED),
+                Commands.waitTime(AlgaeManipulatorConstants.FLIP_UP_TIME),
+                setSpeedCommand(AlgaeManipulatorConstants.HOLD_UP_SPEED));
     }
 
     private boolean stalled() {

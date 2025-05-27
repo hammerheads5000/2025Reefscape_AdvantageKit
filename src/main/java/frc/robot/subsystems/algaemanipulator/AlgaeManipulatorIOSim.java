@@ -6,10 +6,13 @@ package frc.robot.subsystems.algaemanipulator;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
-import frc.robot.Constants.AlgaeManipulatorConstants;
+import edu.wpi.first.units.measure.Voltage;
 
 public class AlgaeManipulatorIOSim implements AlgaeManipulatorIO {
+    private Voltage speed = Volts.zero();
+
     public AlgaeManipulatorIOSim() {}
 
     @Override
@@ -18,9 +21,19 @@ public class AlgaeManipulatorIOSim implements AlgaeManipulatorIO {
 
         // Assume motors are running
         inputs.velocity = RotationsPerSecond.of(0.5).times(2);
-        inputs.appliedVolts = AlgaeManipulatorConstants.HOLD_SPEED;
+        inputs.appliedVolts = speed;
         inputs.torqueCurrent = Amps.of(5);
 
         inputs.lidarSeesAlgae = false;
+    }
+
+    @Override
+    public void setSpeed(Voltage speed) {
+        this.speed = speed;
+    }
+
+    @Override
+    public void stop() {
+        this.speed = Volts.zero();
     }
 }

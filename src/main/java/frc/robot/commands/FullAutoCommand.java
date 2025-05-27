@@ -135,7 +135,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
                                 .andThen(elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
-                                .andThen(algaeManipulator.flipUpAndHoldCommand()))
+                                .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
@@ -189,7 +189,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
                                 .andThen(elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
-                                .andThen(algaeManipulator.flipUpAndHoldCommand()))
+                                .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .until(approachReefCommand
                         .withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE)
                         .and(elevator::atGoal))

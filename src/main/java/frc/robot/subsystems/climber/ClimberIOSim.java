@@ -5,6 +5,7 @@
 package frc.robot.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -20,18 +21,27 @@ public class ClimberIOSim implements ClimberIO {
 
     @Override
     public void updateInputs(ClimberIOInputs inputs) {
-        inputs.motorConnected = true;
-        inputs.velocity = RadiansPerSecond.of(motor.getSpeed(3, output.in(Volts)));
-        inputs.torqueCurrent = Amps.of(motor.getCurrent(3));
+        inputs.climbMotorConnected = true;
+        inputs.climbVelocity = RadiansPerSecond.of(motor.getSpeed(3, output.in(Volts)));
+        inputs.climbTorqueCurrent = Amps.of(motor.getCurrent(3));
+        inputs.climbAppliedVolts = output;
+
+        inputs.grabMotorConnected = true;
+        inputs.grabVelocity = RadiansPerSecond.zero();
+        inputs.grabAppliedVolts = Volts.zero();
+        inputs.cageDetected = false;
+
+        inputs.encoderConnected = true;
+        inputs.pos = Radians.zero();
     }
 
     @Override
-    public void setOutput(Voltage output) {
+    public void setClimberOutput(Voltage output) {
         this.output = output;
     }
 
     @Override
-    public void stop() {
+    public void stopClimb() {
         this.output = Volts.zero();
     }
 }

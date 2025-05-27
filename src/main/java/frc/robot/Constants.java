@@ -548,7 +548,8 @@ public class Constants {
     }
 
     public static class ClimberConstants {
-        public static final int MOTOR_ID = 14;
+        public static final int CLIMB_MOTOR_ID = 14;
+        public static final int CLIMB_ENCODER_ID = 6; // fd bus
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
 
@@ -556,15 +557,37 @@ public class Constants {
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
+        public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
+
+        public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
+                .withFeedbackRemoteSensorID(CLIMB_ENCODER_ID)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+                .withRotorToSensorRatio(GEAR_RATIO);
+
+        public static final Angle GRAB_ANGLE = Degrees.of(260);
+        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(115);
+
+        public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
+                .withMotorOutput(OUTPUT_CONFIGS)
+                .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
+                .withFeedback(FEEDBACK_CONFIGS);
+
+        public static final MagnetSensorConfigs ENCODER_CONFIGS =
+                new MagnetSensorConfigs().withMagnetOffset(0.0).withAbsoluteSensorDiscontinuityPoint(1);
+
         public static final Voltage CLIMB_SPEED = Volts.of(10);
         public static final Voltage BREAK_SPEED = Volts.of(6);
         public static final Voltage RELEASE_SPEED = Volts.of(-6);
 
-        public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
-        public static final Angle BREAK_ANGLE = Degrees.of(260);
-        public static final Angle ALIGN_ANGLE = Degrees.of(115);
-
         public static final Current STALL_CURRENT = Amps.of(50);
+
+        public static final int GRAB_MOTOR_ID = 15;
+        public static final Voltage GRAB_SPEED = Volts.of(6);
+        public static final MotorOutputConfigs GRAB_CONFIGS = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
+
+        public static final int CAGE_SENSOR_PORT = 5; // DIO induction sensor
     }
 
     public static class VisionConstants {

@@ -105,9 +105,10 @@ public class RobotContainer {
     private final Trigger reefTrigger = driveController.a();
     private final Trigger stationTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
-    private final Trigger climbTrigger = driveController.start();
+    private final Trigger autoClimbTrigger = driveController.start();
     private final Trigger unclimbTrigger = driveController.back();
-    private final Trigger algaeAndCoralToggle = buttonBoardOther.button(2).or(algaeButtonLayerTrigger);
+    private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2);
+    private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger;
 
     private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
     private final Trigger bargeTrigger = driveController.b().and(algaeButtonLayerTrigger);
@@ -319,8 +320,9 @@ public class RobotContainer {
 
         algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 
-        climbTrigger.whileTrue(climber.climbCommand());
+        autoClimbTrigger.whileTrue(climber.climbCommand());
         unclimbTrigger.whileTrue(climber.reverseCommand());
+        climbGrabPosTrigger.whileTrue(climber.goToGrabPosCommand());
 
         for (int i = 0; i < reefTriggers.length; i++) {
             reefTriggers[i] = buttonBoardReef.button(i + 1);

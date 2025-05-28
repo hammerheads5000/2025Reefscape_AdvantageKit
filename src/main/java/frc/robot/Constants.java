@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -24,7 +23,8 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.S1CloseStateValue;
+import com.ctre.phoenix6.signals.S1StateValue;
+import com.ctre.phoenix6.signals.S2StateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -505,9 +505,9 @@ public class Constants {
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
         // Lidar
-        public static final int FRONT_LIDAR_ID = 9;
-        public static final int BACK_LIDAR_ID = 8;
-        public static final int INTAKE_LIDAR_ID = 7;
+        public static final int CANDI_ID = 2;
+        public static final S1StateValue S1_DETECTED_VALUE = S1StateValue.Low;
+        public static final S2StateValue S2_DETECTED_VALUE = S2StateValue.Low;
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(3.6);
@@ -591,9 +591,8 @@ public class Constants {
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
-        public static final int CAGE_SENSOR_ID = 1; // induction sensor
-        public static final DigitalInputsConfigs CAGE_SENSOR_CONFIGS = new DigitalInputsConfigs()
-                .withS1CloseState(S1CloseStateValue.CloseWhenLow);
+        public static final int CANDI_ID = 1; // induction sensor
+        public static final S1StateValue CAGE_DETECTED_VALUE = S1StateValue.Low;
     }
 
     public static class VisionConstants {

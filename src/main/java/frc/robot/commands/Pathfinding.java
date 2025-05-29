@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
 import java.util.ArrayList;
 
@@ -252,6 +253,51 @@ public class Pathfinding {
         Pose2d endPose = ApproachBargeCommands.getBargePose(pos);
         poses.add(
                 new Pose2d(endPose.getTranslation(), AutoBuilder.shouldFlip() ? Rotation2d.k180deg : Rotation2d.kZero));
+
+        Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
+
+        Pose2d startPose;
+        if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {
+            startPose = pointPoseTowards(currentPose, poses.get(0));
+        } else {
+            Rotation2d startHeading = chassisSpeedsToHeading(startSpeeds);
+            startPose = new Pose2d(currentPose.getTranslation(), startHeading);
+        }
+        poses.add(0, startPose);
+
+        ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();
+        constraintsZones.add(
+                new ConstraintsZone(poses.size() - 1.3, poses.size() - 1, PathConstants.APPROACH_CONSTRAINTS));
+
+        PathPlannerPath path = new PathPlannerPath(
+                PathPlannerPath.waypointsFromPoses(poses),
+                new ArrayList<RotationTarget>(),
+                new ArrayList<PointTowardsZone>(),
+                constraintsZones,
+                new ArrayList<EventMarker>(),
+                PathConstants.FAST_CONSTRAINTS,
+                new IdealStartingState(chassisSpeedsToVelocity(startSpeeds), currentPose.getRotation()),
+                new GoalEndState(0, endPose.getRotation()),
+                false);
+
+        if (AutoBuilder.shouldFlip()) {
+            path = path.flipPath();
+        }
+        return path;
+    }
+
+    /**
+     * Generates a PathPlannerPath to approach a barge
+     *
+     * @param currentPose Current robot pose
+     * @param pos Barge position (F,G,H,I for barge positions from right to left)
+     * @param startSpeeds Initial chassis speeds to use for the path
+     */
+    public static PathPlannerPath generateProcessPath(Pose2d currentPose, ChassisSpeeds startSpeeds) {
+        int side = 4;
+        ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
+        Pose2d endPose = FieldConstants.PROCESSOR;
+        poses.add(endPose);
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 

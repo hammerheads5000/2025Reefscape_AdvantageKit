@@ -352,6 +352,9 @@ public class Constants {
                 .withProfile(3.5, 6)
                 .withTolerance(Inches.of(4).in(Meters));
 
+        public static final ControlConstants PROCESS_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withTolerance(Inches.of(4).in(Meters));
+
         public static final ControlConstants SWEEP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withTolerance(Inches.of(4).in(Meters));
 
@@ -367,6 +370,9 @@ public class Constants {
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
         public static final ControlConstants ALGAE_PULL_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(6);
+
+        public static final ControlConstants PROCESS_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(4);
 
         public static final ControlConstants SWEEP_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
 
@@ -485,6 +491,7 @@ public class Constants {
         public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(43.5);
         public static final Distance BARGE_HEIGHT = Inches.of(82.4);
         public static final Distance LOLLIPOP_HEIGHT = Inches.of(9.3);
+        public static final Distance PROCESS_HEIGHT = Inches.of(9.3);
 
         public static final Map<Integer, Distance> ALGAE_HEIGHTS = Map.of(
                 0, LOW_ALGAE_HEIGHT,
@@ -656,6 +663,11 @@ public class Constants {
         public static final Pose2d STATION_1 =
                 VisionConstants.APRIL_TAGS.getTagPose(13).get().toPose2d();
 
+        public static final Pose2d PROCESSOR = new Pose2d(
+                VisionConstants.APRIL_TAGS.getTagPose(16).get().toPose2d().getMeasureX(),
+                PathConstants.DISTANCE_TO_PROCESSOR,
+                Rotation2d.kCW_90deg);
+
         // Pose at midpoint between tags 18 and 21 (which are opposite on blue reef)
         public static final Translation2d REEF_CENTER_BLUE = VisionConstants.APRIL_TAGS
                 .getTagPose(18)
@@ -709,7 +721,8 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance DISTANCE_TO_REEF = Inches.of(29 / 2).plus(Dimensions.BUMPER_THICKNESS);
+        public static final Distance DISTANCE_TO_REEF = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
+        public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
         public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
         // approaching

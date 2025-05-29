@@ -194,6 +194,11 @@ public class Elevator extends SubsystemBase {
                 .withName("Elevator Lollipop" + (instant ? " (instant)" : ""));
     }
 
+    public Command goToProcessCommand(boolean instant) {
+        return goToHeightCommand(instant, ElevatorConstants.PROCESS_HEIGHT)
+                .withName("Elevator Process" + (instant ? " (instant)" : ""));
+    }
+
     /** Continually adjust height of elevator so that shooting a coral will work (within a certain distance) */
     public Command trackHeightCommand(Supplier<Distance> distanceToReef, Distance height) {
         return this.run(() -> {

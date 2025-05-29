@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,8 +24,9 @@ public class AlignToReefCommands {
     /**
      * Calculates the pose of the robot for scoring on a branch or trough.
      *
-     * @param side The side of the reef (0 for left, increases clockwise).
-     * @param relativePos The relative position on the reef (-1 for right branch, 0 for center, 1 for left branch).
+     * @param side        The side of the reef (0 for left, increases clockwise).
+     * @param relativePos The relative position on the reef (-1 for right branch, 0
+     *                    for center, 1 for left branch).
      * @return The calculated Pose2d for scoring.
      */
     public static Pose2d getReefPose(int side, double relativePos) {
@@ -37,8 +39,9 @@ public class AlignToReefCommands {
     /**
      * Calculates the pose of the robot for scoring on a branch or trough.
      *
-     * @param side The side of the reef (0 for left, increases clockwise).
-     * @param relativePos The relative position on the reef (-1 for right branch, 0 for center, 1 for left branch).
+     * @param side        The side of the reef (0 for left, increases clockwise).
+     * @param relativePos The relative position on the reef (-1 for right branch, 0
+     *                    for center, 1 for left branch).
      * @return The calculated Pose2d for scoring.
      */
     public static Pose2d getReefPose(int side, double relativePos, boolean isRed) {
@@ -49,8 +52,56 @@ public class AlignToReefCommands {
         Translation2d reefCenter = FieldConstants.REEF_CENTER_BLUE;
 
         // robot position centered on close reef side
-        Translation2d translation =
-                reefCenter.plus(new Translation2d(FieldConstants.REEF_APOTHEM.unaryMinus(), Meters.zero()));
+        Translation2d translation = reefCenter
+                .plus(new Translation2d(FieldConstants.REEF_APOTHEM.unaryMinus(), Meters.zero()));
+        // translate to correct branch (left, right, center)
+        translation = translation.plus(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos));
+        // rotate to correct side
+        translation = translation.rotateAround(reefCenter, Rotation2d.fromDegrees(-60 * side));
+
+        // make pose from translation and correct rotation
+        Pose2d reefPose = new Pose2d(translation, Rotation2d.fromDegrees(-60 * side));
+
+        if (flipToRed) {
+            reefPose = flipPose(reefPose);
+        }
+
+        return reefPose;
+    }
+
+    /**
+     * Calculates the pose of a branch.
+     *
+     * @param side        The side of the reef (0 for left, increases clockwise).
+     * @param relativePos The relative position on the reef (-1 for right branch, 0
+     *                    for center, 1 for left branch).
+     * @return The calculated Pose2d for scoring.
+     */
+    public static Pose2d getBranchPose(int side, double relativePos) {
+        // determine whether to use red or blue reef position
+        boolean isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+
+        return getBranchPose(side, relativePos, isRed);
+    }
+
+    /**
+     * Calculates the pose of a branch.
+     *
+     * @param side        The side of the reef (0 for left, increases clockwise).
+     * @param relativePos The relative position on the reef (-1 for right branch, 0
+     *                    for center, 1 for left branch).
+     * @return The calculated Pose2d for scoring.
+     */
+    public static Pose2d getBranchPose(int side, double relativePos, boolean isRed) {
+        // determine whether to use red or blue reef position
+        flipToRed = isRed;
+
+        // initially do all calculations from blue, then flip later
+        Translation2d reefCenter = FieldConstants.REEF_CENTER_BLUE;
+
+        // branch position centered on close reef side
+        Translation2d translation = reefCenter.plus(new Translation2d(FieldConstants.REEF_APOTHEM.unaryMinus()
+                .plus(PathConstants.DISTANCE_TO_REEF).plus(PathConstants.BRANCH_INSET), Meters.zero()));
         // translate to correct branch (left, right, center)
         translation = translation.plus(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos));
         // rotate to correct side
@@ -76,6 +127,15 @@ public class AlignToReefCommands {
     public static AlignToPoseCommand alignToReef(int side, double relativePos, Swerve swerve) {
         return new AlignToPoseCommand(
                 getReefPose(side, relativePos),
+                AlignConstants.SCORING_PID_TRANSLATION,
+                AlignConstants.SCORING_PID_ANGLE,
+                swerve);
+    }
+
+    public static AlignAndFacePoseCommand alignToReefFacingBranch(int side, double relativePos, Swerve swerve) {
+        return new AlignAndFacePoseCommand(
+                getReefPose(side, relativePos),
+                getBranchPose(side, relativePos),
                 AlignConstants.SCORING_PID_TRANSLATION,
                 AlignConstants.SCORING_PID_ANGLE,
                 swerve);

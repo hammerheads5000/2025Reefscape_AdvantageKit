@@ -763,6 +763,7 @@ public class Constants {
         public static final Distance L1_SIDE_DISTANCE = Inches.of(16);
         public static final double L1_RELATIVE_POS =
                 L1_SIDE_DISTANCE.div(Inches.of(12.94 / 2)).magnitude();
+        public static final Distance BRANCH_INSET = Inches.of(1.6);
 
         // PathPlanner
 

@@ -5,6 +5,7 @@
 package frc.robot.subsystems.endeffector;
 
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
@@ -73,14 +74,14 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Command runCommand(Voltage speed) {
-        return runCommand(speed, speed);
+        return runCommand(speed, speed).withName("Run End Effector ("+speed.in(Volts)+"V)");
     }
 
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = true);
         }
-        return runCommand(EndEffectorConstants.INTAKE_SPEED).until(hasCoralTrigger);
+        return runCommand(EndEffectorConstants.INTAKE_SPEED).until(hasCoralTrigger).withName("End Effector Intake");
     }
 
     public Command coolerIntakeCommand() {
@@ -90,14 +91,14 @@ public class EndEffector extends SubsystemBase {
         return Commands.repeatingSequence(
                         runCommand(EndEffectorConstants.INTAKE_SPEED).until(stalledTrigger),
                         Commands.waitTime(EndEffectorConstants.COOLER_INTAKE_CYCLE))
-                .until(hasCoralTrigger);
+                .until(hasCoralTrigger).withName("End Effector Cool Intake");
     }
 
     public Command scoreCommand() {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = false);
         }
-        return runCommand(EndEffectorConstants.SCORE_SPEED).until(coralReleasedTrigger);
+        return runCommand(EndEffectorConstants.SCORE_SPEED).until(coralReleasedTrigger).withName("End Effector Score");
     }
 
     public Command troughLeftCommand() {
@@ -105,7 +106,7 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false);
         }
         return runCommand(EndEffectorConstants.SLOW_TROUGH_SPEED, EndEffectorConstants.FAST_TROUGH_SPEED)
-                .until(coralReleasedTrigger);
+                .until(coralReleasedTrigger).withName("End Effector Left Trough");
     }
 
     public Command troughRightCommand() {
@@ -113,6 +114,6 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false);
         }
         return runCommand(EndEffectorConstants.FAST_TROUGH_SPEED, EndEffectorConstants.SLOW_TROUGH_SPEED)
-                .until(coralReleasedTrigger);
+                .until(coralReleasedTrigger).withName("End Effector Right Trough");
     }
 }

@@ -33,7 +33,7 @@ public class LollipopCommands {
                 elevator.goToLollipopCommand(true),
                 align,
                 Commands.waitUntil(align.withinDistanceToTarget(PathConstants.LOLLIPOP_INTAKE_DISTANCE))
-                        .andThen(algaeManipulator.intakeCommand()));
+                        .andThen(algaeManipulator.intakeCommand())).withName("Lollipop");
     }
 
     /**

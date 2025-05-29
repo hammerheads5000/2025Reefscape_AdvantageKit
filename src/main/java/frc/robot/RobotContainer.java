@@ -258,7 +258,7 @@ public class RobotContainer {
 
         rumbleCommand = Commands.startEnd(
                 () -> driveController.setRumble(RumbleType.kBothRumble, ControllerConstants.CONTROLLER_RUMBLE),
-                () -> driveController.setRumble(RumbleType.kBothRumble, 0));
+                () -> driveController.setRumble(RumbleType.kBothRumble, 0)).withName("Rumble");
 
         reefCommand = Commands.defer(
                         () -> new FullAutoCommand(
@@ -320,7 +320,7 @@ public class RobotContainer {
                 () -> elevatorCommands
                         .get(NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1))
                         .get(),
-                Set.of(elevator));
+                Set.of(elevator)).withName("Elevator Command");
 
         swerve.setDefaultCommand(teleopSwerveCommand);
 

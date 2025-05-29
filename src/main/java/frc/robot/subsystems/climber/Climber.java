@@ -40,30 +40,36 @@ public class Climber extends SubsystemBase {
     }
 
     public Command climbCommand() {
-        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.CLIMB_SPEED), io::stopClimb);
+        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.CLIMB_SPEED), io::stopClimb)
+                .withName("Climb");
     }
 
     public Command reverseCommand() {
-        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.RELEASE_SPEED), io::stopClimb);
+        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.RELEASE_SPEED), io::stopClimb)
+                .withName("Unclimb");
     }
 
     public Command grabCommand() {
-        return this.startEnd(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED), io::stopGrab);
+        return this.startEnd(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED), io::stopGrab)
+                .withName("Grab Cage");
     }
 
     public Command releaseCommand() {
-        return this.startEnd(() -> io.setGrabOutput(ClimberConstants.RELEASE_SPEED), io::stopGrab);
+        return this.startEnd(() -> io.setGrabOutput(ClimberConstants.RELEASE_SPEED), io::stopGrab)
+                .withName("Release Cage");
     }
 
     public Command goToGrabPosCommand() {
         return reverseCommand()
                 .until(() -> inputs.pos.lte(ClimberConstants.GRAB_ANGLE))
-                .finallyDo(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED));
+                .finallyDo(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED))
+                .withName("Go to Cage Grab Pos");
     }
 
     public Command autoClimbCommand() {
         return Commands.repeatingSequence(
                 climbCommand().until(() -> inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)),
-                Commands.waitUntil(() -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))));
+                Commands.waitUntil(() -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))))
+                .withName("Auto Climb");
     }
 }

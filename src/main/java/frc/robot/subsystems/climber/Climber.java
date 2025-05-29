@@ -68,8 +68,9 @@ public class Climber extends SubsystemBase {
 
     public Command autoClimbCommand() {
         return Commands.repeatingSequence(
-                climbCommand().until(() -> inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)),
-                Commands.waitUntil(() -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))))
+                        climbCommand().until(() -> inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)),
+                        Commands.waitUntil(
+                                () -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))))
                 .withName("Auto Climb");
     }
 }

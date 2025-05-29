@@ -72,6 +72,6 @@ public class ApproachBargeCommands {
 
         PathPlannerPath path = Pathfinding.generateBargePath(swerve.getPose(), pos, swerve.getFieldSpeeds());
 
-        return AutoBuilder.followPath(path).withName("Barge Path "+pos);
+        return AutoBuilder.followPath(path).withName("Barge Path " + pos);
     }
 }

@@ -34,19 +34,18 @@ public class FullAutoCommand extends SequentialCommandGroup {
         Command command = ApproachCoralStationCommands.pathfindCommand(station, relativePos, swerve);
 
         if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
-            command = command.alongWith(elevator.goToIntakePosCommand(false))
+            return command.alongWith(elevator.goToIntakePosCommand(false))
                     .andThen(new ScheduleCommand(endEffector.coolerIntakeCommand()));
         } else {
-            command = command.alongWith(elevator.goToIntakePosCommand(false))
-                    .alongWith(
-                            new ScheduleCommand(endEffector.coolerIntakeCommand()),
-                            // wait slightly to avoid stopping early
-                            Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)
-                                    .andThen(
-                                            new ScheduleCommand(endEffector.coolerIntakeCommand()),
-                                            Commands.waitUntil(endEffector.coralDetectedTrigger)));
+            return command.alongWith(
+                    elevator.goToIntakePosCommand(false),
+                    new ScheduleCommand(endEffector.coolerIntakeCommand()),
+                    // wait slightly to avoid stopping early
+                    Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)
+                            .andThen(
+                                    new ScheduleCommand(endEffector.coolerIntakeCommand()),
+                                    Commands.waitUntil(endEffector.coralDetectedTrigger)));
         }
-        return command;
     }
 
     private Command getStationCommand(int station) {

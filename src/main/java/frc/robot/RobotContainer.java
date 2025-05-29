@@ -257,8 +257,9 @@ public class RobotContainer {
         teleopSwerveCommand = new TeleopSwerve(swerve, driveController);
 
         rumbleCommand = Commands.startEnd(
-                () -> driveController.setRumble(RumbleType.kBothRumble, ControllerConstants.CONTROLLER_RUMBLE),
-                () -> driveController.setRumble(RumbleType.kBothRumble, 0)).withName("Rumble");
+                        () -> driveController.setRumble(RumbleType.kBothRumble, ControllerConstants.CONTROLLER_RUMBLE),
+                        () -> driveController.setRumble(RumbleType.kBothRumble, 0))
+                .withName("Rumble");
 
         reefCommand = Commands.defer(
                         () -> new FullAutoCommand(
@@ -317,10 +318,11 @@ public class RobotContainer {
                 Map.entry('4', () -> elevator.goToL4Command(false)));
 
         elevatorCommand = Commands.defer(
-                () -> elevatorCommands
-                        .get(NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1))
-                        .get(),
-                Set.of(elevator)).withName("Elevator Command");
+                        () -> elevatorCommands
+                                .get(NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(1))
+                                .get(),
+                        Set.of(elevator))
+                .withName("Elevator Command");
 
         swerve.setDefaultCommand(teleopSwerveCommand);
 
@@ -400,7 +402,8 @@ public class RobotContainer {
     }
 
     private Command setAlgaeCommand() {
-        return Commands.startEnd(() -> setAlgaeAutoDescriptor(true), () -> setAlgaeAutoDescriptor(false));
+        return Commands.startEnd(() -> setAlgaeAutoDescriptor(true), () -> setAlgaeAutoDescriptor(false))
+                .withName("Toggle Algae");
     }
 
     public Command getAutonomousCommand() {

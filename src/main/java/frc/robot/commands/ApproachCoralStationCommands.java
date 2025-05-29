@@ -72,6 +72,6 @@ public class ApproachCoralStationCommands {
         PathPlannerPath path =
                 Pathfinding.generateStationPath(swerve.getPose(), station, relativePos, swerve.getFieldSpeeds());
 
-        return AutoBuilder.followPath(path).withName("Station "+station+" Path");
+        return AutoBuilder.followPath(path).withName("Station " + station + " Path");
     }
 }

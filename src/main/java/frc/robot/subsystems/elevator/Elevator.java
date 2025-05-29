@@ -141,7 +141,7 @@ public class Elevator extends SubsystemBase {
      * the aboslute position within a rotation that represents 0
      */
     public Command zeroEncoderCommand() {
-        return this.runOnce(io::zeroEncoder);
+        return this.runOnce(io::zeroEncoder).withName("Zero Encoder");
     }
 
     public Command goToHeightCommand(boolean instant, Distance goal) {
@@ -171,27 +171,27 @@ public class Elevator extends SubsystemBase {
 
     public Command goToL4Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L4_HEIGHT)
-        .withName("Elevator L4" + (instant ? " (instant)" : ""));
+                .withName("Elevator L4" + (instant ? " (instant)" : ""));
     }
 
     public Command goToIntakePosCommand(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.INTAKE_HEIGHT)
-        .withName("Elevator Intake" + (instant ? " (instant)" : ""));
+                .withName("Elevator Intake" + (instant ? " (instant)" : ""));
     }
 
     public Command goToAlgaeCommand(int side, boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.ALGAE_HEIGHTS.get(side))
-        .withName("Elevator Algae" + (instant ? " (instant)" : ""));
+                .withName("Elevator Algae" + (instant ? " (instant)" : ""));
     }
 
     public Command goToBargeCommand(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.BARGE_HEIGHT)
-        .withName("Elevator Barge" + (instant ? " (instant)" : ""));
+                .withName("Elevator Barge" + (instant ? " (instant)" : ""));
     }
 
     public Command goToLollipopCommand(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.LOLLIPOP_HEIGHT)
-        .withName("Elevator Lollipop" + (instant ? " (instant)" : ""));
+                .withName("Elevator Lollipop" + (instant ? " (instant)" : ""));
     }
 
     /** Continually adjust height of elevator so that shooting a coral will work (within a certain distance) */
@@ -207,41 +207,39 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command trackL1Command(Supplier<Distance> distanceToReef) {
-        return trackHeightCommand(distanceToReef, ElevatorConstants.L1_HEIGHT)
-                .withName("Track L1");
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L1_HEIGHT).withName("Track L1");
     }
 
     public Command trackL2Command(Supplier<Distance> distanceToReef) {
-        return trackHeightCommand(distanceToReef, ElevatorConstants.L2_HEIGHT)
-        .withName("Track L2");
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L2_HEIGHT).withName("Track L2");
     }
 
     public Command trackL3Command(Supplier<Distance> distanceToReef) {
-        return trackHeightCommand(distanceToReef, ElevatorConstants.L3_HEIGHT)
-        .withName("Track L3");
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L3_HEIGHT).withName("Track L3");
     }
 
     public Command trackL4Command(Supplier<Distance> distanceToReef) {
-        return trackHeightCommand(distanceToReef, ElevatorConstants.L4_HEIGHT)
-        .withName("Track L4");
+        return trackHeightCommand(distanceToReef, ElevatorConstants.L4_HEIGHT).withName("Track L4");
     }
 
     public Command elevatorUpCommand() {
         return this.startEnd(
-                () -> {
-                    io.setManualOverride(true);
-                    io.setOpenLoopOutput(ElevatorConstants.MANUAL_UP_SPEED);
-                },
-                io::resetAtPosition).withName("Elevator Manual Up");
+                        () -> {
+                            io.setManualOverride(true);
+                            io.setOpenLoopOutput(ElevatorConstants.MANUAL_UP_SPEED);
+                        },
+                        io::resetAtPosition)
+                .withName("Elevator Manual Up");
     }
 
     public Command elevatorDownCommand() {
         return this.startEnd(
-                () -> {
-                    io.setManualOverride(true);
-                    io.setOpenLoopOutput(ElevatorConstants.MANUAL_DOWN_SPEED);
-                },
-                io::resetAtPosition).withName("Elevator Manual Down");
+                        () -> {
+                            io.setManualOverride(true);
+                            io.setOpenLoopOutput(ElevatorConstants.MANUAL_DOWN_SPEED);
+                        },
+                        io::resetAtPosition)
+                .withName("Elevator Manual Down");
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -254,7 +252,8 @@ public class Elevator extends SubsystemBase {
 
     /** Updates stage and corresponding PID constants */
     private Command setStageCommand() {
-        return Commands.runOnce(() -> io.setStage(heightToStage(inputs.position)));
+        return Commands.runOnce(() -> io.setStage(heightToStage(inputs.position)))
+                .withName("Set Stage");
     }
 
     public enum Stage {

@@ -58,16 +58,18 @@ public class AlgaeManipulator extends SubsystemBase {
 
     public void stop() {
         io.stop();
-        this.getCurrentCommand().cancel();
+        if (this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
     }
 
     public Command stopCommand() {
-        return this.runOnce(this::stop);
+        return this.runOnce(this::stop).withName("Stop Algae Manipulator");
     }
 
     /** Set speed and immediately end */
     public Command setSpeedCommand(Voltage speed) {
-        return this.runOnce(() -> io.setSpeed(speed));
+        return this.runOnce(() -> io.setSpeed(speed)).withName("Set Algae Manipulator Speed");
     }
 
     /** Intake algae. Ends when algae is detected, but continues with intakeCycleCommand to hold algae */

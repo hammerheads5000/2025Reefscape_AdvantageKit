@@ -30,10 +30,11 @@ public class LollipopCommands {
         AlignToPoseCommand align = new AlignToPoseCommand(
                 lollipopPose, AlignConstants.LOLLIPOP_PID_TRANSLATION, AlignConstants.LOLLIPOP_PID_ANGLE, swerve);
         return Commands.parallel(
-                elevator.goToLollipopCommand(true),
-                align,
-                Commands.waitUntil(align.withinDistanceToTarget(PathConstants.LOLLIPOP_INTAKE_DISTANCE))
-                        .andThen(algaeManipulator.intakeCommand())).withName("Lollipop");
+                        elevator.goToLollipopCommand(true),
+                        align,
+                        Commands.waitUntil(align.withinDistanceToTarget(PathConstants.LOLLIPOP_INTAKE_DISTANCE))
+                                .andThen(algaeManipulator.intakeCommand()))
+                .withName("Lollipop");
     }
 
     /**

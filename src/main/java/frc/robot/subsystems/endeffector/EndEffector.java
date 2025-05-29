@@ -74,46 +74,53 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Command runCommand(Voltage speed) {
-        return runCommand(speed, speed).withName("Run End Effector ("+speed.in(Volts)+"V)");
+        return runCommand(speed, speed).withName("Run End Effector (" + speed.in(Volts) + "V)");
     }
 
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = true);
+            return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake");
         }
-        return runCommand(EndEffectorConstants.INTAKE_SPEED).until(hasCoralTrigger).withName("End Effector Intake");
+        return runCommand(EndEffectorConstants.INTAKE_SPEED)
+                .until(hasCoralTrigger)
+                .withName("End Effector Intake");
     }
 
     public Command coolerIntakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = true);
+            return this.runOnce(() -> simHasCoral = true).withName("End Effector Cool Intake");
         }
         return Commands.repeatingSequence(
                         runCommand(EndEffectorConstants.INTAKE_SPEED).until(stalledTrigger),
                         Commands.waitTime(EndEffectorConstants.COOLER_INTAKE_CYCLE))
-                .until(hasCoralTrigger).withName("End Effector Cool Intake");
+                .until(hasCoralTrigger)
+                .withName("End Effector Cool Intake");
     }
 
     public Command scoreCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = false);
+            return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
         }
-        return runCommand(EndEffectorConstants.SCORE_SPEED).until(coralReleasedTrigger).withName("End Effector Score");
+        return runCommand(EndEffectorConstants.SCORE_SPEED)
+                .until(coralReleasedTrigger)
+                .withName("End Effector Score");
     }
 
     public Command troughLeftCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = false);
+            return this.runOnce(() -> simHasCoral = false).withName("End Effector Left Trough");
         }
         return runCommand(EndEffectorConstants.SLOW_TROUGH_SPEED, EndEffectorConstants.FAST_TROUGH_SPEED)
-                .until(coralReleasedTrigger).withName("End Effector Left Trough");
+                .until(coralReleasedTrigger)
+                .withName("End Effector Left Trough");
     }
 
     public Command troughRightCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = false);
+            return this.runOnce(() -> simHasCoral = false).withName("End Effector Trough Right");
         }
         return runCommand(EndEffectorConstants.FAST_TROUGH_SPEED, EndEffectorConstants.SLOW_TROUGH_SPEED)
-                .until(coralReleasedTrigger).withName("End Effector Right Trough");
+                .until(coralReleasedTrigger)
+                .withName("End Effector Right Trough");
     }
 }

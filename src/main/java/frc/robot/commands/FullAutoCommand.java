@@ -38,14 +38,13 @@ public class FullAutoCommand extends SequentialCommandGroup {
                     .andThen(new ScheduleCommand(endEffector.coolerIntakeCommand()));
         } else {
             command = command.alongWith(elevator.goToIntakePosCommand(false))
-                    .alongWith(new ScheduleCommand(endEffector
-                            .coolerIntakeCommand() // use ScheduleCommand to branch
-                            // off
-                            .beforeStarting(Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)))) // wait slightly to
-                    // start intake to
-                    // avoid stopping early
-                    .until(endEffector.coralDetectedTrigger)
-                    .andThen(Commands.waitUntil(endEffector.coralDetectedTrigger));
+                    .alongWith(
+                            new ScheduleCommand(endEffector.coolerIntakeCommand()),
+                            // wait slightly to avoid stopping early
+                            Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)
+                                    .andThen(
+                                            new ScheduleCommand(endEffector.coolerIntakeCommand()),
+                                            Commands.waitUntil(endEffector.coralDetectedTrigger)));
         }
         return command;
     }
@@ -131,9 +130,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
         commandToAdd = approachReefCommand
                 .alongWith(
-                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
-                                .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
-                                .andThen(elevatorPosCommand),
+                        Commands.sequence(
+                                Commands.waitUntil(endEffector.hasCoralTrigger),
+                                elevator.goToL2Command(true),
+                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
+                                elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .andThen(endEffectorCommand.asProxy())
@@ -185,9 +186,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
         commandToAdd = approachReefCommand
                 .alongWith(
-                        Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance))
-                                .andThen(Commands.waitUntil(endEffector.hasCoralTrigger))
-                                .andThen(elevatorPosCommand),
+                        Commands.sequence(
+                                Commands.waitUntil(endEffector.hasCoralTrigger),
+                                elevator.goToL2Command(true),
+                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
+                                elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .until(approachReefCommand
@@ -197,15 +200,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
-            commandToAdd = commandToAdd.andThen(Commands.defer(
-                    () -> new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator),
-                    Set.of(swerve, elevator, algaeManipulator)));
+            return commandToAdd.andThen(Commands.defer(
+                    () -> new RemoveAlgaeCommand(side, swerve, elevator, algaeManipulator), Set.of(swerve, elevator)));
         } else {
-            commandToAdd =
-                    commandToAdd.andThen(elevator.goToIntakePosCommand(true)).finallyDo(algaeManipulator::stop);
+            return commandToAdd.andThen(elevator.goToIntakePosCommand(true)).finallyDo(algaeManipulator::stop);
         }
-
-        return commandToAdd;
     }
 
     private Command commandFromToken(String token) {
@@ -252,8 +251,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
             boolean algae = token.length() == 3 && token.charAt(2) == 'A'; // also remove algae
 
             return Commands.defer(
-                    () -> getTrackedReefCommand(side, relativePos, token.charAt(1), algae),
-                    Set.of(swerve, elevator, algaeManipulator));
+                    () -> getTrackedReefCommand(side, relativePos, token.charAt(1), algae), Set.of(swerve, elevator));
         }
     }
 
@@ -282,7 +280,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
                 System.err.println("ERROR: Invalid auto token length " + token);
                 continue;
             }
-            addCommands(Commands.defer(() -> commandFromToken(token), Set.of(swerve, elevator, algaeManipulator)));
+            addCommands(Commands.defer(() -> commandFromToken(token), Set.of(swerve, elevator)));
         }
     }
 }

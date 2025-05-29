@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems.algaemanipulator;
 
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -29,7 +31,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     @AutoLogOutput
     public Trigger algaeDetectedTrigger =
-            new Trigger(this::stalled).debounce(0.4, DebounceType.kFalling).or(isSim.and(() -> simHasAlgae));
+            new Trigger(this::stalled).debounce(0.4).or(isSim.and(() -> simHasAlgae));
 
     @AutoLogOutput
     public Trigger deployedTrigger = new Trigger(() -> deployed);
@@ -56,6 +58,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     public void stop() {
         io.stop();
+        this.getCurrentCommand().cancel();
     }
 
     public Command stopCommand() {
@@ -76,19 +79,18 @@ public class AlgaeManipulator extends SubsystemBase {
                         }),
                         setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
                         Commands.waitUntil(algaeDetectedTrigger),
-                        setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
-                        new ScheduleCommand(Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME)
-                                .andThen(intakeCycleCommand())))
+                        new ScheduleCommand(intakeCycleCommand()))
                 .withName("Algae Intake");
     }
 
     /** Holds algae in with short cycles of max speed and longer cycles of slower speed */
     private Command intakeCycleCommand() {
-        return Commands.repeatingSequence(
+        return Commands.waitTime(AlgaeManipulatorConstants.HOLD_TIME)
+                .andThen(Commands.repeatingSequence(
                         setSpeedCommand(AlgaeManipulatorConstants.HOLD_SPEED),
                         Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_OFF),
                         setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED),
-                        Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_ON))
+                        Commands.waitTime(AlgaeManipulatorConstants.HOLD_CYCLE_ON)))
                 .withName("Algae Intake Cycle");
     }
 
@@ -110,21 +112,24 @@ public class AlgaeManipulator extends SubsystemBase {
 
     /** Eject algae by running the motor backwards until algae is no longer detected */
     public Command ejectCommand() {
-        return this.runOnce(() -> simHasAlgae = false).andThen(reverseCommand().until(algaeDetectedTrigger.negate()));
+        return this.runOnce(() -> simHasAlgae = false)
+                .andThen(reverseCommand().until(algaeDetectedTrigger.negate()))
+                .withName("Algae Eject");
     }
 
     /** Stows the algae manipulator by flipping it up and holding it in place (ends naturally after FLIP_UP_TIME) */
     public Command flipUpAndHoldCommand() {
         return Commands.sequence(
-                this.runOnce(() -> deployed = false),
-                setSpeedCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED),
-                Commands.waitTime(AlgaeManipulatorConstants.FLIP_UP_TIME),
-                setSpeedCommand(AlgaeManipulatorConstants.HOLD_UP_SPEED));
+                        this.runOnce(() -> deployed = false),
+                        setSpeedCommand(AlgaeManipulatorConstants.FLIP_UP_SPEED),
+                        Commands.waitTime(AlgaeManipulatorConstants.FLIP_UP_TIME),
+                        setSpeedCommand(AlgaeManipulatorConstants.HOLD_UP_SPEED))
+                .withName("Flip up and Hold");
     }
 
     /** Detects whether motor is stalled (not moving and has sufficient current) to determine if it is holding algae */
     private boolean stalled() {
-        return inputs.velocity.lt(AlgaeManipulatorConstants.MIN_VEL)
-                && inputs.torqueCurrent.gt(AlgaeManipulatorConstants.STALL_CURRENT);
+        return inputs.velocity.abs(RotationsPerSecond) < AlgaeManipulatorConstants.MIN_VEL.abs(RotationsPerSecond)
+                && inputs.torqueCurrent.abs(Amps) >= AlgaeManipulatorConstants.STALL_CURRENT.abs(Amps);
     }
 }

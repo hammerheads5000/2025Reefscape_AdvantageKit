@@ -39,21 +39,24 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                         new Rotation2d()));
 
         AlignToPoseCommand approachAlignCommand = new AlignToPoseCommand(
-                farPose, AlignConstants.ALGAE_PID_TRANSLATION, AlignConstants.ALGAE_PID_ANGLE, swerve);
+                farPose, AlignConstants.ALGAE_PICK_PID_TRANSLATION, AlignConstants.ALGAE_PICK_PID_ANGLE, swerve);
 
         AlignToPoseCommand pickAlignCommand = new AlignToPoseCommand(
-                AlignToReefCommands.getReefPose(side, 0),
-                AlignConstants.ALGAE_PID_TRANSLATION,
-                AlignConstants.ALGAE_PID_ANGLE,
+                AlignToReefCommands.getReefPose(side, 0)
+                        .transformBy(new Transform2d(
+                                new Translation2d(PathConstants.ALGAE_EXTRA_DISTANCE_IN, Meters.zero()),
+                                Rotation2d.kZero)),
+                AlignConstants.ALGAE_PICK_PID_TRANSLATION,
+                AlignConstants.ALGAE_PICK_PID_ANGLE,
                 swerve);
 
         AlignToPoseCommand pullAlignCommand = new AlignToPoseCommand(
-                farPose, AlignConstants.ALGAE_PID_TRANSLATION, AlignConstants.ALGAE_PID_ANGLE, swerve);
+                farPose, AlignConstants.ALGAE_PICK_PID_TRANSLATION, AlignConstants.ALGAE_PICK_PID_ANGLE, swerve);
 
         addCommands(
                 pathfindCommand.until(approachAlignCommand.withinDistanceToTarget(PathConstants.ALGAE_DEPLOY_DISTANCE)),
                 approachAlignCommand.alongWith(elevator.goToAlgaeCommand(side, false)),
-                algaeManipulator.intakeCommand().deadlineFor(pickAlignCommand),
+                algaeManipulator.intakeCommand().asProxy().deadlineFor(pickAlignCommand),
                 pullAlignCommand.alongWith(Commands.waitUntil(pickAlignCommand
                                 .withinDistanceToTarget(PathConstants.PULL_DISTANCE)
                                 .negate())

@@ -344,8 +344,13 @@ public class Constants {
                 .withTolerance(Inches.of(2).in(Meters), 0.1)
                 .withProfile(2, 3);
 
-        public static final ControlConstants ALGAE_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+        public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withProfile(2, 6)
                 .withTolerance(Inches.of(3).in(Meters));
+
+        public static final ControlConstants ALGAE_PULL_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withProfile(3.5, 6)
+                .withTolerance(Inches.of(4).in(Meters));
 
         public static final ControlConstants SWEEP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withTolerance(Inches.of(4).in(Meters));
@@ -358,7 +363,10 @@ public class Constants {
         public static final ControlConstants SCORING_PID_ANGLE =
                 new ControlConstants().withPID(5, 2, 0.0).withTolerance(1.5);
 
-        public static final ControlConstants ALGAE_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
+        public static final ControlConstants ALGAE_PICK_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
+        public static final ControlConstants ALGAE_PULL_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(6);
 
         public static final ControlConstants SWEEP_PID_ANGLE = new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
 
@@ -371,7 +379,7 @@ public class Constants {
     public static class ElevatorConstants {
         // Motors
         public static final int LEAD_MOTOR_ID = 12; // fd bus
-        public static final int FOLLOW_MOTOR_ID = 13; // fd bus
+        public static final int FOLLOW_MOTOR_ID = 16; // fd bus
         public static final int ENCODER_ID = 5; // fd bus
 
         // Motor Configs
@@ -432,8 +440,8 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.2).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.2).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.3).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.3).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -445,7 +453,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.397216796875)
+                .withMagnetOffset(0.303955078125)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.1);
@@ -467,7 +475,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(76.3);
+        public static final Distance L4_HEIGHT = Inches.of(76.6);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -510,9 +518,9 @@ public class Constants {
         public static final S2StateValue S2_DETECTED_VALUE = S2StateValue.Low;
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(3.6);
+        public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(1.8);
+        public static final Voltage SCORE_SPEED = Volts.of(2.5);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(1.2);
 
@@ -536,13 +544,13 @@ public class Constants {
                 .withStatorCurrentLimitEnable(false);
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(4);
+        public static final Voltage INTAKE_SPEED = Volts.of(10);
+        public static final Voltage HOLD_SPEED = Volts.of(3);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
-        public static final Voltage FLIP_UP_SPEED = Volts.of(-12);
+        public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
 
-        public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
+        public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(4);
         public static final Current STALL_CURRENT = Amps.of(20);
 
         public static final Time FLIP_UP_TIME = Seconds.of(3);
@@ -568,8 +576,8 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(GEAR_RATIO);
 
-        public static final Angle GRAB_ANGLE = Degrees.of(260);
-        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(115);
+        public static final Angle GRAB_ANGLE = Degrees.of(30);
+        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(180);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
@@ -577,7 +585,7 @@ public class Constants {
                 .withFeedback(FEEDBACK_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS =
-                new MagnetSensorConfigs().withMagnetOffset(0.0).withAbsoluteSensorDiscontinuityPoint(1);
+                new MagnetSensorConfigs().withMagnetOffset(0.75).withAbsoluteSensorDiscontinuityPoint(1);
 
         public static final Voltage CLIMB_SPEED = Volts.of(10);
         public static final Voltage BREAK_SPEED = Volts.of(6);
@@ -687,8 +695,8 @@ public class Constants {
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 'I', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
                 'H', new Pose2d(BARGE_X, Meters.of(6.7), BARGE_SHOOT_ROTATION),
-                'G', new Pose2d(BARGE_X, Meters.of(5.4), BARGE_SHOOT_ROTATION.unaryMinus()),
-                'F', new Pose2d(BARGE_X, Meters.of(4.8), BARGE_SHOOT_ROTATION.unaryMinus()));
+                'G', new Pose2d(BARGE_X, Meters.of(5.2), BARGE_SHOOT_ROTATION.unaryMinus()),
+                'F', new Pose2d(BARGE_X, Meters.of(4.3), BARGE_SHOOT_ROTATION.unaryMinus()));
 
         private static final Distance LOLLIPOP_X = Inches.of(48);
         public static final Pose2d[] LOLLIPOP_POSES = {
@@ -706,10 +714,11 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(50);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(80);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(10);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(60);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
+        public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(3);
         public static final Distance FLIP_DISTANCE = Inches.of(80);
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
 
@@ -720,10 +729,10 @@ public class Constants {
         public static final Distance SIDE_STATION_OFFSET =
                 Inches.of(29).plus(Dimensions.BUMPER_THICKNESS).div(2);
 
-        public static final Time INTAKE_WAIT_TIME = Seconds.of(0.5);
+        public static final Time INTAKE_WAIT_TIME = Seconds.of(0.75);
         public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
-        public static final Time BARGE_SETTLE_TIME = Seconds.of(0.3);
+        public static final Time BARGE_SETTLE_TIME = Seconds.of(0.2);
 
         public static final Distance MIN_PATH_DISTANCE = Inches.of(30);
 

@@ -58,6 +58,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.Elastic;
+import frc.robot.util.Elastic.Notification;
+import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -155,6 +158,12 @@ public class RobotContainer {
     private final Trigger[] stationTriggers = new Trigger[6];
 
     private final Alert lowBatteryAlert = new Alert("Low Battery Voltage!", AlertType.kError);
+    private final Notification lowBatteryNotification = new Notification(
+            NotificationLevel.ERROR,
+            "Low Battery Voltage!",
+            "The robot's battery voltage is under " + Constants.LOW_BATTERY_VOLTAGE.in(Volts)
+                    + "V. Please change the battery.",
+            40000);
 
     public RobotContainer() {
         AlignToReefCommands.testReefPoses();
@@ -193,6 +202,7 @@ public class RobotContainer {
 
                 if (RobotController.getBatteryVoltage() < Constants.LOW_BATTERY_VOLTAGE.in(Volts)) {
                     lowBatteryAlert.set(true);
+                    Elastic.sendNotification(lowBatteryNotification);
                 }
                 break;
 
@@ -258,26 +268,35 @@ public class RobotContainer {
                                 endEffector,
                                 algaeManipulator),
                         Set.of(swerve, elevator))
-                .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME));
+                .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
+                .withName("Reef Auto");
 
         stationCommand = Commands.defer(
-                () -> new FullAutoCommand(
-                        NTConstants.STATION_TELEOP_AUTO_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator),
-                Set.of(swerve, elevator));
+                        () -> new FullAutoCommand(
+                                NTConstants.STATION_TELEOP_AUTO_ENTRY.get(),
+                                swerve,
+                                elevator,
+                                endEffector,
+                                algaeManipulator),
+                        Set.of(swerve, elevator))
+                .withName("Station Auto");
 
         algaeCommand = Commands.defer(
-                () -> new RemoveAlgaeCommand(
-                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get(), swerve, elevator, algaeManipulator),
-                Set.of(swerve, elevator, algaeManipulator));
+                        () -> new RemoveAlgaeCommand(
+                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get(), swerve, elevator, algaeManipulator),
+                        Set.of(swerve, elevator))
+                .withName("Algae Auto");
 
         bargeCommand = Commands.defer(
-                () -> new ScoreInBargeCommand(
-                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
-                Set.of(swerve, elevator, algaeManipulator));
+                        () -> new ScoreInBargeCommand(
+                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
+                        Set.of(swerve, elevator))
+                .withName("Barge Auto");
 
         lollipopCommand = Commands.defer(
-                () -> LollipopCommands.lollipopCommand(swerve, algaeManipulator, elevator),
-                Set.of(swerve, algaeManipulator, elevator));
+                        () -> LollipopCommands.lollipopCommand(swerve, algaeManipulator, elevator),
+                        Set.of(swerve, elevator))
+                .withName("Lollipop Auto");
 
         SmartDashboard.putData("Station Auto", stationCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
@@ -288,7 +307,8 @@ public class RobotContainer {
         ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
         SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
 
-        sweepCommand = Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve));
+        sweepCommand =
+                Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve)).withName("Sweep");
 
         elevatorCommands = Map.ofEntries(
                 Map.entry('1', () -> elevator.goToL1Command(false)),

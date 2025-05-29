@@ -29,7 +29,7 @@ public class ScoreInBargeCommand extends SequentialCommandGroup {
                 swerve.runOnce(swerve::stop),
                 elevator.goToBargeCommand(false),
                 Commands.waitTime(PathConstants.BARGE_SETTLE_TIME),
-                algaeManipulator.ejectCommand(),
+                algaeManipulator.ejectCommand().asProxy(),
                 elevator.goToIntakePosCommand(true));
     }
 }

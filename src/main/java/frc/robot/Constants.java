@@ -482,7 +482,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(76.6);
+        public static final Distance L4_HEIGHT = Inches.of(76.1);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -495,12 +495,12 @@ public class Constants {
         public static final Distance PROCESS_HEIGHT = Inches.of(9.3);
 
         public static final Map<Integer, Distance> ALGAE_HEIGHTS = Map.of(
-                0, LOW_ALGAE_HEIGHT,
-                1, HIGH_ALGAE_HEIGHT,
-                2, LOW_ALGAE_HEIGHT,
-                3, HIGH_ALGAE_HEIGHT,
-                4, LOW_ALGAE_HEIGHT,
-                5, HIGH_ALGAE_HEIGHT);
+                0, HIGH_ALGAE_HEIGHT,
+                1, LOW_ALGAE_HEIGHT,
+                2, HIGH_ALGAE_HEIGHT,
+                3, LOW_ALGAE_HEIGHT,
+                4, HIGH_ALGAE_HEIGHT,
+                5, LOW_ALGAE_HEIGHT);
 
         public static final Angle SHOOT_ANGLE = Degrees.of(30.73124803);
 

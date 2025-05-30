@@ -30,6 +30,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,6 +54,7 @@ public class Swerve extends SubsystemBase {
     private final SysIdRoutine sysIdRoutine;
     private final Alert gyroDisconnectedAlert =
             new Alert("Disconnected gyro, using kinematics as fallback.", Alert.AlertType.kError);
+    private final Field2d field2d = new Field2d();
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(SwerveConstants.GET_MODULE_POSITIONS.get());
     private Rotation2d rawGyroRotation = new Rotation2d();
@@ -108,6 +110,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putData("SysId Dynamic Reverse", sysIdDynamic(Direction.kReverse));
         SmartDashboard.putData("SysId Quasi Forward", sysIdQuasistatic(Direction.kForward));
         SmartDashboard.putData("SysId Quasi Reverse", sysIdQuasistatic(Direction.kReverse));
+        SmartDashboard.putData(field2d);
     }
 
     @Override
@@ -136,6 +139,7 @@ public class Swerve extends SubsystemBase {
     }
 
     private void updateOdometry() {
+        field2d.setRobotPose(getPose());
         double[] sampleTimestamps = modules[0].getOdometryTimestamps();
         int sampleCount = sampleTimestamps.length;
 

@@ -249,6 +249,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
             boolean algae = token.length() == 3 && token.charAt(2) == 'A'; // also remove algae
 
+            if (token.charAt(1) == '1') {
+                return Commands.defer(
+                        () -> getReefCommand(side, relativePos, token.charAt(1), algae), Set.of(swerve, elevator));
+            }
+
             return Commands.defer(
                     () -> getTrackedReefCommand(side, relativePos, token.charAt(1), algae), Set.of(swerve, elevator));
         }

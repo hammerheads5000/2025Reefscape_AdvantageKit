@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.endeffector;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -65,8 +66,8 @@ public class EndEffector extends SubsystemBase {
     }
 
     private boolean isStalled() {
-        return inputs.leftVelocity.magnitude() <= EndEffectorConstants.MIN_VEL.magnitude()
-                || inputs.rightVelocity.magnitude() <= EndEffectorConstants.MIN_VEL.magnitude();
+        return inputs.leftVelocity.abs(RotationsPerSecond) <= EndEffectorConstants.MIN_VEL.abs(RotationsPerSecond)
+                || inputs.rightVelocity.abs(RotationsPerSecond) <= EndEffectorConstants.MIN_VEL.abs(RotationsPerSecond);
     }
 
     private Command runCommand(Voltage left, Voltage right) {

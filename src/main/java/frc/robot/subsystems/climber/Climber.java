@@ -25,12 +25,14 @@ public class Climber extends SubsystemBase {
     public Climber(ClimberIO io) {
         this.io = io;
 
-        // cageDetectedTrigger.onTrue(autoClimbCommand());
+        cageDetectedTrigger.onTrue(Commands.run(io::stopGrab));
+        cageDetectedTrigger.onTrue(autoClimbCommand());
 
         SmartDashboard.putData("Climb", climbCommand());
         SmartDashboard.putData("Unclimb", reverseCommand());
         SmartDashboard.putData("Climber Grab", grabCommand());
         SmartDashboard.putData("Climber Ungrab", releaseCommand());
+        SmartDashboard.putData("Reset Climber", resetCommand());
     }
 
     @Override
@@ -40,7 +42,12 @@ public class Climber extends SubsystemBase {
     }
 
     public Command climbCommand() {
-        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.CLIMB_SPEED), io::stopClimb)
+        return this.startEnd(
+                        () -> {
+                            io.setClimberOutput(ClimberConstants.CLIMB_SPEED);
+                            io.stopGrab();
+                        },
+                        io::stopClimb)
                 .withName("Climb");
     }
 
@@ -60,9 +67,10 @@ public class Climber extends SubsystemBase {
     }
 
     public Command goToGrabPosCommand() {
-        return reverseCommand()
-                .until(() -> inputs.pos.lte(ClimberConstants.GRAB_ANGLE))
-                .finallyDo(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED))
+        return Commands.sequence(
+                        reverseCommand().until(() -> inputs.pos.lte(ClimberConstants.GRAB_ANGLE)),
+                        climbCommand().until(() -> inputs.pos.gte(ClimberConstants.GRAB_ANGLE)),
+                        this.runOnce(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED)))
                 .withName("Go to Cage Grab Pos");
     }
 
@@ -72,5 +80,11 @@ public class Climber extends SubsystemBase {
                         Commands.waitUntil(
                                 () -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))))
                 .withName("Auto Climb");
+    }
+
+    public Command resetCommand() {
+        return climbCommand()
+                .until(() -> inputs.pos.gte(ClimberConstants.RESET_ANGLE))
+                .withName("Reset Climber");
     }
 }

@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems.algaemanipulator;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
@@ -27,6 +27,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     private Trigger isSim = new Trigger(() -> Constants.CURRENT_MODE == Constants.SIM_MODE);
     private boolean simHasAlgae = false;
+
     private boolean deployed = false; // whether bottom part of the manipulator is down or not
 
     @AutoLogOutput
@@ -100,7 +101,13 @@ public class AlgaeManipulator extends SubsystemBase {
     public Command forwardCommand() {
         return setSpeedCommand(AlgaeManipulatorConstants.INTAKE_SPEED)
                 .andThen(Commands.idle(this))
-                .finallyDo(this::stop)
+                .finallyDo(() -> {
+                    if (algaeDetectedTrigger.getAsBoolean()) {
+                        intakeCycleCommand().schedule();
+                    } else {
+                        this.stop();
+                    }
+                })
                 .withName("Algae Forward");
     }
 
@@ -115,7 +122,11 @@ public class AlgaeManipulator extends SubsystemBase {
     /** Eject algae by running the motor backwards until algae is no longer detected */
     public Command ejectCommand() {
         return this.runOnce(() -> simHasAlgae = false)
-                .andThen(reverseCommand().until(algaeDetectedTrigger.negate()))
+                .andThen(
+                        setSpeedCommand(AlgaeManipulatorConstants.EJECT_SPEED),
+                        Commands.waitUntil(algaeDetectedTrigger.negate()),
+                        Commands.waitTime(AlgaeManipulatorConstants.SHOOT_TIME))
+                .finallyDo(this::stop)
                 .withName("Algae Eject");
     }
 
@@ -131,7 +142,8 @@ public class AlgaeManipulator extends SubsystemBase {
 
     /** Detects whether motor is stalled (not moving and has sufficient current) to determine if it is holding algae */
     private boolean stalled() {
-        return inputs.velocity.abs(RotationsPerSecond) < AlgaeManipulatorConstants.MIN_VEL.abs(RotationsPerSecond)
-                && inputs.torqueCurrent.abs(Amps) >= AlgaeManipulatorConstants.STALL_CURRENT.abs(Amps);
+        return !isSim.getAsBoolean()
+                && inputs.velocity.abs(RotationsPerSecond) < AlgaeManipulatorConstants.MIN_VEL.abs(RotationsPerSecond)
+                && inputs.appliedVolts.abs(Volts) >= AlgaeManipulatorConstants.STALL_VOLTAGE.abs(Volts);
     }
 }

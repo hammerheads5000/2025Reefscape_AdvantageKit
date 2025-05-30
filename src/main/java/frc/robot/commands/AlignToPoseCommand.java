@@ -90,10 +90,10 @@ public class AlignToPoseCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        LinearVelocity xVel =
-                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX()));
-        LinearVelocity yVel =
-                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY()));
+        LinearVelocity xVel = MetersPerSecond.of(
+                pidControllerX.calculate(swerve.getPose().getX()) + pidControllerX.getSetpoint().velocity);
+        LinearVelocity yVel = MetersPerSecond.of(
+                pidControllerY.calculate(swerve.getPose().getY()) + pidControllerY.getSetpoint().velocity);
         AngularVelocity omega = DegreesPerSecond.of(
                 pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
 
@@ -105,6 +105,7 @@ public class AlignToPoseCommand extends Command {
                         pidControllerX.getSetpoint().position,
                         pidControllerY.getSetpoint().position,
                         Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
+        Logger.recordOutput("Alignment/Distance to Target", getDistanceToTarget());
     }
 
     public Distance getDistanceToTarget() {

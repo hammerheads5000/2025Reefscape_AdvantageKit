@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,7 @@ import frc.robot.commands.ApproachCoralStationCommands;
 import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.FullAutoCommand;
 import frc.robot.commands.LollipopCommands;
+import frc.robot.commands.ProcessCommand;
 import frc.robot.commands.RemoveAlgaeCommand;
 import frc.robot.commands.ScoreInBargeCommand;
 import frc.robot.commands.SweepCommand;
@@ -90,6 +92,7 @@ public class RobotContainer {
     private final Command algaeCommand;
     private final Command bargeCommand;
     private final Command sweepCommand;
+    private final Command processCommand;
     private final Map<Character, Supplier<Command>> elevatorCommands;
 
     @SuppressWarnings("unused")
@@ -165,8 +168,17 @@ public class RobotContainer {
                     + "V. Please change the battery.",
             40000);
 
+    private final Alert driveControllerDisconnected = new Alert("Drive Controller Disconnected!", AlertType.kError);
+    private final Alert buttonBoard1Disconnected = new Alert("Button Board 1 Disconnected!", AlertType.kError);
+    private final Alert buttonBoard2Disconnected = new Alert("Button Board 2 Disconnected!", AlertType.kError);
+    private final Alert noAutoSelected = new Alert("No Auto Selected!", AlertType.kWarning);
+
+    private final Trigger endgameTrigger =
+            new Trigger(() -> (DriverStation.isTeleop() && DriverStation.getMatchTime() < 20));
+
     public RobotContainer() {
         AlignToReefCommands.testReefPoses();
+        AlignToReefCommands.testBranchPoses();
         ApproachCoralStationCommands.testStationPoses();
         ApproachBargeCommands.testBargePoses();
 
@@ -299,11 +311,16 @@ public class RobotContainer {
                         Set.of(swerve, elevator))
                 .withName("Lollipop Auto");
 
+        processCommand = Commands.defer(
+                        () -> new ProcessCommand(swerve, elevator, algaeManipulator), Set.of(swerve, elevator))
+                .withName("Process");
+
         SmartDashboard.putData("Station Auto", stationCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
         SmartDashboard.putData("Algae Auto", algaeCommand);
         SmartDashboard.putData("Barge Auto", bargeCommand);
         SmartDashboard.putData("Nearest Lollipop", lollipopCommand);
+        SmartDashboard.putData("Process", processCommand);
 
         ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
         SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
@@ -325,6 +342,8 @@ public class RobotContainer {
                 .withName("Elevator Command");
 
         swerve.setDefaultCommand(teleopSwerveCommand);
+
+        endgameTrigger.onTrue(Commands.runOnce(() -> Elastic.selectTab("Endgame")));
 
         configureBindings();
     }
@@ -353,7 +372,7 @@ public class RobotContainer {
 
         algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 
-        autoClimbTrigger.whileTrue(climber.climbCommand());
+        autoClimbTrigger.whileTrue(climber.autoClimbCommand());
         unclimbTrigger.whileTrue(climber.reverseCommand());
         climbGrabPosTrigger.whileTrue(climber.goToGrabPosCommand());
 
@@ -380,6 +399,17 @@ public class RobotContainer {
         }
 
         endEffector.coralDetectedTrigger.whileTrue(rumbleCommand);
+    }
+
+    public void updateAlerts() {
+        driveControllerDisconnected.set(
+                !DriverStation.isJoystickConnected(driveController.getHID().getPort()));
+        buttonBoard1Disconnected.set(
+                !DriverStation.isJoystickConnected(buttonBoardReef.getHID().getPort()));
+        buttonBoard2Disconnected.set(
+                !DriverStation.isJoystickConnected(buttonBoardOther.getHID().getPort()));
+
+        noAutoSelected.set(NTConstants.AUTO_DESCRIPTOR_ENTRY.get().equals(""));
     }
 
     private void setTeleopAutoDescriptorLetter(char letter) {

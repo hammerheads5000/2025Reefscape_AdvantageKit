@@ -341,6 +341,7 @@ public class Constants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
                 .withPID(2, 0.5, 0.0)
+                .withFeedforward(1, 0)
                 .withTolerance(Inches.of(2).in(Meters), 0.1)
                 .withProfile(2, 3);
 
@@ -462,7 +463,7 @@ public class Constants {
                 .withMagnetOffset(0.303955078125)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
-        public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.1);
+        public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
 
         public static final Distance TOLERANCE = Inches.of(0.5);
 
@@ -529,7 +530,7 @@ public class Constants {
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
         public static final Voltage SCORE_SPEED = Volts.of(2.5);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
-        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(1.2);
+        public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
@@ -551,19 +552,20 @@ public class Constants {
                 .withStatorCurrentLimitEnable(false);
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(10);
-        public static final Voltage HOLD_SPEED = Volts.of(3);
+        public static final Voltage INTAKE_SPEED = Volts.of(12);
+        public static final Voltage HOLD_SPEED = Volts.of(4);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
 
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(4);
-        public static final Current STALL_CURRENT = Amps.of(20);
+        public static final Voltage STALL_VOLTAGE = Volts.of(0.1);
 
         public static final Time FLIP_UP_TIME = Seconds.of(3);
         public static final Time HOLD_TIME = Seconds.of(3);
         public static final Time HOLD_CYCLE_ON = Seconds.of(1);
         public static final Time HOLD_CYCLE_OFF = Seconds.of(4);
+        public static final Time SHOOT_TIME = Seconds.of(0.15);
     }
 
     public static class ClimberConstants {
@@ -573,7 +575,7 @@ public class Constants {
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
 
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
+                .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
         public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
@@ -583,8 +585,9 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(GEAR_RATIO);
 
-        public static final Angle GRAB_ANGLE = Degrees.of(30);
-        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(180);
+        public static final Angle GRAB_ANGLE = Rotations.of(0.22);
+        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
+        public static final Angle RESET_ANGLE = Rotations.of(0.59);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
@@ -592,13 +595,13 @@ public class Constants {
                 .withFeedback(FEEDBACK_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS =
-                new MagnetSensorConfigs().withMagnetOffset(0.75).withAbsoluteSensorDiscontinuityPoint(1);
+                new MagnetSensorConfigs().withMagnetOffset(-0.5).withAbsoluteSensorDiscontinuityPoint(1);
 
-        public static final Voltage CLIMB_SPEED = Volts.of(10);
+        public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage BREAK_SPEED = Volts.of(6);
         public static final Voltage RELEASE_SPEED = Volts.of(-6);
 
-        public static final Current STALL_CURRENT = Amps.of(50);
+        public static final Voltage STALL_VOLTAGE = Volts.of(0.1);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
@@ -627,13 +630,11 @@ public class Constants {
         // Transforms from robot to cameras, (x forward, y left, z up), (roll, pitch,
         // yaw)
         public static final Transform3d FRONT_LEFT_CAM_POS = new Transform3d(
-                new Translation3d(
-                        Inches.of(29.0 / 2 - 6.1217198), Inches.of(29.0 / 2 - 2.30154063), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(0), Degrees.of(-22), Degrees.of(-31)));
+                new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(29.0 / 2 - 2.25), Inches.of(7.74638805)),
+                new Rotation3d(Degrees.of(0), Degrees.of(-23), Degrees.of(-30)));
 
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
-                new Translation3d(
-                        Inches.of(29.0 / 2 - 6.1217198), Inches.of(-29.0 / 2 + 2.30154063), Inches.of(7.74638805)),
+                new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
                 new Rotation3d(Degrees.zero(), Degrees.of(-22), Degrees.of(31)));
     }
 
@@ -728,7 +729,7 @@ public class Constants {
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
         public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(10);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(60);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(30);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(3);
@@ -743,7 +744,7 @@ public class Constants {
                 Inches.of(29).plus(Dimensions.BUMPER_THICKNESS).div(2);
 
         public static final Time INTAKE_WAIT_TIME = Seconds.of(0.75);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
+        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.05); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
         public static final Time BARGE_SETTLE_TIME = Seconds.of(0.2);
 

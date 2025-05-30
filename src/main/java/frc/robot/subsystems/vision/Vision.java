@@ -162,6 +162,7 @@ public class Vision extends SubsystemBase {
     }
 
     private boolean isObservationValid(PoseObservation observation) {
+        boolean nonNull = observation.averageTagDistance() != null && observation.timestamp() != null;
         boolean hasTargets = observation.tagCount() > 0;
         boolean isAmbiguous = observation.tagCount() == 1 && observation.ambiguity() > MAX_AMBIGUITY;
         boolean unrealisticZ = Math.abs(observation.pose().getZ()) > MAX_Z_ERROR.in(Meters);
@@ -170,7 +171,7 @@ public class Vision extends SubsystemBase {
                 && observation.pose().getX() <= APRIL_TAGS.getFieldLength()
                 && observation.pose().getY() <= APRIL_TAGS.getFieldWidth();
 
-        return hasTargets && !isAmbiguous && !unrealisticZ && withinField;
+        return nonNull && hasTargets && !isAmbiguous && !unrealisticZ && withinField;
     }
 
     @FunctionalInterface

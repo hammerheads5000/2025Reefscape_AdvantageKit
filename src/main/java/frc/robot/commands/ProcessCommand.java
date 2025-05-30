@@ -21,7 +21,9 @@ public class ProcessCommand extends SequentialCommandGroup {
     /** Creates a new ProcessCommand. */
     public ProcessCommand(Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
         AlignToPoseCommand alignCommand = new AlignToPoseCommand(
-                FieldConstants.PROCESSOR,
+                AutoBuilder.shouldFlip()
+                        ? AlignToReefCommands.flipPose(FieldConstants.PROCESSOR)
+                        : FieldConstants.PROCESSOR,
                 AlignConstants.PROCESS_PID_TRANSLATION,
                 AlignConstants.PROCESS_PID_ANGLE,
                 swerve);

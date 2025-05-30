@@ -297,6 +297,9 @@ public class Pathfinding {
         int side = 4;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
         Pose2d endPose = FieldConstants.PROCESSOR;
+        if (AutoBuilder.shouldFlip()) {
+            endPose = AlignToReefCommands.flipPose(endPose);
+        }
         poses.add(endPose);
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);

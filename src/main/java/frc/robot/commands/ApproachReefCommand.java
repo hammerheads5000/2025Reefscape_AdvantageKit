@@ -14,10 +14,10 @@ import frc.robot.subsystems.swerve.Swerve;
 
 /** Follow generated path to reef if necessary, then align */
 public class ApproachReefCommand extends SequentialCommandGroup {
-    private final AlignToPoseCommand alignToReefCommand;
+    private final AlignAndFacePoseCommand alignToReefCommand;
     /** Creates a new ApproachReefCommand. */
     public ApproachReefCommand(int side, double relativePos, Swerve swerve) {
-        alignToReefCommand = AlignToReefCommands.alignToReef(side, relativePos, swerve);
+        alignToReefCommand = AlignToReefCommands.alignToReefFacingBranch(side, relativePos, swerve);
 
         // don't generate path if too short
         if (alignToReefCommand

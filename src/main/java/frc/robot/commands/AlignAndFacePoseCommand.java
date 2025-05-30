@@ -26,8 +26,7 @@ import frc.robot.util.ControlConstants;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * Command to align the robot to a specific pose (translation + rotation) using
- * PID controllers. It uses profiled PID
+ * Command to align the robot to a specific pose (translation + rotation) using PID controllers. It uses profiled PID
  * controllers for translation and a standard PID controller for rotation.
  */
 public class AlignAndFacePoseCommand extends Command {
@@ -43,15 +42,14 @@ public class AlignAndFacePoseCommand extends Command {
     /**
      * Aligns the robot to a given pose (translation) while facing that pose.
      *
-     * @param targetPose             The target pose to align to.
-     * @param linearControlConstants The control constants for linear movement
-     *                               (meters).
-     * @param angleControlConstants  The control constants for angular movement
-     *                               (degrees).
-     * @param swerve                 The swerve subsystem.
+     * @param targetPose The target pose to align to.
+     * @param linearControlConstants The control constants for linear movement (meters).
+     * @param angleControlConstants The control constants for angular movement (degrees).
+     * @param swerve The swerve subsystem.
      */
     public AlignAndFacePoseCommand(
-            Pose2d targetPose, Pose2d poseToFace,
+            Pose2d targetPose,
+            Pose2d poseToFace,
             ControlConstants linearControlConstants,
             ControlConstants angleControlConstants,
             Swerve swerve) {
@@ -69,7 +67,7 @@ public class AlignAndFacePoseCommand extends Command {
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
 
         alignedTrigger = new Trigger(
-                () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
+                        () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
                 .debounce(AlignConstants.ALIGN_TIME.in(Seconds), DebounceType.kRising);
 
         addRequirements(swerve);
@@ -86,8 +84,9 @@ public class AlignAndFacePoseCommand extends Command {
 
         pidControllerX.setGoal(targetPose.getX());
         pidControllerY.setGoal(targetPose.getY());
-        pidControllerAngle
-                .setSetpoint(Pathfinding.pointPoseTowards(swerve.getPose(), poseToFace).getRotation().getDegrees());
+        pidControllerAngle.setSetpoint(Pathfinding.pointPoseTowards(swerve.getPose(), poseToFace)
+                .getRotation()
+                .getDegrees());
 
         Logger.recordOutput("Alignment/Aligned", false);
         Logger.recordOutput("Alignment/TargetPose", targetPose);
@@ -96,11 +95,14 @@ public class AlignAndFacePoseCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        pidControllerAngle
-                .setSetpoint(Pathfinding.pointPoseTowards(swerve.getPose(), poseToFace).getRotation().getDegrees());
+        pidControllerAngle.setSetpoint(Pathfinding.pointPoseTowards(swerve.getPose(), poseToFace)
+                .getRotation()
+                .getDegrees());
 
-        LinearVelocity xVel = MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX()));
-        LinearVelocity yVel = MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY()));
+        LinearVelocity xVel = MetersPerSecond.of(
+                pidControllerX.calculate(swerve.getPose().getX()) + pidControllerX.getSetpoint().velocity);
+        LinearVelocity yVel = MetersPerSecond.of(
+                pidControllerY.calculate(swerve.getPose().getY()) + pidControllerY.getSetpoint().velocity);
         AngularVelocity omega = DegreesPerSecond.of(
                 pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
 
@@ -112,6 +114,8 @@ public class AlignAndFacePoseCommand extends Command {
                         pidControllerX.getSetpoint().position,
                         pidControllerY.getSetpoint().position,
                         Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
+
+        Logger.recordOutput("Alignment/Distance to Target", getDistanceToTarget());
     }
 
     public Distance getDistanceToTarget() {

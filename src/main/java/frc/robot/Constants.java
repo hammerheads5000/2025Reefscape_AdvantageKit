@@ -599,7 +599,7 @@ public class Constants {
 
         public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage BREAK_SPEED = Volts.of(6);
-        public static final Voltage RELEASE_SPEED = Volts.of(-6);
+        public static final Voltage RELEASE_SPEED = Volts.of(-12);
 
         public static final Voltage STALL_VOLTAGE = Volts.of(0.1);
 

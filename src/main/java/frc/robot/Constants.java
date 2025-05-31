@@ -587,7 +587,7 @@ public class Constants {
 
         public static final Angle GRAB_ANGLE = Rotations.of(0.22);
         public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
-        public static final Angle RESET_ANGLE = Rotations.of(0.59);
+        public static final Angle RESET_ANGLE = Rotations.of(0.60);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
@@ -725,7 +725,7 @@ public class Constants {
         public static final Distance DISTANCE_TO_REEF = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
-        public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
+        public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
         public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(10);

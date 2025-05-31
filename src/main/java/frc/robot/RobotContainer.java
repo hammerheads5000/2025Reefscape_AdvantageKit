@@ -103,7 +103,7 @@ public class RobotContainer {
     // Triggers
     private final Trigger algaeButtonLayerTrigger = driveController.leftTrigger();
     private final Trigger speedUpTrigger = driveController.rightTrigger();
-    //private final Trigger slowDownTrigger = driveController.leftTrigger();
+    // private final Trigger slowDownTrigger = driveController.leftTrigger();
 
     private final Trigger elevatorUpTrigger = driveController.povUp();
     private final Trigger elevatorDownTrigger = driveController.povDown();
@@ -350,7 +350,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         speedUpTrigger.whileTrue(teleopSwerveCommand.speedUpCommand());
-        //slowDownTrigger.whileTrue(teleopSwerveCommand.slowDownCommand());
+        // slowDownTrigger.whileTrue(teleopSwerveCommand.slowDownCommand());
 
         elevatorUpTrigger.whileTrue(elevator.elevatorUpCommand());
         elevatorDownTrigger.whileTrue(elevator.elevatorDownCommand());

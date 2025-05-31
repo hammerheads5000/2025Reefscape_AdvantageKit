@@ -138,7 +138,7 @@ public class Constants {
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
         private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-                .withKP(1.0)
+                .withKP(1.3)
                 .withKI(0.01)
                 .withKD(0.0)
                 .withKS(0.175)
@@ -365,7 +365,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(5, 2, 0.0).withTolerance(1.5);
+                new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.5);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -781,7 +781,7 @@ public class Constants {
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(3.8),
-                MetersPerSecondPerSecond.of(3.1),
+                MetersPerSecondPerSecond.of(4),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

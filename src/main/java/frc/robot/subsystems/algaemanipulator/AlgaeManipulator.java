@@ -32,7 +32,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     @AutoLogOutput
     public Trigger algaeDetectedTrigger =
-            new Trigger(this::stalled).debounce(0.4).or(isSim.and(() -> simHasAlgae));
+            new Trigger(this::stalled).debounce(0.3).or(isSim.and(() -> simHasAlgae));
 
     @AutoLogOutput
     public Trigger deployedTrigger = new Trigger(() -> deployed);

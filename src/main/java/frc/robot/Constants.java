@@ -482,7 +482,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(76.1);
+        public static final Distance L4_HEIGHT = Inches.of(76.0);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -528,7 +528,7 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2.5);
+        public static final Voltage SCORE_SPEED = Volts.of(2);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
 
@@ -553,7 +553,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(4);
+        public static final Voltage HOLD_SPEED = Volts.of(6);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
@@ -781,7 +781,7 @@ public class Constants {
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(3.8),
-                MetersPerSecondPerSecond.of(4),
+                MetersPerSecondPerSecond.of(3),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

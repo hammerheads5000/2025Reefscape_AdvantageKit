@@ -108,13 +108,13 @@ public class Constants {
         public static final double CONTROLLER_RUMBLE = 0.3;
         public static final Time SCORE_RUMBLE_TIME = Seconds.of(1);
 
-        public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(2.5);
+        public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(3.2);
         public static final AngularVelocity DEFAULT_ROT_SPEED = RotationsPerSecond.of(1.25);
 
-        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(3.8);
+        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(4.3);
         public static final AngularVelocity FAST_ROT_SPEED = RotationsPerSecond.of(4);
 
-        public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1);
+        public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1.5);
         public static final AngularVelocity SLOW_ROT_SPEED = RotationsPerSecond.of(0.5);
 
         public static final LinearAcceleration MAX_TELEOP_ACCEL = MetersPerSecondPerSecond.of(10);
@@ -774,14 +774,14 @@ public class Constants {
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.5);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.8),
+                MetersPerSecond.of(4.4),
                 MetersPerSecondPerSecond.of(7),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(3.8),
-                MetersPerSecondPerSecond.of(1.8),
+                MetersPerSecondPerSecond.of(3.1),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

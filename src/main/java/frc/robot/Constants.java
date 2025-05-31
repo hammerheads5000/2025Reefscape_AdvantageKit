@@ -587,7 +587,7 @@ public class Constants {
 
         public static final Angle GRAB_ANGLE = Rotations.of(0.22);
         public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
-        public static final Angle RESET_ANGLE = Rotations.of(0.60);
+        public static final Angle RESET_ANGLE = Rotations.of(0.59);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)

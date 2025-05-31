@@ -25,7 +25,7 @@ public class Climber extends SubsystemBase {
     public Climber(ClimberIO io) {
         this.io = io;
 
-        cageDetectedTrigger.onTrue(Commands.run(io::stopGrab));
+        cageDetectedTrigger.onTrue(Commands.runOnce(io::stopGrab));
         cageDetectedTrigger.onTrue(autoClimbCommand());
 
         SmartDashboard.putData("Climb", climbCommand());

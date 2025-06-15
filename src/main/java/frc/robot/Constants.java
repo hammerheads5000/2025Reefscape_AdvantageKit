@@ -117,13 +117,13 @@ public class Constants {
         public static final double CONTROLLER_RUMBLE = 0.3;
         public static final Time SCORE_RUMBLE_TIME = Seconds.of(1);
 
-        public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(2.5);
+        public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(3.2);
         public static final AngularVelocity DEFAULT_ROT_SPEED = RotationsPerSecond.of(1.25);
 
-        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(3.8);
+        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(4.3);
         public static final AngularVelocity FAST_ROT_SPEED = RotationsPerSecond.of(4);
 
-        public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1);
+        public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1.5);
         public static final AngularVelocity SLOW_ROT_SPEED = RotationsPerSecond.of(0.5);
 
         public static final LinearAcceleration MAX_TELEOP_ACCEL = MetersPerSecondPerSecond.of(10);
@@ -147,7 +147,7 @@ public class Constants {
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
         private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
-                .withKP(1.0)
+                .withKP(1.3)
                 .withKI(0.01)
                 .withKD(0.0)
                 .withKS(0.175)
@@ -374,7 +374,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(5, 2, 0.0).withTolerance(1.5);
+                new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.5);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -491,7 +491,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(76.6);
+        public static final Distance L4_HEIGHT = Inches.of(75.7);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being
@@ -506,12 +506,12 @@ public class Constants {
         public static final Distance PROCESS_HEIGHT = Inches.of(9.3);
 
         public static final Map<Integer, Distance> ALGAE_HEIGHTS = Map.of(
-                0, LOW_ALGAE_HEIGHT,
-                1, HIGH_ALGAE_HEIGHT,
-                2, LOW_ALGAE_HEIGHT,
-                3, HIGH_ALGAE_HEIGHT,
-                4, LOW_ALGAE_HEIGHT,
-                5, HIGH_ALGAE_HEIGHT);
+                0, HIGH_ALGAE_HEIGHT,
+                1, LOW_ALGAE_HEIGHT,
+                2, HIGH_ALGAE_HEIGHT,
+                3, LOW_ALGAE_HEIGHT,
+                4, HIGH_ALGAE_HEIGHT,
+                5, LOW_ALGAE_HEIGHT);
 
         public static final Angle SHOOT_ANGLE = Degrees.of(30.73124803);
 
@@ -539,7 +539,7 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2.5);
+        public static final Voltage SCORE_SPEED = Volts.of(2);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
 
@@ -564,7 +564,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(4);
+        public static final Voltage HOLD_SPEED = Volts.of(6);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
@@ -610,7 +610,7 @@ public class Constants {
 
         public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage BREAK_SPEED = Volts.of(6);
-        public static final Voltage RELEASE_SPEED = Volts.of(-6);
+        public static final Voltage RELEASE_SPEED = Volts.of(-12);
 
         public static final Voltage STALL_VOLTAGE = Volts.of(0.1);
 
@@ -832,7 +832,7 @@ public class Constants {
         public static final Distance DISTANCE_TO_REEF = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
-        public static final Distance APPROACH_DISTANCE = Inches.of(24); // *extra* distance to reef when
+        public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
         public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(10);
@@ -883,20 +883,20 @@ public class Constants {
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.5);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.8),
+                MetersPerSecond.of(4.0),
                 MetersPerSecondPerSecond.of(7),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.8),
-                MetersPerSecondPerSecond.of(1.8),
+                MetersPerSecond.of(3.6),
+                MetersPerSecondPerSecond.of(2),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(1.6),
-                MetersPerSecondPerSecond.of(2.5),
+                MetersPerSecondPerSecond.of(1.3),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

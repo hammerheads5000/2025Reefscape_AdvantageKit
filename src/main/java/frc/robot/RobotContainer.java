@@ -63,6 +63,7 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
+import frc.robot.util.Strategy;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -346,6 +347,7 @@ public class RobotContainer {
         endgameTrigger.onTrue(Commands.runOnce(() -> Elastic.selectTab("Endgame")));
 
         configureBindings();
+        Strategy.test();
     }
 
     private void configureBindings() {
@@ -437,7 +439,12 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new FullAutoCommand(
-                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator);
+        return Commands.defer(
+                        () -> Strategy.doBestMove(swerve, elevator, endEffector, algaeManipulator, 5),
+                        Set.of(swerve, elevator))
+                .repeatedly();
+
+        // return new FullAutoCommand(
+        //         NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator);
     }
 }

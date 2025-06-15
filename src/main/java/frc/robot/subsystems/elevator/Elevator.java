@@ -106,8 +106,8 @@ public class Elevator extends SubsystemBase {
     }
 
     /** Sets the desired height to go to (measured from ground) */
-    public void setGoal(Distance goal) {
-        this.goal = Meters.of(MathUtil.clamp(goal.in(Meters), 0, ElevatorConstants.MAX_HEIGHT.in(Meters)));
+    public void setGoal(Distance target) {
+        this.goal = Meters.of(MathUtil.clamp(target.in(Meters), 0, ElevatorConstants.MAX_HEIGHT.in(Meters)));
         io.setGoal(this.goal);
     }
 
@@ -145,6 +145,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command goToHeightCommand(boolean instant, Distance goal) {
+        System.out.println("*****************************************" + goal);
         if (instant) {
             return this.runOnce(() -> setGoal(goal));
         }

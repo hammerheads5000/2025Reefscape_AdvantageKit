@@ -46,14 +46,17 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -67,7 +70,13 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.Constants.Dimensions;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.util.ControlConstants;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
@@ -485,8 +494,10 @@ public class Constants {
         public static final Distance L4_HEIGHT = Inches.of(76.6);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
-        public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
-        public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
+        public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being
+        // lifted
+        public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being
+        // lifted
 
         public static final Distance LOW_ALGAE_HEIGHT = Inches.of(29);
         public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(43.5);
@@ -717,6 +728,102 @@ public class Constants {
             new Pose2d(LOLLIPOP_X, Inches.of(158.5), Rotation2d.k180deg),
             new Pose2d(LOLLIPOP_X, Inches.of(158.5 + 72), Rotation2d.fromDegrees(135)),
         };
+
+        public enum ReefLevel {
+            L1(1, Units.inchesToMeters(25.0), 0),
+            L2(2, Units.inchesToMeters(31.875 - Math.cos(Math.toRadians(35.0)) * 0.625), -35),
+            L3(3, Units.inchesToMeters(47.625 - Math.cos(Math.toRadians(35.0)) * 0.625), -35),
+            L4(4, Units.inchesToMeters(72), -90);
+
+            ReefLevel(int levelNumber, double height, double pitch) {
+                this.levelNumber = levelNumber;
+                this.height = height;
+                this.pitch = pitch; // Degrees
+            }
+
+            public static ReefLevel fromLevel(int level) {
+                return Arrays.stream(values())
+                        .filter(height -> height.ordinal() == level)
+                        .findFirst()
+                        .orElse(L4);
+            }
+
+            public final int levelNumber;
+            public final double height;
+            public final double pitch;
+        }
+
+        public static final Pose2d[] centerFaces = new Pose2d[6]; // Starting facing the driver station in
+        // clockwise
+        // order
+        public static final List<Map<ReefLevel, Pose3d>> branchPositions = new ArrayList<>(); // Starting at the
+        // right
+        // branch facing
+        // the
+        // driver station
+        // in
+        // clockwise
+        public static final List<Map<ReefLevel, Pose2d>> branchPositions2d = new ArrayList<>();
+
+        static {
+            // Initialize faces
+            var aprilTagLayout = VisionConstants.APRIL_TAGS;
+            centerFaces[0] = aprilTagLayout.getTagPose(18).get().toPose2d();
+            centerFaces[1] = aprilTagLayout.getTagPose(17).get().toPose2d();
+            centerFaces[2] = aprilTagLayout.getTagPose(22).get().toPose2d();
+            centerFaces[3] = aprilTagLayout.getTagPose(21).get().toPose2d();
+            centerFaces[4] = aprilTagLayout.getTagPose(20).get().toPose2d();
+            centerFaces[5] = aprilTagLayout.getTagPose(19).get().toPose2d();
+
+            // Initialize branch positions
+            for (int face = 0; face < 6; face++) {
+                Map<ReefLevel, Pose3d> fillRight = new HashMap<>();
+                Map<ReefLevel, Pose3d> fillLeft = new HashMap<>();
+                Map<ReefLevel, Pose2d> fillRight2d = new HashMap<>();
+                Map<ReefLevel, Pose2d> fillLeft2d = new HashMap<>();
+                for (var level : ReefLevel.values()) {
+                    Pose2d poseDirection = new Pose2d(REEF_CENTER_BLUE, Rotation2d.fromDegrees(180 + (60 * face)));
+                    double adjustX = Units.inchesToMeters(30.738);
+                    double adjustY = Units.inchesToMeters(6.469);
+
+                    var rightBranchPose = new Pose3d(
+                            new Translation3d(
+                                    poseDirection
+                                            .transformBy(new Transform2d(adjustX, adjustY, Rotation2d.kZero))
+                                            .getX(),
+                                    poseDirection
+                                            .transformBy(new Transform2d(adjustX, adjustY, Rotation2d.kZero))
+                                            .getY(),
+                                    level.height),
+                            new Rotation3d(
+                                    0,
+                                    Units.degreesToRadians(level.pitch),
+                                    poseDirection.getRotation().getRadians()));
+                    var leftBranchPose = new Pose3d(
+                            new Translation3d(
+                                    poseDirection
+                                            .transformBy(new Transform2d(adjustX, -adjustY, Rotation2d.kZero))
+                                            .getX(),
+                                    poseDirection
+                                            .transformBy(new Transform2d(adjustX, -adjustY, Rotation2d.kZero))
+                                            .getY(),
+                                    level.height),
+                            new Rotation3d(
+                                    0,
+                                    Units.degreesToRadians(level.pitch),
+                                    poseDirection.getRotation().getRadians()));
+
+                    fillRight.put(level, rightBranchPose);
+                    fillLeft.put(level, leftBranchPose);
+                    fillRight2d.put(level, rightBranchPose.toPose2d());
+                    fillLeft2d.put(level, leftBranchPose.toPose2d());
+                }
+                branchPositions.add(fillLeft);
+                branchPositions.add(fillRight);
+                branchPositions2d.add(fillLeft2d);
+                branchPositions2d.add(fillRight2d);
+            }
+        }
     }
 
     public static class PathConstants {
@@ -752,9 +859,11 @@ public class Constants {
 
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
-        public static final double APPROACH_PROPORTION = 1; // proportion of distance to final waypoint to use approach
+        public static final double APPROACH_PROPORTION = 1; // proportion of distance to final waypoint to use
+        // approach
         // constraints
-        public static final double FAST_PROPORTION = 0.5; // proportion of first waypoint to use fast constraints
+        public static final double FAST_PROPORTION = 0.5; // proportion of first waypoint to use fast
+        // constraints
 
         public static final Distance SWEEP_SIDE_DISTANCE = Inches.of(40);
         public static final Distance SWEEP_OFFSET = Inches.of(2);

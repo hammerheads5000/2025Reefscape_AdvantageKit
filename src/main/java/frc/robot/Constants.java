@@ -482,7 +482,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(25.54);
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(76.0);
+        public static final Distance L4_HEIGHT = Inches.of(75.7);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -780,14 +780,14 @@ public class Constants {
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.8),
+                MetersPerSecond.of(3.6),
                 MetersPerSecondPerSecond.of(2),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(1.6),
-                MetersPerSecondPerSecond.of(2),
+                MetersPerSecondPerSecond.of(1.3),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

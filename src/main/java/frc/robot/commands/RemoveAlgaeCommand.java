@@ -15,11 +15,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.FlipUtil;
 
 /** Command to remove algae from the reef by following a path, aligning to the reef, and removing the algae. */
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
@@ -33,19 +34,19 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                 Pathfinding.generateReefPath(swerve.getPose(), side, 0, swerve.getFieldSpeeds()));
 
         // offset from reef
-        Pose2d farPose = AlignToReefCommands.getReefPose(side, 0)
+        Pose2d farPose = FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(side, 0)
                 .transformBy(new Transform2d(
                         new Translation2d(PathConstants.ALGAE_DEPLOY_DISTANCE.unaryMinus(), Meters.zero()),
-                        new Rotation2d()));
+                        new Rotation2d())));
 
         AlignToPoseCommand approachAlignCommand = new AlignToPoseCommand(
                 farPose, AlignConstants.ALGAE_PICK_PID_TRANSLATION, AlignConstants.ALGAE_PICK_PID_ANGLE, swerve);
 
         AlignToPoseCommand pickAlignCommand = new AlignToPoseCommand(
-                AlignToReefCommands.getReefPose(side, 0)
+                FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(side, 0)
                         .transformBy(new Transform2d(
                                 new Translation2d(PathConstants.ALGAE_EXTRA_DISTANCE_IN, Meters.zero()),
-                                Rotation2d.kZero)),
+                                Rotation2d.kZero))),
                 AlignConstants.ALGAE_PICK_PID_TRANSLATION,
                 AlignConstants.ALGAE_PICK_PID_ANGLE,
                 swerve);
@@ -70,7 +71,9 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
      */
     public RemoveAlgaeCommand(String token, Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
         this(
-                FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.get(token.charAt(0)).getFirst(),
+                FieldConstants.Reef.LETTER_TO_SIDE_AND_RELATIVE
+                        .get(token.charAt(0))
+                        .getFirst(),
                 swerve,
                 elevator,
                 algaeManipulator);

@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.swerve.Swerve;
 
 /** Sweep the nearest reef side to remove coral from being in the way */
@@ -21,9 +22,9 @@ public class SweepCommand extends SequentialCommandGroup {
     public SweepCommand(Swerve swerve) {
         Pose2d pose = swerve.getPose();
         int side = Pathfinding.getClosestReefSide(swerve.getPose());
-        Pose2d leftPose = AlignToReefCommands.getReefPose(side, PathConstants.SWEEP_RELATIVE_POS);
-        Pose2d rightPose = AlignToReefCommands.getReefPose(side, -PathConstants.SWEEP_RELATIVE_POS);
-        Pose2d centerPose = AlignToReefCommands.getReefPose(side, 0);
+        Pose2d leftPose = FieldConstants.Reef.getReefPose(side, PathConstants.SWEEP_RELATIVE_POS);
+        Pose2d rightPose = FieldConstants.Reef.getReefPose(side, -PathConstants.SWEEP_RELATIVE_POS);
+        Pose2d centerPose = FieldConstants.Reef.getReefPose(side, 0);
         Pose2d pose1;
         if (leftPose.getTranslation().getDistance(pose.getTranslation())
                 < rightPose.getTranslation().getDistance(pose.getTranslation())) {

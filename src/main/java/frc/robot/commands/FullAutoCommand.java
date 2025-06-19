@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.NTConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
@@ -238,11 +238,11 @@ public class FullAutoCommand extends SequentialCommandGroup {
             return Commands.defer(() -> stationCommand, Set.of(swerve, elevator));
         } else {
             Pair<Integer, Integer> sidePosPair;
-            if (!FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.containsKey(token.charAt(0))) {
+            if (!FieldConstants.Reef.LETTER_TO_SIDE_AND_RELATIVE.containsKey(token.charAt(0))) {
                 System.err.println("ERROR: Invalid auto branch token " + token);
                 return Commands.none();
             }
-            sidePosPair = FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.get(token.charAt(0));
+            sidePosPair = FieldConstants.Reef.LETTER_TO_SIDE_AND_RELATIVE.get(token.charAt(0));
 
             int side = sidePosPair.getFirst();
             int relativePos = sidePosPair.getSecond();

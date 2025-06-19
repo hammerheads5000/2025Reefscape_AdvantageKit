@@ -6,8 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static frc.robot.Constants.FieldConstants.REEF_CENTER_BLUE;
-import static frc.robot.Constants.FieldConstants.REEF_CENTER_RED;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.ConstraintsZone;
@@ -24,8 +22,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.FieldConstants;
+import frc.robot.util.FlipUtil;
 import java.util.ArrayList;
 
 /** Container pathfinding class. */
@@ -33,7 +32,8 @@ public class Pathfinding {
     /** Get the closest reef side to the given pose (0-5 starting at A/B going clockwise) */
     public static int getClosestReefSide(Pose2d pose) {
         ArrayList<Pose2d> reefPoses = new ArrayList<>();
-        for (int side = 0; side < 6; side++) reefPoses.add(AlignToReefCommands.getReefPose(side, 0));
+        for (int side = 0; side < 6; side++)
+            reefPoses.add(FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(side, 0)));
 
         return reefPoses.indexOf(pose.nearest(reefPoses));
     }
@@ -72,7 +72,7 @@ public class Pathfinding {
         // move around reef until within 1 side of target side
         while (distanceBetweenSides(currentSide, side) > 1) {
             int nextSide = getNextSide(currentSide, side);
-            Pose2d sidePose = AlignToReefCommands.getReefPose(nextSide, 0);
+            Pose2d sidePose = FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(nextSide, 0));
 
             // move side pose outwards by TRAVBERSE_DISTANCE
             sidePose = sidePose.transformBy(new Transform2d(
@@ -80,9 +80,9 @@ public class Pathfinding {
 
             // give pose tangential rotation for smooth path
             if (nextSide == (currentSide + 1 + 6) % 6) {
-                sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCCW_90deg);
-            } else {
                 sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCW_90deg);
+            } else {
+                sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCCW_90deg);
             }
 
             poses.add(sidePose);
@@ -104,10 +104,10 @@ public class Pathfinding {
             Pose2d currentPose, int side, double relativePos, ChassisSpeeds startSpeeds) {
 
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
-        Pose2d endPose = AlignToReefCommands.getReefPose(side, relativePos);
+        Pose2d endPose = FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(side, relativePos));
 
         // offset away from reef for straight approach
-        Pose2d approachEndPose = AlignToReefCommands.getReefPose(side, relativePos);
+        Pose2d approachEndPose = FlipUtil.applyAlliance(FieldConstants.Reef.getReefPose(side, relativePos));
         Transform2d shiftApproachTransform = new Transform2d(
                 new Translation2d(PathConstants.APPROACH_DISTANCE.unaryMinus(), Meters.zero()), Rotation2d.kZero);
         approachEndPose = approachEndPose.transformBy(shiftApproachTransform);
@@ -131,7 +131,7 @@ public class Pathfinding {
 
         // point towards the center of the reef
         ArrayList<PointTowardsZone> pointTowardsZones = new ArrayList<>();
-        Translation2d reefCenter = AutoBuilder.shouldFlip() ? REEF_CENTER_RED : REEF_CENTER_BLUE;
+        Translation2d reefCenter = FlipUtil.applyAlliance(FieldConstants.Reef.REEF_CENTER);
         pointTowardsZones.add(new PointTowardsZone("Point At Reef", reefCenter, 0, poses.size() - 2));
 
         ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();
@@ -191,10 +191,9 @@ public class Pathfinding {
      */
     public static PathPlannerPath generateStationPath(
             Pose2d currentPose, int station, int relativePos, ChassisSpeeds startSpeeds) {
-        int side = station == 1 ? 1 : 5;
+        int side = station == 1 ? 5 : 1;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
-        Pose2d endPose = ApproachCoralStationCommands.getStationPose(station, relativePos);
-        endPose = endPose.rotateAround(endPose.getTranslation(), Rotation2d.k180deg);
+        Pose2d endPose = FlipUtil.applyAlliance(FieldConstants.getStationPose(station, relativePos));
         poses.add(endPose);
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
@@ -248,9 +247,9 @@ public class Pathfinding {
      * @param startSpeeds Initial chassis speeds to use for the path
      */
     public static PathPlannerPath generateBargePath(Pose2d currentPose, char pos, ChassisSpeeds startSpeeds) {
-        int side = 2;
+        int side = 4;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
-        Pose2d endPose = ApproachBargeCommands.getBargePose(pos);
+        Pose2d endPose = FlipUtil.applyAlliance(FieldConstants.getBargePose(pos));
         poses.add(
                 new Pose2d(endPose.getTranslation(), AutoBuilder.shouldFlip() ? Rotation2d.k180deg : Rotation2d.kZero));
 
@@ -294,12 +293,10 @@ public class Pathfinding {
      * @param startSpeeds Initial chassis speeds to use for the path
      */
     public static PathPlannerPath generateProcessPath(Pose2d currentPose, ChassisSpeeds startSpeeds) {
-        int side = 4;
+        int side = 2;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
-        Pose2d endPose = FieldConstants.PROCESSOR;
-        if (AutoBuilder.shouldFlip()) {
-            endPose = AlignToReefCommands.flipPose(endPose);
-        }
+        Pose2d endPose = FlipUtil.applyAlliance(FieldConstants.PROCESSOR);
+
         poses.add(endPose);
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);

@@ -4,17 +4,10 @@
 
 package frc.robot.util;
 
-import static frc.robot.Constants.FieldConstants.branchPositions;
-
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.FieldConstants.ReefLevel;
-import frc.robot.commands.AlignToReefCommands;
+import frc.robot.FieldConstants;
 import frc.robot.commands.FullAutoCommand;
 import frc.robot.commands.RemoveAlgaeCommand;
 import frc.robot.commands.ScoreInBargeCommand;
@@ -26,40 +19,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class Strategy {
-    static final Translation2d[] reef = new Translation2d[12];
-    static final double SPEED = 1.5;
-    static final double SCORE_TIME = 1.6;
-    static final double STATION_TIME = 0.5;
-    static final double ALGAE_TIME = 2;
-    static final double BARGE_TIME = 2.5;
-
-    private static Map<Integer, Integer> CWToCCW = Map.of(
-            0, 0,
-            1, 5,
-            2, 4,
-            3, 3,
-            4, 2,
-            5, 1);
+    private static final Translation2d[] reef = new Translation2d[12];
+    private static final double SPEED = 1.5;
+    private static final double SCORE_TIME = 1.6;
+    private static final double STATION_TIME = 0.5;
+    private static final double ALGAE_TIME = 2;
+    private static final double BARGE_TIME = 2.5;
 
     static {
         int i = 0;
         while (i < 12) {
-            reef[i] = AlignToReefCommands.getReefPose(CWToCCW.get(i / 2), 1, false)
-                    .getTranslation();
+            reef[i] = FieldConstants.Reef.getReefPose(i / 2, -1).getTranslation();
             i++;
-            reef[i] = AlignToReefCommands.getReefPose(CWToCCW.get(i / 2), -1, false)
-                    .getTranslation();
+            reef[i] = FieldConstants.Reef.getReefPose(i / 2, 1).getTranslation();
             i++;
         }
     }
 
-    static Translation2d STATION0 = FieldConstants.STATION_0.getTranslation();
-    static Translation2d STATION1 = FieldConstants.STATION_1.getTranslation();
-    static Translation2d BARGE = FieldConstants.BARGE_POSES.get('G').getTranslation();
+    private static final Translation2d STATION0 = FieldConstants.STATION_0.getTranslation();
+    private static final Translation2d STATION1 = FieldConstants.STATION_1.getTranslation();
+    private static final Translation2d BARGE = FieldConstants.getBargePose('G').getTranslation();
 
     private static record RobotState(Translation2d pos, boolean hasCoral, boolean hasAlgae, String name) {
         @Override
@@ -68,91 +50,44 @@ public class Strategy {
         }
     }
 
-    public static record ReefState(boolean[][] coral, boolean[] algae) {
-        public ReefState() {
-            this(new boolean[12][4], new boolean[6]);
-        }
+    private static final FieldConstants.ReefState FULL_REEF = new FieldConstants.ReefState(true, false);
 
-        public ReefState(boolean allCoral, boolean allAlgae) {
-            this();
-            for (int i = 0; i < coral.length; i++) {
-                for (int j = 0; j < coral[i].length; j++) {
-                    coral[i][j] = allCoral;
-                }
-            }
-            for (int i = 0; i < algae.length; i++) {
-                algae[i] = allAlgae;
-            }
-        }
-
-        @Override
-        public final String toString() {
-            String str = "Coral: ";
-            for (boolean[] branch : coral) {
-                str += Arrays.toString(branch) + "\n";
-            }
-            str += "\nAlgae: " + algae;
-            return str;
-        }
-
-        @Override
-        public final boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (!(other instanceof ReefState)) {
-                return false;
-            }
-            ReefState otherReef = (ReefState) other;
-            for (int i = 0; i < coral.length; i++) {
-                if (!Arrays.equals(coral[i], otherReef.coral[i])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    static final ReefState FULL_REEF = new ReefState(true, false);
-
-    static ReefState addedCoral(ReefState reefState, int branch, int level) {
+    private static FieldConstants.ReefState addedCoral(FieldConstants.ReefState reefState, int branch, int level) {
         boolean[][] coral = new boolean[12][4];
         for (int i = 0; i < coral.length; i++) {
-            coral[i] = reefState.coral[i].clone();
+            coral[i] = reefState.coral()[i].clone();
         }
         coral[branch][level - 1] = true;
-        return new ReefState(coral, reefState.algae);
+        return new FieldConstants.ReefState(coral, reefState.algae());
     }
 
-    static ReefState removedAlgae(ReefState reefState, int side) {
-        boolean[] algae = reefState.algae.clone();
+    private static FieldConstants.ReefState removedAlgae(FieldConstants.ReefState reefState, int side) {
+        boolean[] algae = reefState.algae().clone();
         algae[side] = false;
-        return new ReefState(reefState.coral, algae);
+        return new FieldConstants.ReefState(reefState.coral(), algae);
     }
 
-    private static record Move(RobotState from, RobotState to, ReefState reefState, int points, double time) {
+    private static record Move(
+            RobotState from, RobotState to, FieldConstants.ReefState reefState, int points, double time) {
         @Override
         public final String toString() {
             return from + " -> " + to + ", " + points + "pts, " + Math.round(time * 100) / 100.0 + "s";
-            // return "Move(" + from + " -> " + to + ", " + reefState + ", " + points +
-            // "pts, "
-            // + Math.round(time * 100) / 100.0 + "s)";
         }
     }
 
-    static Map<Integer, Integer> pointsMap = Map.of(
+    private static final Map<Integer, Integer> pointsMap = Map.of(
             1, 2,
             2, 3,
             3, 4,
             4, 5);
 
-    static double getPtsPerSec(Move move) {
+    private static double getPtsPerSec(Move move) {
         return move.points / move.time;
     }
 
-    static Move scoreCoral(RobotState from, int branch, int level, ReefState reefState) {
+    private static Move scoreCoral(RobotState from, int branch, int level, FieldConstants.ReefState reefState) {
         RobotState to = new RobotState(reef[branch], false, false, "Cor " + (char) ('A' + branch) + "" + level + " ");
-        ReefState newReefState = addedCoral(reefState, branch, level);
+        FieldConstants.ReefState newReefState = addedCoral(reefState, branch, level);
         double dist = from.pos.getDistance(to.pos);
         double time = dist / SPEED + SCORE_TIME;
         int points = pointsMap.get(level);
@@ -160,33 +95,32 @@ public class Strategy {
         return new Move(from, to, newReefState, points, time);
     }
 
-    static boolean canScoreCoral(int branch, int level, ReefState reefState) {
-        return (!reefState.coral[branch][level - 1]
-                && !((level == 3 || (level == 2 && (branch - 1) % 4 >= 2)) && reefState.algae[branch / 2]));
+    private static boolean canScoreCoral(int branch, int level, FieldConstants.ReefState reefState) {
+        return (!reefState.coral()[branch][level - 1]
+                && !((level == 3 || (level == 2 && (branch - 1) % 4 >= 2))
+                        && reefState.algae()[branch / 2]));
     }
 
-    static Move scoreAlgae(RobotState from, boolean hasCoral, ReefState reefState) {
+    private static Move scoreAlgae(RobotState from, boolean hasCoral, FieldConstants.ReefState reefState) {
         RobotState to = new RobotState(BARGE, hasCoral, false, "Barge  ");
         double dist = from.pos.getDistance(to.pos);
-        double time = dist / SPEED + ALGAE_TIME;
+        double time = dist / SPEED + BARGE_TIME;
         int points = 4;
         return new Move(from, to, reefState, points, time);
     }
 
-    static Move pickupAlgae(RobotState from, int side, boolean hasCoral, ReefState reefState) {
+    private static Move pickupAlgae(RobotState from, int side, boolean hasCoral, FieldConstants.ReefState reefState) {
         RobotState to = new RobotState(
-                AlignToReefCommands.getReefPose(CWToCCW.get(side), 0, false).getTranslation(),
-                hasCoral,
-                true,
-                "Algae " + side + "");
-        ReefState newReefState = removedAlgae(reefState, side);
+                FieldConstants.Reef.getReefPose(side, 0).getTranslation(), hasCoral, true, "Algae " + side + "");
+        FieldConstants.ReefState newReefState = removedAlgae(reefState, side);
         double dist = from.pos.getDistance(to.pos);
-        double time = dist / SPEED + STATION_TIME;
+        double time = dist / SPEED + ALGAE_TIME;
         int points = 0;
         return new Move(from, to, newReefState, points, time);
     }
 
-    static Move pickupCoral(RobotState from, int station, boolean hasAlgae, ReefState reefState) {
+    private static Move pickupCoral(
+            RobotState from, int station, boolean hasAlgae, FieldConstants.ReefState reefState) {
         RobotState to = new RobotState(
                 station == 1 ? STATION1 : STATION0, true, hasAlgae, "S" + (station == 1 ? "1     " : "0     "));
         double dist = from.pos.getDistance(to.pos);
@@ -195,7 +129,7 @@ public class Strategy {
         return new Move(from, to, reefState, points, time);
     }
 
-    static ArrayList<Move> possibleMoves(RobotState state, ReefState reefState) {
+    private static ArrayList<Move> possibleMoves(RobotState state, FieldConstants.ReefState reefState) {
         ArrayList<Move> moves = new ArrayList<>();
         if (!state.hasCoral) {
             moves.add(pickupCoral(state, 0, state.hasAlgae, reefState));
@@ -217,7 +151,7 @@ public class Strategy {
             }
 
             for (int side = 0; side < 6; side++) {
-                if (reefState.algae[side]) {
+                if (reefState.algae()[side]) {
                     moves.add(pickupAlgae(state, side, state.hasCoral, reefState));
                 }
             }
@@ -226,7 +160,7 @@ public class Strategy {
         return moves;
     }
 
-    static Move bestImmediateMove(RobotState state, ReefState reefState) {
+    private static Move bestImmediateMove(RobotState state, FieldConstants.ReefState reefState) {
         ArrayList<Move> moves = possibleMoves(state, reefState);
         if (moves.isEmpty()) {
             return new Move(state, state, reefState, 0, 1);
@@ -242,7 +176,7 @@ public class Strategy {
 
     private static record BestMoveData(ArrayList<Move> moves, double bestPoints, double bestTime) {}
 
-    static BestMoveData getBestMoves(RobotState state, int depth, ReefState reefState) {
+    private static BestMoveData getBestMoves(RobotState state, int depth, FieldConstants.ReefState reefState) {
         if (depth == 1) {
             ArrayList<Move> bestMoves = new ArrayList<>();
             bestMoves.add(bestImmediateMove(state, reefState));
@@ -278,7 +212,8 @@ public class Strategy {
         return bestMoveData;
     }
 
-    static BestMoveData bestMoveSequence(RobotState state, ReefState reefState, int lookahead, int length) {
+    private static BestMoveData bestMoveSequence(
+            RobotState state, FieldConstants.ReefState reefState, int lookahead, int length) {
         ArrayList<Move> bestMoves = new ArrayList<>();
         double bestPoints = 0;
         double bestTime = 0;
@@ -306,13 +241,11 @@ public class Strategy {
     }
 
     public static void test() {
-        ReefState currentReef = new ReefState(false, true);
-        // System.out.println(possibleMoves(new RobotState(BARGE, true, false, "Barge
-        // "), currentReef));
+        FieldConstants.ReefState currentReef = new FieldConstants.ReefState(false, true);
 
         BestMoveData bestMoveData =
                 bestMoveSequence(new RobotState(BARGE, false, false, "Start  "), currentReef, 4, -1);
-        // System.out.println(bestMoveData.moves.get(bestMoveData.moves.size() - 1));
+
         bestMoveData.moves.forEach(m -> System.out.println(m));
         System.out.println(bestMoveData.bestPoints + " pts in " + Math.round(bestMoveData.bestTime * 100) / 100.0
                 + " seconds: " + Math.round(bestMoveData.bestPoints / bestMoveData.bestTime * 100) / 100.0 + "pts/s");
@@ -324,7 +257,8 @@ public class Strategy {
             EndEffector endEffector,
             AlgaeManipulator algaeManipulator,
             int lookahead) {
-        return doBestMove(swerve, elevator, endEffector, algaeManipulator, lookahead, new ReefState(false, true));
+        return doBestMove(
+                swerve, elevator, endEffector, algaeManipulator, lookahead, new FieldConstants.ReefState(false, true));
     }
 
     public static Command doBestMove(
@@ -333,14 +267,14 @@ public class Strategy {
             EndEffector endEffector,
             AlgaeManipulator algaeManipulator,
             int lookahead,
-            ReefState reefState) {
+            FieldConstants.ReefState reefState) {
         RobotState startState = new RobotState(
-                swerve.getPose().getTranslation(),
+                FlipUtil.applyAlliance(swerve.getPose().getTranslation()),
                 endEffector.hasCoralTrigger.getAsBoolean(),
                 algaeManipulator.algaeDetectedTrigger.getAsBoolean(),
                 "Start  ");
         Move bestMove = getBestMoves(startState, lookahead, reefState).moves.get(0);
-        ReefState nextReef = bestMove.reefState;
+        FieldConstants.ReefState nextReef = bestMove.reefState;
         System.out.println(nextReef);
         String name = bestMove.to.name;
         Command cmd;
@@ -349,7 +283,7 @@ public class Strategy {
                 cmd = new FullAutoCommand(name.split(" ")[1], swerve, elevator, endEffector, algaeManipulator);
                 break;
             case "Algae":
-                cmd = new RemoveAlgaeCommand(CWToCCW.get(name.charAt(6) - '0'), swerve, elevator, algaeManipulator);
+                cmd = new RemoveAlgaeCommand(name.charAt(6) - '0', swerve, elevator, algaeManipulator);
                 break;
             case "Barge":
                 cmd = new ScoreInBargeCommand('G', swerve, elevator, algaeManipulator);
@@ -358,40 +292,10 @@ public class Strategy {
                 cmd = new FullAutoCommand(name.split(" ")[0], swerve, elevator, endEffector, algaeManipulator);
                 break;
         }
-        return cmd.finallyDo(() -> updateReef(nextReef))
+        return cmd.finallyDo(() -> FieldConstants.updateReef(nextReef))
+                .beforeStarting(() -> FieldConstants.updateReef(reefState))
                 .andThen(Commands.defer(
                         () -> doBestMove(swerve, elevator, endEffector, algaeManipulator, lookahead, nextReef),
                         Set.of(swerve, elevator)));
-    }
-
-    public static void updateReef(ReefState reefState) {
-        ArrayList<Pose3d> corals = new ArrayList<>();
-        for (int i = 0; i < reefState.coral.length; i++) {
-            for (int j = 0; j < reefState.coral[i].length; j++) {
-                if (reefState.coral[i][j]) {
-                    corals.add(branchPositions.get(i).get(ReefLevel.fromLevel(j)));
-                }
-            }
-        }
-        Logger.recordOutput("Mechanism3d/Reef/Coral", corals.toArray(Pose3d[]::new));
-        ArrayList<Translation3d> algae = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            if (reefState.algae[i]) {
-                Translation3d branch1 = FieldConstants.branchPositions
-                        .get(i * 2)
-                        .get(ReefLevel.L2)
-                        .getTranslation();
-                Translation3d branch2 = FieldConstants.branchPositions
-                        .get(i * 2 + 1)
-                        .get(ReefLevel.L3)
-                        .getTranslation();
-                algae.add(branch1.interpolate(branch2, 0.5)
-                        .plus(new Translation3d(
-                                0.0,
-                                0.0,
-                                ((i % 2 == 0) ? branch2.getZ() - branch1.getZ() : 0.0) + Units.inchesToMeters(-0.7))));
-            }
-        }
-        Logger.recordOutput("Mechanism3d/Reef/Algae", algae.toArray(Translation3d[]::new));
     }
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -31,7 +32,7 @@ import org.littletonrobotics.junction.Logger;
  */
 public class AlignAndFacePoseCommand extends Command {
     private final Pose2d targetPose;
-    private final Pose2d poseToFace;
+    private final Translation2d poseToFace;
     private final ProfiledPIDController pidControllerX;
     private final ProfiledPIDController pidControllerY;
     private final PIDController pidControllerAngle;
@@ -49,7 +50,7 @@ public class AlignAndFacePoseCommand extends Command {
      */
     public AlignAndFacePoseCommand(
             Pose2d targetPose,
-            Pose2d poseToFace,
+            Translation2d poseToFace,
             ControlConstants linearControlConstants,
             ControlConstants angleControlConstants,
             Swerve swerve) {

@@ -6,27 +6,25 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.FlipUtil;
+import java.util.Arrays;
 
 /** Container class to pick up algae from lollipops (those things with alge on top of coral). */
 public class LollipopCommands {
     private static Command lollipopCommand(
-            Pose2d lollipopPose, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
-        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-            lollipopPose = AlignToReefCommands.flipPose(lollipopPose);
-        }
-        lollipopPose = new Pose2d(
-                lollipopPose.getTranslation(),
-                Pathfinding.pointPoseTowards(swerve.getPose(), lollipopPose).getRotation());
+            Translation2d lollipopPos, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
+        lollipopPos = FlipUtil.applyAlliance(lollipopPos);
+        Pose2d lollipopPose = new Pose2d(
+                lollipopPos,
+                Pathfinding.pointPoseTowards(swerve.getPose(), lollipopPos).getRotation());
         AlignToPoseCommand align = new AlignToPoseCommand(
                 lollipopPose, AlignConstants.LOLLIPOP_PID_TRANSLATION, AlignConstants.LOLLIPOP_PID_ANGLE, swerve);
         return Commands.parallel(
@@ -48,7 +46,7 @@ public class LollipopCommands {
      */
     public static Command lollipopCommand(
             int lollipop, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
-        Pose2d lollipopPose = FieldConstants.LOLLIPOP_POSES[lollipop];
+        Translation2d lollipopPose = FieldConstants.LOLLIPOP_POSES[lollipop];
         return lollipopCommand(lollipopPose, swerve, algaeManipulator, elevator);
     }
 
@@ -61,17 +59,8 @@ public class LollipopCommands {
      * @return Lollipop command
      */
     public static Command lollipopCommand(Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
-        Pose2d closest = FieldConstants.LOLLIPOP_POSES[0];
-        final boolean flip = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
-        Translation2d robotTranslation = flip
-                ? AlignToReefCommands.flipPose(swerve.getPose()).getTranslation()
-                : swerve.getPose().getTranslation();
-        for (Pose2d lollipopPose : FieldConstants.LOLLIPOP_POSES) {
-            if (robotTranslation.getDistance(lollipopPose.getTranslation())
-                    < robotTranslation.getDistance(closest.getTranslation())) {
-                closest = lollipopPose;
-            }
-        }
+        Translation2d robotTranslation = FlipUtil.applyAlliance(swerve.getPose().getTranslation());
+        Translation2d closest = robotTranslation.nearest(Arrays.asList(FieldConstants.LOLLIPOP_POSES));
 
         return lollipopCommand(closest, swerve, algaeManipulator, elevator);
     }

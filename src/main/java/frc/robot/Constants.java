@@ -649,7 +649,7 @@ public class Constants {
                 new Rotation3d(Degrees.zero(), Degrees.of(-22), Degrees.of(31)));
     }
 
-    public static class FieldConstants {
+    public static class FieldConstants01 {
         public static final Map<Character, Pair<Integer, Integer>> LETTER_TO_SIDE_AND_RELATIVE = Map.ofEntries(
                 Map.entry(Character.valueOf('A'), new Pair<Integer, Integer>(0, 1)),
                 Map.entry(Character.valueOf('B'), new Pair<Integer, Integer>(0, -1)),

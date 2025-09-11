@@ -537,6 +537,87 @@ public class Constants {
         public static final Time STALL_TIME = Seconds.of(0.5);
     }
 
+    public static class IntakeConstants {
+        public static final int INTAKE_MOTOR_ID = 0;
+        public static final int DEPLOY_MOTOR_ID = 0;
+        public static final int ALIGN_MOTOR_ID = 0;
+
+        public static final int ENCODER_ID = 0;
+
+        public static final int ALIGN_LIDAR_ID = 0;
+
+        public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
+        public static final CurrentLimitsConfigs INTAKE_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(Amps.of(30))
+                .withSupplyCurrentLowerLimit(Amps.of(15))
+                .withSupplyCurrentLowerTime(Seconds.of(1))
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false);
+        public static final TalonFXConfiguration INTAKE_MOTOR_CONFIGS = new TalonFXConfiguration()
+                .withMotorOutput(INTAKE_MOTOR_OUTPUT_CONFIGS)
+                .withCurrentLimits(INTAKE_CURRENT_LIMITS_CONFIGS);
+
+        public static final MotorOutputConfigs DEPLOY_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
+        public static final CurrentLimitsConfigs DEPLOY_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(Amps.of(30))
+                .withSupplyCurrentLowerLimit(Amps.of(15))
+                .withSupplyCurrentLowerTime(Seconds.of(1))
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false);
+        public static final FeedbackConfigs DEPLOY_FEEDBACK_CONFIGS = new FeedbackConfigs()
+                .withFeedbackRemoteSensorID(ENCODER_ID)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+                .withRotorToSensorRatio(20*50/24.0); // 20:1 gearbox and 50:24 gears
+        public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
+                .withKP(0.).withKI(0.).withKD(0)
+                .withKV(0.5).withKA(0)
+                .withGravityType(GravityTypeValue.Arm_Cosine);
+        public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
+                .withMotorOutput(DEPLOY_MOTOR_OUTPUT_CONFIGS)
+                .withCurrentLimits(DEPLOY_CURRENT_LIMITS_CONFIGS)
+                .withFeedback(DEPLOY_FEEDBACK_CONFIGS)
+                .withSlot0(DEPLOY_PID);
+        
+        public static final MotorOutputConfigs ALIGN_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
+        public static final CurrentLimitsConfigs ALIGN_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(Amps.of(30))
+                .withSupplyCurrentLowerLimit(Amps.of(15))
+                .withSupplyCurrentLowerTime(Seconds.of(1))
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimitEnable(false);
+        public static final TalonFXConfiguration ALIGN_MOTOR_CONFIGS = new TalonFXConfiguration()
+                .withMotorOutput(ALIGN_MOTOR_OUTPUT_CONFIGS)
+                .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
+
+        public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
+                .withMagnetOffset(0)
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+
+        public static final Voltage INTAKE_SPEED = Volts.of(9);
+        public static final Voltage EJECT_SPEED = Volts.of(-8);
+        public static final Voltage DEPLOY_SPEED = Volts.of(6);
+        public static final Voltage RETRACT_SPEED = Volts.of(-10);
+        public static final Voltage ALIGN_SPEED = Volts.of(2.4);
+
+        public static final Angle DEPLOY_POS = Degrees.of(0);
+        public static final Angle STOW_POS = Degrees.of(70);
+
+        public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
+        public static final Angle STOW_TOLERANCE = Degrees.of(10);
+
+        // radians -> volts
+        public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
+                .withPID(0.1, 0, 0)
+                .withTolerance(Degrees.of(10).in(Radians))
+                .withProfile(Math.PI/2, Math.PI);
+    }
+
     public static class AlgaeManipulatorConstants {
         // Motor
         public static final int MOTOR_ID = 32;

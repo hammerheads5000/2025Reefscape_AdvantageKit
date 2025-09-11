@@ -1,0 +1,99 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.subsystems.intake;
+
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.IntakeConstants;
+
+public class Intake extends SubsystemBase {
+    IntakeIO io;
+    IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+    Trigger alignerHasPiece = new Trigger(() -> inputs.alignLidar).debounce(0.1);
+    Trigger deployedTrigger = new Trigger(this::isDeployed).debounce(0.1);
+    Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
+
+    public Intake(IntakeIO io) {
+        this.io = io;
+    }
+
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+    }
+
+    public void setIntakeSpeed(Voltage speed) {
+        io.setIntakeSpeed(speed);
+    }
+
+    public void setAlignSpeed(Voltage speed) {
+        io.setAlignSpeed(speed);
+    }
+
+    public void setGoal(Angle angle) {
+        io.setGoal(angle);
+    }
+
+    public boolean alignerHasPiece() {
+        return alignerHasPiece.getAsBoolean();
+    }
+
+    public Angle getPosition() {
+        return inputs.position;
+    }
+
+    public boolean isDeployed() {
+        return inputs.position.isNear(IntakeConstants.DEPLOY_POS, IntakeConstants.DEPLOY_TOLERANCE);
+    }
+
+    public boolean isStowed() {
+        return inputs.position.isNear(IntakeConstants.STOW_POS, IntakeConstants.STOW_TOLERANCE);
+    }
+
+    public Command deployCommand(boolean instant) {
+        if (instant) {
+            return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS));
+        } else {
+            return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS))
+                    .andThen(Commands.waitUntil(deployedTrigger));
+        }
+    }
+
+    public Command stowCommand(boolean instant) {
+        if (instant) {
+            return this.runOnce(() -> setGoal(IntakeConstants.STOW_POS));
+        } else {
+            return this.runOnce(() -> setGoal(IntakeConstants.STOW_POS))
+                    .andThen(Commands.waitUntil(stowedTrigger));
+        }
+    }
+
+    public Command intakeCommand() {
+        return Commands.runOnce(() -> {
+            setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+            setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+        });
+    }
+
+    public Command ejectCommand() {
+        return Commands.runOnce(() -> {
+            setIntakeSpeed(IntakeConstants.EJECT_SPEED);
+            setAlignSpeed(IntakeConstants.EJECT_SPEED);
+        });
+    }
+
+    public Command stopIntake() {
+        return Commands.runOnce(() -> {
+            setIntakeSpeed(Volts.zero());
+            setAlignSpeed(Volts.zero());
+        });
+    }
+}

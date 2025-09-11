@@ -221,13 +221,13 @@ public class Constants {
                         .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE);
 
         public static class FrontLeft {
-            private static final int DRIVE_ID = 3;
-            private static final int STEER_ID = 7;
-            private static final int ENCODER_ID = 3;
-            private static final Angle ENCODER_OFFSET = Rotations.of(-0.25830078125);
+            private static final int DRIVE_ID = 1;
+            private static final int STEER_ID = 5;
+            private static final int ENCODER_ID = 1;
+            private static final Angle ENCODER_OFFSET = Rotations.of(0.268798828125);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -246,13 +246,13 @@ public class Constants {
         }
 
         public static class FrontRight {
-            private static final int DRIVE_ID = 4;
-            private static final int STEER_ID = 8;
-            private static final int ENCODER_ID = 4;
-            private static final Angle ENCODER_OFFSET = Rotations.of(0.361083984375);
+            private static final int DRIVE_ID = 2;
+            private static final int STEER_ID = 6;
+            private static final int ENCODER_ID = 2;
+            private static final Angle ENCODER_OFFSET = Rotations.of(-0.0693359375);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -271,13 +271,13 @@ public class Constants {
         }
 
         public static class BackLeft {
-            private static final int DRIVE_ID = 2;
-            private static final int STEER_ID = 6;
-            private static final int ENCODER_ID = 2;
-            private static final Angle ENCODER_OFFSET = Rotations.of(-0.0693359375);
+            private static final int DRIVE_ID = 4;
+            private static final int STEER_ID = 8;
+            private static final int ENCODER_ID = 4;
+            private static final Angle ENCODER_OFFSET = Rotations.of(0.361083984375);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -296,13 +296,13 @@ public class Constants {
         }
 
         public static class BackRight {
-            private static final int DRIVE_ID = 1;
-            private static final int STEER_ID = 5;
-            private static final int ENCODER_ID = 1;
-            private static final Angle ENCODER_OFFSET = Rotations.of(0.268798828125);
+            private static final int DRIVE_ID = 3;
+            private static final int STEER_ID = 7;
+            private static final int ENCODER_ID = 3;
+            private static final Angle ENCODER_OFFSET = Rotations.of(-0.25830078125);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -390,7 +390,7 @@ public class Constants {
         public static final int ENCODER_ID = 5; // fd bus
 
         // Motor Configs
-        public static final double GEAR_RATIO = 4;
+        public static final double GEAR_RATIO = 76.0 / 18;
         public static final Distance DRUM_RADIUS = Inches.of(1);
 
         public static final boolean OPPOSE_FOLLOWER = true;
@@ -399,7 +399,7 @@ public class Constants {
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(70));
 
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
+                .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
         public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
@@ -460,7 +460,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.303955078125)
+                .withMagnetOffset(-0.697265625)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);

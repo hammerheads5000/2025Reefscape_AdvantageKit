@@ -19,10 +19,7 @@ public class EndEffectorIOSim implements EndEffectorIO {
         // Assume motors are running
         inputs.leftVelocity = EndEffectorConstants.MIN_VEL.times(2);
         inputs.rightVelocity = EndEffectorConstants.MIN_VEL.times(2);
-        inputs.torqueCurrent = Amps.of(5);
-
-        inputs.backLidar = false;
-        inputs.frontLidar = false;
-        inputs.intakeLidar = false;
+        inputs.leftTorqueCurrent = Amps.of(5);
+        inputs.rightTorqueCurrent = Amps.of(5);
     }
 }

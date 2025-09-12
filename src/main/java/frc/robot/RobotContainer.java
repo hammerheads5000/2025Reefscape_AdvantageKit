@@ -50,6 +50,9 @@ import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.endeffector.EndEffectorIO;
 import frc.robot.subsystems.endeffector.EndEffectorIOSim;
 import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIOPigeon2;
 import frc.robot.subsystems.swerve.ModuleIO;
@@ -82,6 +85,7 @@ public class RobotContainer {
     private final EndEffector endEffector;
     private final Climber climber;
     private final AlgaeManipulator algaeManipulator;
+    private final Intake intake;
 
     // Commands
     private final TeleopSwerve teleopSwerveCommand;
@@ -113,11 +117,14 @@ public class RobotContainer {
     private final Trigger intakeTrigger = driveController.rightBumper().and(algaeButtonLayerTrigger.negate());
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
+    private final Trigger deployIntakeTrigger = driveController.start().and(algaeButtonLayerTrigger.negate());
+    private final Trigger stowIntakeTrigger = driveController.back().and(algaeButtonLayerTrigger.negate());
+
     private final Trigger reefTrigger = driveController.a();
     private final Trigger stationTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
-    private final Trigger autoClimbTrigger = driveController.start();
-    private final Trigger unclimbTrigger = driveController.back();
+    private final Trigger autoClimbTrigger = driveController.start().and(algaeButtonLayerTrigger);
+    private final Trigger unclimbTrigger = driveController.back().and(algaeButtonLayerTrigger);
     private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger;
 
@@ -204,6 +211,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOTalonFX());
+                intake = new Intake(new IntakeIOTalonFX());
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -235,6 +243,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
+                intake = new Intake(new IntakeIO() {}); // TODO: implement sim intake
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -261,6 +270,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIO() {});
+                intake = new Intake(new IntakeIO() {});
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;
@@ -279,7 +289,8 @@ public class RobotContainer {
                                 swerve,
                                 elevator,
                                 endEffector,
-                                algaeManipulator),
+                                algaeManipulator,
+                                intake),
                         Set.of(swerve, elevator))
                 .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
@@ -290,7 +301,8 @@ public class RobotContainer {
                                 swerve,
                                 elevator,
                                 endEffector,
-                                algaeManipulator),
+                                algaeManipulator,
+                                intake),
                         Set.of(swerve, elevator))
                 .withName("Station Auto");
 
@@ -357,8 +369,11 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED));
-        reverseIntakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus()));
+        intakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)).whileTrue(intake.intakeCommand());
+        reverseIntakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())).whileTrue(intake.ejectCommand());
+
+        deployIntakeTrigger.whileTrue(intake.deployCommand(false));
+        stowIntakeTrigger.whileTrue(intake.stowCommand(false));
 
         reefTrigger.whileTrue(reefCommand);
         stationTrigger.whileTrue(stationCommand);
@@ -398,7 +413,7 @@ public class RobotContainer {
                             .ignoringDisable(true));
         }
 
-        endEffector.coralDetectedTrigger.whileTrue(rumbleCommand);
+        intake.coralDetectedTrigger.whileTrue(rumbleCommand);
     }
 
     public void updateAlerts() {
@@ -438,6 +453,6 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new FullAutoCommand(
-                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator);
+                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(), swerve, elevator, endEffector, algaeManipulator, intake);
     }
 }

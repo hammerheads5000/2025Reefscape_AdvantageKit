@@ -29,7 +29,6 @@ public class ClimberIOSim implements ClimberIO {
         inputs.grabMotorConnected = true;
         inputs.grabVelocity = RadiansPerSecond.zero();
         inputs.grabAppliedVolts = Volts.zero();
-        inputs.cageDetected = false;
 
         inputs.encoderConnected = true;
         inputs.pos = Radians.zero();

@@ -23,8 +23,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.S1StateValue;
-import com.ctre.phoenix6.signals.S2StateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -520,10 +518,8 @@ public class Constants {
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
-        // Lidar
-        public static final int CANDI_ID = 2;
-        public static final S1StateValue S1_DETECTED_VALUE = S1StateValue.Low;
-        public static final S2StateValue S2_DETECTED_VALUE = S2StateValue.Low;
+        // Coral detection
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(20);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
@@ -571,17 +567,20 @@ public class Constants {
         public static final FeedbackConfigs DEPLOY_FEEDBACK_CONFIGS = new FeedbackConfigs()
                 .withFeedbackRemoteSensorID(ENCODER_ID)
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
-                .withRotorToSensorRatio(20*50/24.0); // 20:1 gearbox and 50:24 gears
+                .withRotorToSensorRatio(20 * 50 / 24.0); // 20:1 gearbox and 50:24 gears
         public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
-                .withKP(0.).withKI(0.).withKD(0)
-                .withKV(0.5).withKA(0)
+                .withKP(0.)
+                .withKI(0.)
+                .withKD(0)
+                .withKV(0.5)
+                .withKA(0)
                 .withGravityType(GravityTypeValue.Arm_Cosine);
         public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(DEPLOY_MOTOR_OUTPUT_CONFIGS)
                 .withCurrentLimits(DEPLOY_CURRENT_LIMITS_CONFIGS)
                 .withFeedback(DEPLOY_FEEDBACK_CONFIGS)
                 .withSlot0(DEPLOY_PID);
-        
+
         public static final MotorOutputConfigs ALIGN_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
@@ -611,11 +610,13 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(20);
+
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
                 .withPID(0.1, 0, 0)
                 .withTolerance(Degrees.of(10).in(Radians))
-                .withProfile(Math.PI/2, Math.PI);
+                .withProfile(Math.PI / 2, Math.PI);
     }
 
     public static class AlgaeManipulatorConstants {
@@ -689,9 +690,6 @@ public class Constants {
         public static final MotorOutputConfigs GRAB_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
-
-        public static final int CANDI_ID = 1; // induction sensor
-        public static final S1StateValue CAGE_DETECTED_VALUE = S1StateValue.Low;
     }
 
     public static class VisionConstants {

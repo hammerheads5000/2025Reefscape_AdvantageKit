@@ -17,9 +17,11 @@ import frc.robot.Constants.IntakeConstants;
 public class Intake extends SubsystemBase {
     IntakeIO io;
     IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+
     Trigger alignerHasPiece = new Trigger(() -> inputs.alignLidar).debounce(0.1);
     Trigger deployedTrigger = new Trigger(this::isDeployed).debounce(0.1);
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
 
     public Intake(IntakeIO io) {
         this.io = io;
@@ -58,12 +60,15 @@ public class Intake extends SubsystemBase {
         return inputs.position.isNear(IntakeConstants.STOW_POS, IntakeConstants.STOW_TOLERANCE);
     }
 
+    private boolean rawCoralDetected() {
+        return inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT);
+    }
+
     public Command deployCommand(boolean instant) {
         if (instant) {
             return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS));
         } else {
-            return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS))
-                    .andThen(Commands.waitUntil(deployedTrigger));
+            return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS)).andThen(Commands.waitUntil(deployedTrigger));
         }
     }
 
@@ -71,23 +76,42 @@ public class Intake extends SubsystemBase {
         if (instant) {
             return this.runOnce(() -> setGoal(IntakeConstants.STOW_POS));
         } else {
-            return this.runOnce(() -> setGoal(IntakeConstants.STOW_POS))
-                    .andThen(Commands.waitUntil(stowedTrigger));
+            return this.runOnce(() -> setGoal(IntakeConstants.STOW_POS)).andThen(Commands.waitUntil(stowedTrigger));
         }
     }
 
-    public Command intakeCommand() {
+    public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
             setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
             setAlignSpeed(IntakeConstants.ALIGN_SPEED);
-        });
+        }).withName("Start Intake Command");
     }
 
-    public Command ejectCommand() {
+    public Command startEjectCommand() {
         return Commands.runOnce(() -> {
             setIntakeSpeed(IntakeConstants.EJECT_SPEED);
             setAlignSpeed(IntakeConstants.EJECT_SPEED);
-        });
+        }).withName("Start Eject Command");
+    }
+
+    public Command intakeCommand() {
+        return Commands.startEnd(() -> {
+            setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+            setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+        }, () -> {
+            setIntakeSpeed(Volts.zero());
+            setAlignSpeed(Volts.zero());
+        }).withName("Intake Command");
+    }
+
+    public Command ejectCommand() {
+        return Commands.startEnd(() -> {
+            setIntakeSpeed(IntakeConstants.EJECT_SPEED);
+            setAlignSpeed(IntakeConstants.EJECT_SPEED);
+        }, () -> {
+            setIntakeSpeed(Volts.zero());
+            setAlignSpeed(Volts.zero());
+        }).withName("Eject Command");
     }
 
     public Command stopIntake() {

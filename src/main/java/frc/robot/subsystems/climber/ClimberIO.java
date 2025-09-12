@@ -22,7 +22,6 @@ public interface ClimberIO {
         public boolean grabMotorConnected = false;
         public AngularVelocity grabVelocity = RadiansPerSecond.zero();
         public Voltage grabAppliedVolts = Volts.zero();
-        public boolean cageDetected = false;
 
         public boolean encoderConnected = false;
         public Angle pos = Radians.zero();

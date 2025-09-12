@@ -9,7 +9,6 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
@@ -20,8 +19,6 @@ import frc.robot.Constants.ClimberConstants;
 public class ClimberIOTalonFX implements ClimberIO {
     private final TalonFX climbMotor;
     private final TalonFX grabMotor;
-
-    private final CANdi cageSensor;
 
     private final Debouncer climbConnectedDebouncer = new Debouncer(0.5);
     private final Debouncer grabConnectedDebouncer = new Debouncer(0.5);
@@ -40,8 +37,6 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         climbEncoder = new CANcoder(ClimberConstants.CLIMB_ENCODER_ID, Constants.CAN_FD_BUS);
         tryUntilOk(5, () -> climbEncoder.getConfigurator().apply(ClimberConstants.ENCODER_CONFIGS));
-
-        cageSensor = new CANdi(ClimberConstants.CANDI_ID, Constants.CAN_FD_BUS);
     }
 
     @Override
@@ -57,8 +52,6 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
         inputs.pos = climbEncoder.getAbsolutePosition().getValue();
-
-        inputs.cageDetected = cageSensor.getS1State().getValue() == ClimberConstants.CAGE_DETECTED_VALUE;
     }
 
     @Override

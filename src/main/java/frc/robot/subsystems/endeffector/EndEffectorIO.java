@@ -15,11 +15,8 @@ public interface EndEffectorIO {
         public boolean rightConnected = false;
         public AngularVelocity leftVelocity = RadiansPerSecond.zero();
         public AngularVelocity rightVelocity = RadiansPerSecond.zero();
-        public Current torqueCurrent = Amps.zero();
-
-        public boolean frontLidar = false;
-        public boolean backLidar = false;
-        public boolean intakeLidar = false;
+        public Current leftTorqueCurrent = Amps.zero();
+        public Current rightTorqueCurrent = Amps.zero();
     }
 
     default void updateInputs(EndEffectorIOInputs inputs) {}

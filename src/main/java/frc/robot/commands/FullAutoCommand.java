@@ -19,6 +19,7 @@ import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -29,22 +30,23 @@ public class FullAutoCommand extends SequentialCommandGroup {
     Elevator elevator;
     EndEffector endEffector;
     AlgaeManipulator algaeManipulator;
+    Intake intake;
 
     private Command getStationCommand(int station, int relativePos) {
         Command command = ApproachCoralStationCommands.pathfindCommand(station, relativePos, swerve);
 
         if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
             return command.alongWith(elevator.goToIntakePosCommand(false))
-                    .andThen(new ScheduleCommand(endEffector.coolerIntakeCommand()));
+                    .andThen(new ScheduleCommand(endEffector.intakeCommand()));
         } else {
             return command.alongWith(
                     elevator.goToIntakePosCommand(false),
-                    new ScheduleCommand(endEffector.coolerIntakeCommand()),
+                    new ScheduleCommand(endEffector.intakeCommand()),
                     // wait slightly to avoid stopping early
                     Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)
                             .andThen(
-                                    new ScheduleCommand(endEffector.coolerIntakeCommand()),
-                                    Commands.waitUntil(endEffector.coralDetectedTrigger)));
+                                    new ScheduleCommand(endEffector.intakeCommand()),
+                                    Commands.waitUntil(intake.coralDetectedTrigger)));
         }
     }
 
@@ -271,11 +273,13 @@ public class FullAutoCommand extends SequentialCommandGroup {
             Swerve swerve,
             Elevator elevator,
             EndEffector endEffector,
-            AlgaeManipulator algaeManipulator) {
+            AlgaeManipulator algaeManipulator,
+            Intake intake) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.endEffector = endEffector;
         this.algaeManipulator = algaeManipulator;
+        this.intake = intake;
 
         String[] tokens = descriptorString.split(" ");
 

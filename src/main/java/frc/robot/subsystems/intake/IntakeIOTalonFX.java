@@ -12,7 +12,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -63,9 +62,10 @@ public class IntakeIOTalonFX implements IntakeIO {
         inputs.deployTorqueCurrent = deployMotor.getTorqueCurrent().getValue();
 
         inputs.alignLidar = alignLidar.get();
-    
+
         inputs.setpointPos = Rotations.of(deployMotor.getClosedLoopReference().getValue());
-        inputs.setpointVel = RotationsPerSecond.of(deployMotor.getClosedLoopReferenceSlope().getValue());
+        inputs.setpointVel =
+                RotationsPerSecond.of(deployMotor.getClosedLoopReferenceSlope().getValue());
     }
 
     @Override

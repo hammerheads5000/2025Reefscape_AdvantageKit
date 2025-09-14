@@ -6,13 +6,16 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
+import java.util.function.Supplier;
 
 public class Intake extends SubsystemBase {
     IntakeIO io;
@@ -23,13 +26,20 @@ public class Intake extends SubsystemBase {
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
     public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
 
-    public Intake(IntakeIO io) {
+    IntakeVisualizer visualizer;
+
+    public Intake(IntakeIO io, Supplier<Pose2d> poseSupplier) {
         this.io = io;
+        this.visualizer = new IntakeVisualizer(coralDetectedTrigger, poseSupplier);
+
+        SmartDashboard.putData("Intake Deploy", deployCommand(true));
+        SmartDashboard.putData("Intake Stow", stowCommand(true));
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        visualizer.update(inputs.position);
     }
 
     public void setIntakeSpeed(Voltage speed) {

@@ -616,6 +616,7 @@ public class Constants {
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
                 .withPID(0.1, 0, 0)
                 .withTolerance(Degrees.of(10).in(Radians))
+                .withFeedforward(6, 0)
                 .withProfile(Math.PI / 2, Math.PI);
     }
 

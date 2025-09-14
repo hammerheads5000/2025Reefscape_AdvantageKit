@@ -369,8 +369,12 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)).whileTrue(intake.intakeCommand());
-        reverseIntakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())).whileTrue(intake.ejectCommand());
+        intakeTrigger
+                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
+                .whileTrue(intake.intakeCommand());
+        reverseIntakeTrigger
+                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus()))
+                .whileTrue(intake.ejectCommand());
 
         deployIntakeTrigger.whileTrue(intake.deployCommand(false));
         stowIntakeTrigger.whileTrue(intake.stowCommand(false));

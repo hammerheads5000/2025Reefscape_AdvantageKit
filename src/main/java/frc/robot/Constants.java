@@ -534,11 +534,11 @@ public class Constants {
     }
 
     public static class IntakeConstants {
-        public static final int INTAKE_MOTOR_ID = 0;
-        public static final int DEPLOY_MOTOR_ID = 0;
-        public static final int ALIGN_MOTOR_ID = 0;
+        public static final int INTAKE_MOTOR_ID = 33;
+        public static final int DEPLOY_MOTOR_ID = 22;
+        public static final int ALIGN_MOTOR_ID = 11;
 
-        public static final int ENCODER_ID = 0;
+        public static final int ENCODER_ID = 21;
 
         public static final int ALIGN_LIDAR_ID = 0;
 

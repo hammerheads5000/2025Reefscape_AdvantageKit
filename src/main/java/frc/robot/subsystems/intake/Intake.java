@@ -82,36 +82,44 @@ public class Intake extends SubsystemBase {
 
     public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
-            setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
-            setAlignSpeed(IntakeConstants.ALIGN_SPEED);
-        }).withName("Start Intake Command");
+                    setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+                    setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+                })
+                .withName("Start Intake Command");
     }
 
     public Command startEjectCommand() {
         return Commands.runOnce(() -> {
-            setIntakeSpeed(IntakeConstants.EJECT_SPEED);
-            setAlignSpeed(IntakeConstants.EJECT_SPEED);
-        }).withName("Start Eject Command");
+                    setIntakeSpeed(IntakeConstants.EJECT_SPEED);
+                    setAlignSpeed(IntakeConstants.EJECT_SPEED);
+                })
+                .withName("Start Eject Command");
     }
 
     public Command intakeCommand() {
-        return Commands.startEnd(() -> {
-            setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
-            setAlignSpeed(IntakeConstants.ALIGN_SPEED);
-        }, () -> {
-            setIntakeSpeed(Volts.zero());
-            setAlignSpeed(Volts.zero());
-        }).withName("Intake Command");
+        return Commands.startEnd(
+                        () -> {
+                            setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+                            setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+                        },
+                        () -> {
+                            setIntakeSpeed(Volts.zero());
+                            setAlignSpeed(Volts.zero());
+                        })
+                .withName("Intake Command");
     }
 
     public Command ejectCommand() {
-        return Commands.startEnd(() -> {
-            setIntakeSpeed(IntakeConstants.EJECT_SPEED);
-            setAlignSpeed(IntakeConstants.EJECT_SPEED);
-        }, () -> {
-            setIntakeSpeed(Volts.zero());
-            setAlignSpeed(Volts.zero());
-        }).withName("Eject Command");
+        return Commands.startEnd(
+                        () -> {
+                            setIntakeSpeed(IntakeConstants.EJECT_SPEED);
+                            setAlignSpeed(IntakeConstants.EJECT_SPEED);
+                        },
+                        () -> {
+                            setIntakeSpeed(Volts.zero());
+                            setAlignSpeed(Volts.zero());
+                        })
+                .withName("Eject Command");
     }
 
     public Command stopIntake() {

@@ -52,6 +52,7 @@ import frc.robot.subsystems.endeffector.EndEffectorIOSim;
 import frc.robot.subsystems.endeffector.EndEffectorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.swerve.GyroIO;
 import frc.robot.subsystems.swerve.GyroIOPigeon2;
@@ -211,7 +212,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOTalonFX());
-                intake = new Intake(new IntakeIOTalonFX());
+                intake = new Intake(new IntakeIOTalonFX(), swerve::getPose);
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -243,7 +244,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
-                intake = new Intake(new IntakeIO() {}); // TODO: implement sim intake
+                intake = new Intake(new IntakeIOSim(), swerve::getPose);
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -270,7 +271,7 @@ public class RobotContainer {
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIO() {});
-                intake = new Intake(new IntakeIO() {});
+                intake = new Intake(new IntakeIO() {}, swerve::getPose);
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;
@@ -369,8 +370,12 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)).whileTrue(intake.intakeCommand());
-        reverseIntakeTrigger.whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())).whileTrue(intake.ejectCommand());
+        intakeTrigger
+                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
+                .whileTrue(intake.intakeCommand());
+        reverseIntakeTrigger
+                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus()))
+                .whileTrue(intake.ejectCommand());
 
         deployIntakeTrigger.whileTrue(intake.deployCommand(false));
         stowIntakeTrigger.whileTrue(intake.stowCommand(false));

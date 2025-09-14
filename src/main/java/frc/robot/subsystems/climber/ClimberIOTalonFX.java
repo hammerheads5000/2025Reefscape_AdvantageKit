@@ -8,7 +8,6 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
@@ -24,7 +23,7 @@ public class ClimberIOTalonFX implements ClimberIO {
     private final Debouncer grabConnectedDebouncer = new Debouncer(0.5);
     private final Debouncer encoderConnectedDebouncer = new Debouncer(0.5);
 
-    private final CANcoder climbEncoder;
+    // private final CANcoder climbEncoder;
 
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final NeutralOut neutralRequest = new NeutralOut();
@@ -35,8 +34,8 @@ public class ClimberIOTalonFX implements ClimberIO {
         tryUntilOk(5, () -> climbMotor.getConfigurator().apply(ClimberConstants.CLIMB_CONFIGS));
         tryUntilOk(5, () -> grabMotor.getConfigurator().apply(ClimberConstants.GRAB_CONFIGS));
 
-        climbEncoder = new CANcoder(ClimberConstants.CLIMB_ENCODER_ID, Constants.CAN_FD_BUS);
-        tryUntilOk(5, () -> climbEncoder.getConfigurator().apply(ClimberConstants.ENCODER_CONFIGS));
+        // climbEncoder = new CANcoder(ClimberConstants.CLIMB_ENCODER_ID, Constants.CAN_FD_BUS);
+        // tryUntilOk(5, () -> climbEncoder.getConfigurator().apply(ClimberConstants.ENCODER_CONFIGS));
     }
 
     @Override
@@ -50,8 +49,9 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.grabVelocity = grabMotor.getVelocity().getValue();
         inputs.grabAppliedVolts = grabMotor.getMotorVoltage().getValue();
 
-        inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
-        inputs.pos = climbEncoder.getAbsolutePosition().getValue();
+        // inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
+        inputs.encoderConnected = false;
+        // inputs.pos = climbEncoder.getAbsolutePosition().getValue();
     }
 
     @Override

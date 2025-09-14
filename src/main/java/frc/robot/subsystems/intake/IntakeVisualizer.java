@@ -49,7 +49,7 @@ public class IntakeVisualizer {
     public void update(Angle position) {
         if (Constants.CURRENT_MODE == Mode.REAL) return;
 
-        armLigament.setAngle(160-position.in(Degrees));
+        armLigament.setAngle(160 - position.in(Degrees));
         Logger.recordOutput("Mechanism2d/" + "Intake", mechanism);
 
         Pose3d[] coral;

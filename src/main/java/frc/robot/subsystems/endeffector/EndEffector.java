@@ -56,6 +56,10 @@ public class EndEffector extends SubsystemBase {
                 || inputs.rightTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT);
     }
 
+    public void setSpeed(Voltage speed) {
+        io.setSpeeds(speed, speed);
+    }
+
     private Command runCommand(Voltage left, Voltage right) {
         return this.startEnd(() -> io.setSpeeds(left, right), io::stop);
     }

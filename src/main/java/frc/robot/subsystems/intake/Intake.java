@@ -16,15 +16,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
     IntakeIO io;
     IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
     Trigger alignerHasPiece = new Trigger(() -> inputs.alignLidar).debounce(0.1);
+
+    @AutoLogOutput
     Trigger deployedTrigger = new Trigger(this::isDeployed).debounce(0.1);
+
+    @AutoLogOutput
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
+
+    @AutoLogOutput
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.3);
+
+    private Angle goal = IntakeConstants.STOW_POS;
 
     IntakeVisualizer visualizer;
 
@@ -39,6 +49,7 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        Logger.processInputs("Intake", inputs);
         visualizer.update(inputs.position);
     }
 
@@ -51,6 +62,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void setGoal(Angle angle) {
+        goal = angle;
         io.setGoal(angle);
     }
 
@@ -72,6 +84,14 @@ public class Intake extends SubsystemBase {
 
     private boolean rawCoralDetected() {
         return inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT);
+    }
+
+    public Command toggleCommand(boolean instant) {
+        if (goal.lte(IntakeConstants.DEPLOY_TOLERANCE)) {
+            return stowCommand(instant);
+        } else {
+            return deployCommand(instant);
+        }
     }
 
     public Command deployCommand(boolean instant) {

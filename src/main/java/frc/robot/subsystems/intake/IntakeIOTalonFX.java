@@ -4,11 +4,12 @@
 
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,6 +18,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class IntakeIOTalonFX implements IntakeIO {
@@ -28,8 +30,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     private final DigitalInput alignLidar = new DigitalInput(IntakeConstants.ALIGN_LIDAR_ID);
 
-    private final PositionVoltage deployRequest = new PositionVoltage(0);
-    private final VoltageOut voltageRequets = new VoltageOut(0);
+    private final MotionMagicVoltage deployRequest = new MotionMagicVoltage(0);
+    private final VoltageOut intakeRequest = new VoltageOut(0);
+    private final VoltageOut alignRequest = new VoltageOut(0);
 
     public IntakeIOTalonFX() {
         intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_ID, Constants.CAN_FD_BUS);
@@ -70,16 +73,18 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     @Override
     public void setGoal(Angle angle) {
+        Logger.recordOutput("Intake/Goal(deg)", angle.in(Degrees));
         deployMotor.setControl(deployRequest.withPosition(angle));
     }
 
     @Override
     public void setIntakeSpeed(Voltage speed) {
-        intakeMotor.setControl(voltageRequets.withOutput(speed));
+        Logger.recordOutput("Intake/Intake Speed (V)", speed);
+        intakeMotor.setControl(intakeRequest.withOutput(speed));
     }
 
     @Override
     public void setAlignSpeed(Voltage speed) {
-        alignMotor.setControl(voltageRequets.withOutput(speed));
+        alignMotor.setControl(alignRequest.withOutput(speed));
     }
 }

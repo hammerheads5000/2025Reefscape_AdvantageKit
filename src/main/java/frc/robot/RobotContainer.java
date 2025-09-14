@@ -27,6 +27,7 @@ import frc.robot.commands.AlignToReefCommands;
 import frc.robot.commands.ApproachBargeCommands;
 import frc.robot.commands.ApproachCoralStationCommands;
 import frc.robot.commands.ApproachReefCommand;
+import frc.robot.commands.AutoCoralCommand;
 import frc.robot.commands.FullAutoCommand;
 import frc.robot.commands.LollipopCommands;
 import frc.robot.commands.ProcessCommand;
@@ -42,6 +43,9 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.subsystems.coraldetection.CoralDetection;
+import frc.robot.subsystems.coraldetection.CoralDetectionIO;
+import frc.robot.subsystems.coraldetection.CoralDetectionIOPhotonVision;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -87,6 +91,7 @@ public class RobotContainer {
     private final Climber climber;
     private final AlgaeManipulator algaeManipulator;
     private final Intake intake;
+    private final CoralDetection coralDetection;
 
     // Commands
     private final TeleopSwerve teleopSwerveCommand;
@@ -105,6 +110,8 @@ public class RobotContainer {
 
     private final Command lollipopCommand;
 
+    private final AutoCoralCommand autoCoralCommand;
+
     // Triggers
     private final Trigger algaeButtonLayerTrigger = driveController.leftTrigger();
     private final Trigger speedUpTrigger = driveController.rightTrigger();
@@ -118,8 +125,8 @@ public class RobotContainer {
     private final Trigger intakeTrigger = driveController.rightBumper().and(algaeButtonLayerTrigger.negate());
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
-    private final Trigger deployIntakeTrigger = driveController.start().and(algaeButtonLayerTrigger.negate());
-    private final Trigger stowIntakeTrigger = driveController.back().and(algaeButtonLayerTrigger.negate());
+    private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
+    private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger reefTrigger = driveController.a();
     private final Trigger stationTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
@@ -213,6 +220,8 @@ public class RobotContainer {
                         swerve::getPose);
                 climber = new Climber(new ClimberIOTalonFX());
                 intake = new Intake(new IntakeIOTalonFX(), swerve::getPose);
+                coralDetection = new CoralDetection(new CoralDetectionIOPhotonVision(
+                        VisionConstants.CORAL_CAM_NAME, VisionConstants.CORAL_CAM_POS));
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -245,6 +254,7 @@ public class RobotContainer {
                         swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
                 intake = new Intake(new IntakeIOSim(), swerve::getPose);
+                coralDetection = new CoralDetection(new CoralDetectionIO() {});
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -272,6 +282,7 @@ public class RobotContainer {
                         swerve::getPose);
                 climber = new Climber(new ClimberIO() {});
                 intake = new Intake(new IntakeIO() {}, swerve::getPose);
+                coralDetection = new CoralDetection(new CoralDetectionIO() {});
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;
@@ -358,6 +369,8 @@ public class RobotContainer {
 
         endgameTrigger.onTrue(Commands.runOnce(() -> Elastic.selectTab("Endgame")));
 
+        autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection);
+
         configureBindings();
     }
 
@@ -370,15 +383,15 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger
-                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
-                .whileTrue(intake.intakeCommand());
-        reverseIntakeTrigger
-                .whileTrue(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus()))
-                .whileTrue(intake.ejectCommand());
+        intakeTrigger.whileTrue(endEffector
+                .runCommand(EndEffectorConstants.INTAKE_SPEED)
+                .alongWith(intake.intakeCommand().onlyIf(intake::isDeployed)));
+        reverseIntakeTrigger.whileTrue(endEffector
+                .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
+                .alongWith(intake.ejectCommand()));
 
-        deployIntakeTrigger.whileTrue(intake.deployCommand(false));
-        stowIntakeTrigger.whileTrue(intake.stowCommand(false));
+        toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
+        autoCoralTrigger.whileTrue(autoCoralCommand);
 
         reefTrigger.whileTrue(reefCommand);
         stationTrigger.whileTrue(stationCommand);
@@ -418,7 +431,7 @@ public class RobotContainer {
                             .ignoringDisable(true));
         }
 
-        intake.coralDetectedTrigger.whileTrue(rumbleCommand);
+        // intake.coralDetectedTrigger.whileTrue(rumbleCommand);
     }
 
     public void updateAlerts() {

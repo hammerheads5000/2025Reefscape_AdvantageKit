@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -225,7 +226,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(0.268798828125);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -250,7 +251,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(-0.0693359375);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -275,7 +276,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(0.361083984375);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -300,7 +301,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(-0.25830078125);
             private static final boolean STEER_INVERTED = true;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -378,6 +379,8 @@ public class Constants {
         public static final ControlConstants LOLLIPOP_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
 
+        public static final ControlConstants CORAL_PICKUP_PID_ANGLE = new ControlConstants().withPID(6, 2, 0.0);
+
         public static final Time ALIGN_TIME = Seconds.of(0.1); // amount to wait to make sure aligned
     }
 
@@ -397,7 +400,7 @@ public class Constants {
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(70));
 
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
         public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
@@ -445,8 +448,8 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.3).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.3).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.5).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.5).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -458,8 +461,8 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.697265625)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+                .withMagnetOffset(-0.56298828125)
+                .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
 
@@ -481,7 +484,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
         public static final Distance L4_HEIGHT = Inches.of(75.7);
-        public static final Distance INTAKE_HEIGHT = Inches.of(9.38);
+        public static final Distance INTAKE_HEIGHT = Inches.of(13.9);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -512,14 +515,14 @@ public class Constants {
         public static final int MOTOR_RIGHT_ID = 31;
 
         public static final MotorOutputConfigs MOTOR_LEFT_CONFIGS =
-                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive);
-        public static final MotorOutputConfigs MOTOR_RIGHT_CONFIGS =
                 new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive);
+        public static final MotorOutputConfigs MOTOR_RIGHT_CONFIGS =
+                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive);
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
         // Coral detection
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(20);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(65);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
@@ -547,7 +550,7 @@ public class Constants {
                 .withNeutralMode(NeutralModeValue.Brake);
         public static final CurrentLimitsConfigs INTAKE_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(Amps.of(30))
-                .withSupplyCurrentLowerLimit(Amps.of(15))
+                .withSupplyCurrentLowerLimit(Amps.of(30))
                 .withSupplyCurrentLowerTime(Seconds.of(1))
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimitEnable(false);
@@ -569,24 +572,36 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(20 * 50 / 24.0); // 20:1 gearbox and 50:24 gears
         public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
-                .withKP(0.)
-                .withKI(0.)
-                .withKD(0)
-                .withKV(0.5)
+                .withKP(5)
+                .withKI(0.1)
+                .withKD(1)
+                .withKS(0.1)
+                .withKV(8)
                 .withKA(0)
-                .withGravityType(GravityTypeValue.Arm_Cosine);
+                .withKG(0.3)
+                .withGravityType(GravityTypeValue.Arm_Cosine)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+        public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
+                .withMotionMagicExpo_kV(Volts.of(5).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(5).per(RotationsPerSecondPerSecond))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(0.3))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(0.2));
+        public static final ClosedLoopGeneralConfigs DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS =
+                new ClosedLoopGeneralConfigs().withContinuousWrap(true);
         public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(DEPLOY_MOTOR_OUTPUT_CONFIGS)
                 .withCurrentLimits(DEPLOY_CURRENT_LIMITS_CONFIGS)
                 .withFeedback(DEPLOY_FEEDBACK_CONFIGS)
-                .withSlot0(DEPLOY_PID);
+                .withSlot0(DEPLOY_PID)
+                .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
+                .withClosedLoopGeneral(DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS);
 
         public static final MotorOutputConfigs ALIGN_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
         public static final CurrentLimitsConfigs ALIGN_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(Amps.of(30))
-                .withSupplyCurrentLowerLimit(Amps.of(15))
+                .withSupplyCurrentLimit(Amps.of(40))
+                .withSupplyCurrentLowerLimit(Amps.of(30))
                 .withSupplyCurrentLowerTime(Seconds.of(1))
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimitEnable(false);
@@ -595,11 +610,11 @@ public class Constants {
                 .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0)
-                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+                .withMagnetOffset(0.248046875)
+                .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
-        public static final Voltage INTAKE_SPEED = Volts.of(9);
-        public static final Voltage EJECT_SPEED = Volts.of(-8);
+        public static final Voltage INTAKE_SPEED = Volts.of(8);
+        public static final Voltage EJECT_SPEED = Volts.of(-6);
         public static final Voltage DEPLOY_SPEED = Volts.of(6);
         public static final Voltage RETRACT_SPEED = Volts.of(-10);
         public static final Voltage ALIGN_SPEED = Volts.of(2.4);
@@ -610,7 +625,9 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(20);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(25);
+
+        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
@@ -716,6 +733,11 @@ public class Constants {
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
                 new Rotation3d(Degrees.zero(), Degrees.of(-22), Degrees.of(31)));
+
+        public static final String CORAL_CAM_NAME = "Coral Camera";
+        public static final Transform3d CORAL_CAM_POS = new Transform3d(
+                new Translation3d(Inches.of(0), Inches.of(12), Inches.of(34)),
+                new Rotation3d(Degrees.of(-3), Degrees.of(-22.2), Degrees.of(172.6)));
     }
 
     public static class FieldConstants {

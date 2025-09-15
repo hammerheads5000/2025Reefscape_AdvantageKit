@@ -43,7 +43,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         addCommands(
                 Commands.runOnce(() -> slewRateLimiter.calculate(
                         swerve.getFieldSpeeds().vxMetersPerSecond, swerve.getFieldSpeeds().vyMetersPerSecond)),
-                elevator.goToIntakePosCommand(false),
+                elevator.goToIntakePosCommand(true),
                 intake.deployCommand(false),
                 intake.startIntakeCommand(),
                 endEffector.intakeCommand().deadlineFor(mainCommand().until(intake.coralDetectedTrigger)),

@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
@@ -29,7 +30,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     EndEffector endEffector;
     Elevator elevator;
     CoralDetection coralDetection;
-    PIDController pid = new PIDController(0.1, 0, 0);
+    PIDController pid = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController();
     SlewRateLimiter2d slewRateLimiter = new SlewRateLimiter2d(3);
 
     public AutoCoralCommand(

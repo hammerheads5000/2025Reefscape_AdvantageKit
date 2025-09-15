@@ -132,7 +132,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
-                                Commands.waitUntil(endEffector.hasCoralTrigger),
                                 elevator.goToL2Command(true),
                                 Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevatorPosCommand),
@@ -188,7 +187,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
-                                Commands.waitUntil(endEffector.hasCoralTrigger),
                                 elevator.goToL2Command(true),
                                 Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevatorPosCommand),

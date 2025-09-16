@@ -214,14 +214,14 @@ public class RobotContainer {
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
                 elevator = new Elevator(
                         new ElevatorIOTalonFX(),
-                        endEffector.hasCoralTrigger,
+                        endEffector.coralDetectedTrigger,
                         algaeManipulator.deployedTrigger,
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOTalonFX());
                 intake = new Intake(new IntakeIOTalonFX(), swerve::getPose);
                 coralDetection = new CoralDetection(new CoralDetectionIOPhotonVision(
-                        VisionConstants.CORAL_CAM_NAME, VisionConstants.CORAL_CAM_POS));
+                        VisionConstants.CORAL_CAM_NAME, VisionConstants.CORAL_CAM_POS), swerve::getPose);
                 swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(
@@ -249,13 +249,13 @@ public class RobotContainer {
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIOSim());
                 elevator = new Elevator(
                         new ElevatorIOSim(),
-                        endEffector.hasCoralTrigger,
+                        endEffector.coralDetectedTrigger,
                         algaeManipulator.deployedTrigger,
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
                 intake = new Intake(new IntakeIOSim(), swerve::getPose);
-                coralDetection = new CoralDetection(new CoralDetectionIO() {});
+                coralDetection = new CoralDetection(new CoralDetectionIO() {}, swerve::getPose);
                 swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(
@@ -278,13 +278,13 @@ public class RobotContainer {
                 algaeManipulator = new AlgaeManipulator(new AlgaeManipulatorIO() {});
                 elevator = new Elevator(
                         new ElevatorIO() {},
-                        endEffector.hasCoralTrigger,
+                        endEffector.coralDetectedTrigger,
                         algaeManipulator.deployedTrigger,
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
                 climber = new Climber(new ClimberIO() {});
                 intake = new Intake(new IntakeIO() {}, swerve::getPose);
-                coralDetection = new CoralDetection(new CoralDetectionIO() {});
+                coralDetection = new CoralDetection(new CoralDetectionIO() {}, swerve::getPose);
                 swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});

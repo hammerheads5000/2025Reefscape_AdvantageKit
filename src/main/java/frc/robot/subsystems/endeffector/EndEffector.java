@@ -27,8 +27,12 @@ public class EndEffector extends SubsystemBase {
     private boolean simHasCoral = true;
 
     @AutoLogOutput
-    public Trigger hasCoralTrigger =
+    public Trigger coralDetectedTrigger =
             new Trigger(this::rawHasCoral).debounce(0.1).or(isSim.and(() -> simHasCoral));
+
+    private boolean intaking = false;
+    @AutoLogOutput
+    public Trigger intakingTrigger = new Trigger(() -> intaking);
 
     private final Alert leftDisconnectedAlert = new Alert("Disconnected left end effector motor.", AlertType.kError);
     private final Alert rightDisconnectedAlert = new Alert("Disconnected right end effector motor.", AlertType.kError);
@@ -76,12 +80,30 @@ public class EndEffector extends SubsystemBase {
         return runCommand(speed, speed).withName("Run End Effector (" + speed.in(Volts) + "V)");
     }
 
+    public Command startIntakeCommand() {
+        if (isSim.getAsBoolean()) {
+            return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake Start");
+        }
+        return Commands.runOnce(() -> setSpeed(EndEffectorConstants.INTAKE_SPEED))
+                .beforeStarting(() -> intaking = true)
+                .withName("End Effector Intake Start");
+    }
+
+    public Command stopCommand() {
+        return Commands.runOnce(() -> {
+            io.stop();
+            intaking = false;
+        }).withName("End Effector Stop");
+    }
+
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake");
         }
         return runCommand(EndEffectorConstants.INTAKE_SPEED)
-                .until(hasCoralTrigger)
+                .beforeStarting(() -> intaking = true)
+                .finallyDo(() -> intaking = false)
+                .until(coralDetectedTrigger)
                 .withName("End Effector Intake");
     }
 
@@ -100,7 +122,7 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Left Trough");
         }
         return runCommand(EndEffectorConstants.SLOW_TROUGH_SPEED, EndEffectorConstants.FAST_TROUGH_SPEED)
-                .until(hasCoralTrigger.negate())
+                .until(coralDetectedTrigger.negate())
                 .withName("End Effector Left Trough");
     }
 
@@ -109,7 +131,7 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Trough Right");
         }
         return runCommand(EndEffectorConstants.FAST_TROUGH_SPEED, EndEffectorConstants.SLOW_TROUGH_SPEED)
-                .until(hasCoralTrigger.negate())
+                .until(coralDetectedTrigger.negate())
                 .withName("End Effector Right Trough");
     }
 }

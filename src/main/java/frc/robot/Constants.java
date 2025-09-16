@@ -547,10 +547,10 @@ public class Constants {
 
         public static final int ENCODER_ID = 21;
 
-        public static final Distance INTAKE_EXTENSION = Inches.of(11);
-        public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
-        public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
-        public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
+        // public static final Distance INTAKE_EXTENSION = Inches.of(11);
+        // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
+        // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
+        // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
@@ -629,7 +629,7 @@ public class Constants {
         public static final Angle DEPLOY_POS = Degrees.of(0);
         public static final Angle STOW_POS = Degrees.of(70);
         public static final Angle STOW_FAST_POS = Degrees.of(40);
-        public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
+        // public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);

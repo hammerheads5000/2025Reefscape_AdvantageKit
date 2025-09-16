@@ -489,7 +489,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
         public static final Distance L4_HEIGHT = Inches.of(75.7);
-        public static final Distance INTAKE_HEIGHT = Inches.of(11.9);
+        public static final Distance INTAKE_HEIGHT = Inches.of(9.9);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted

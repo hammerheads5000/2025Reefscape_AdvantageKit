@@ -4,18 +4,17 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
+import java.util.Set;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
@@ -25,13 +24,14 @@ import frc.robot.util.SlewRateLimiter2d;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoCoralCommand extends SequentialCommandGroup {
-    Swerve swerve;
-    Intake intake;
-    EndEffector endEffector;
-    Elevator elevator;
-    CoralDetection coralDetection;
-    PIDController pid = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController();
-    SlewRateLimiter2d slewRateLimiter = new SlewRateLimiter2d(3);
+    private final Swerve swerve;
+    private final Intake intake;
+    private final EndEffector endEffector;
+    private final Elevator elevator;
+    private final CoralDetection coralDetection;
+
+    private SlewRateLimiter2d accelerationLimiter = new SlewRateLimiter2d(2);
+    private PIDController rotationController = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController();
 
     public AutoCoralCommand(
             Swerve swerve, Intake intake, EndEffector endEffector, Elevator elevator, CoralDetection coralDetection) {
@@ -40,43 +40,25 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         this.endEffector = endEffector;
         this.elevator = elevator;
         this.coralDetection = coralDetection;
+        this.elevator = elevator;
 
-        addCommands(
-                Commands.runOnce(() -> slewRateLimiter.calculate(
-                        swerve.getFieldSpeeds().vxMetersPerSecond, swerve.getFieldSpeeds().vyMetersPerSecond)),
-                elevator.goToIntakePosCommand(true),
-                intake.deployCommand(false),
-                intake.startIntakeCommand(),
-                endEffector.intakeCommand().deadlineFor(mainCommand().until(intake.coralDetectedTrigger)),
-                intake.stopIntake());
+        addRequirements(swerve, intake, endEffector, elevator);
+
+        addCommands();
     }
 
-    private Command mainCommand() {
-        return Commands.run(
-                () -> {
-                    var closestCoral = coralDetection.getClosestCoral();
-                    if (closestCoral == null) {
-                        swerve.driveFieldCentric(
-                                MetersPerSecond.zero(), MetersPerSecond.zero(), RadiansPerSecond.zero());
-                        return;
-                    }
-                    Rotation2d targetAngle = new Rotation2d(
-                                    VisionConstants.CORAL_CAM_POS.getRotation().getZ())
-                            .minus(Rotation2d.fromDegrees(closestCoral.getX()))
-                            .rotateBy(Rotation2d.kPi);
-                    System.out.println("HI");
-                    Translation2d driveVec = new Translation2d(-IntakeConstants.PICKUP_SPEED.in(MetersPerSecond), 0)
-                            .rotateBy(targetAngle);
-                    driveVec = slewRateLimiter.calculate(driveVec);
-                    System.out.println("HIII");
-                    swerve.driveFieldCentric(
-                            MetersPerSecond.of(driveVec.getX()),
-                            MetersPerSecond.of(driveVec.getY()),
-                            RadiansPerSecond.of(pid.calculate(
-                                    targetAngle.getRadians(),
-                                    swerve.getRotation().getRadians())));
-                    System.out.println("HIIIIIIIII");
-                },
-                swerve);
+    private Command driveTowardsCoral() {
+        return Commands.run(() -> {
+            Translation2d closestCoral = coralDetection.getClosestCoral();
+            if (closestCoral == null) {
+                Translation2d vel = accelerationLimiter.calculate(new Translation2d());
+                swerve.driveFieldCentric(vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), RadiansPerSecond.zero());
+                return;
+            }
+
+            Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
+            vel = vel.div(vel.getNorm());
+            vel = vel.times(AlignConstants.CORAL_APPROACH_SPEED);
+        }, Set.of(swerve));
     }
 }

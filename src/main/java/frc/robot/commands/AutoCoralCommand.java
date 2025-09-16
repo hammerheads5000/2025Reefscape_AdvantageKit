@@ -30,10 +30,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Detects a coral, plans a single approach pose, drives there with {@link AlignToPoseCommand}, then backs the
- * rear-mounted intake into the piece while the intake runs.
- */
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoCoralCommand extends SequentialCommandGroup {
     private final Swerve swerve;
     private final Intake intake;
@@ -49,6 +46,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         this.swerve = swerve;
         this.intake = intake;
         this.endEffector = endEffector;
+        this.elevator = elevator;
         this.coralDetection = coralDetection;
         this.elevator = elevator;
 

@@ -362,11 +362,6 @@ public class Constants {
                 .withProfile(3, 7)
                 .withTolerance(Inches.of(4).in(Meters));
 
-        public static final ControlConstants CORAL_PICKUP_PID_TRANSLATION = new ControlConstants(
-                        SCORING_PID_TRANSLATION)
-                .withProfile(1.5, 2.5)
-                .withTolerance(Inches.of(2).in(Meters));
-
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
                 new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.5);
@@ -384,7 +379,7 @@ public class Constants {
         public static final ControlConstants LOLLIPOP_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(5);
 
-        public static final ControlConstants CORAL_PICKUP_PID_ANGLE = new ControlConstants().withPID(2, 1, 0.0);
+        public static final ControlConstants CORAL_PICKUP_PID_ANGLE = new ControlConstants().withPID(6, 2, 0.0);
 
         public static final Time ALIGN_TIME = Seconds.of(0.1); // amount to wait to make sure aligned
     }
@@ -642,8 +637,6 @@ public class Constants {
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(16);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
-
-        public static final Distance CORAL_APPROACH_OFFSET = Inches.of(12);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()

@@ -11,7 +11,12 @@ import java.util.Set;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
@@ -20,9 +25,15 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.SlewRateLimiter2d;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+/**
+ * Detects a coral, plans a single approach pose, drives there with {@link AlignToPoseCommand}, then backs the
+ * rear-mounted intake into the piece while the intake runs.
+ */
 public class AutoCoralCommand extends SequentialCommandGroup {
     private final Swerve swerve;
     private final Intake intake;
@@ -38,7 +49,6 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         this.swerve = swerve;
         this.intake = intake;
         this.endEffector = endEffector;
-        this.elevator = elevator;
         this.coralDetection = coralDetection;
         this.elevator = elevator;
 

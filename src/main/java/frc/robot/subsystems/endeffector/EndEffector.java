@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -60,6 +61,13 @@ public class EndEffector extends SubsystemBase {
         io.setSpeeds(speed, speed);
     }
 
+    public boolean hasCoral() {
+        if (isSim.getAsBoolean()) {
+            return simHasCoral;
+        }
+        return rawHasCoral();
+    }
+
     private Command runCommand(Voltage left, Voltage right) {
         return this.startEnd(() -> io.setSpeeds(left, right), io::stop);
     }
@@ -78,11 +86,12 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Command scoreCommand() {
-        if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
-        }
-        return runCommand(EndEffectorConstants.SCORE_SPEED)
-                .until(hasCoralTrigger.negate())
+        return Commands.startEnd(() -> setSpeed(EndEffectorConstants.SCORE_SPEED), () -> {
+                    setSpeed(Volts.zero());
+                    io.stop();
+                })
+                .withTimeout(0.5)
+                .andThen(Commands.runOnce(() -> simHasCoral = false))
                 .withName("End Effector Score");
     }
 

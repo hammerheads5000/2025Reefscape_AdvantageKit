@@ -40,6 +40,8 @@ public class IntakeIOSim implements IntakeIO {
 
         inputs.setpointPos = Radians.of(deployController.getSetpoint().position);
         inputs.setpointVel = deployVelocity;
+
+        inputs.alignLidar = false;
     }
 
     @Override

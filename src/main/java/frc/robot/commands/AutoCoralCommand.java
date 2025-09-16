@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,14 +17,19 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.NTConstants;
+import frc.robot.Constants.PathConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.elevator.Elevator;
@@ -32,6 +38,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -43,7 +50,8 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     private static final double DEFAULT_APPROACH_RANGE = 1.8; // m, used if distance estimate fails
     private static final double FINAL_BACK_SPEED = 0.8; // m/s during final pickup
     private static final double FINAL_BACK_TIMEOUT = 1.0; // s limit for final pickup push
-    private static final double REPLAN_DISTANCE_METERS = Units.feetToMeters(2.0);
+    private static final double REPLAN_DISTANCE_METERS = Units.feetToMeters(3.0);
+    private static final double ORIENTATION_HOLD_DEGREES = 8.0;
 
     private final Swerve swerve;
     private final Intake intake;
@@ -55,8 +63,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     private double approachStartTime = 0.0;
     private Translation2d approachDirection = null;
     private Translation2d currentCoralField = null;
-    private Pose2d lastApproachPose = null;
-    private boolean replanTriggered = false;
+    private Pose2d currentApproachPose = null;
+    private boolean replanLogged = false;
+    private boolean scoreScheduled = false;
 
     public AutoCoralCommand(
             Swerve swerve, Intake intake, EndEffector endEffector, Elevator elevator, CoralDetection coralDetection) {
@@ -73,8 +82,8 @@ public class AutoCoralCommand extends SequentialCommandGroup {
 
     private Command buildSequence() {
         currentCoralField = null;
-        lastApproachPose = null;
-        replanTriggered = false;
+        currentApproachPose = null;
+        replanLogged = false;
         Logger.recordOutput("AutoCoral/ReplanTriggered", false);
 
         Optional<Pose2d> approachPoseOpt = calculateApproachPose();
@@ -85,29 +94,60 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         Pose2d approachPose = approachPoseOpt.get();
         Logger.recordOutput("AutoCoral/ApproachPose", approachPose);
 
-        AlignToPoseCommand initialAlign = createAlignCommand(approachPose);
-        Command replanMonitor = Commands.waitUntil(this::shouldReplan);
-        Command approachPhase = Commands.sequence(
-                Commands.race(initialAlign, replanMonitor),
-                Commands.defer(this::buildReplanAlign, Set.of(swerve, intake, endEffector, elevator)));
+        AlignToPoseCommand alignCommand = createAlignCommand(() -> currentApproachPose);
+        Command replanWatcher = Commands.run(() -> {
+            if (shouldReplan()) {
+                Optional<Pose2d> newPose = calculateApproachPose();
+                if (newPose.isPresent()) {
+                    Logger.recordOutput("AutoCoral/ApproachPose", newPose.get());
+                    if (!replanLogged) {
+                        replanLogged = true;
+                        Logger.recordOutput("AutoCoral/ReplanTriggered", true);
+                    }
+                }
+            }
+        });
 
-        Command alignWithIntake = Commands.sequence(Commands.runOnce(() -> startIntake(approachPose)), approachPhase);
+        Command approachPhase = Commands.deadline(alignCommand, replanWatcher);
+
+        Command alignWithIntake = Commands.sequence(
+                Commands.runOnce(() -> startIntake(approachPose)),
+                Commands.deadline(Commands.run(this::updateSpinState), approachPhase));
 
         Command finalBack = Commands.deadline(
-                        Commands.waitUntil(intake.coralDetectedTrigger).withTimeout(FINAL_BACK_TIMEOUT),
+                        Commands.waitUntil(() -> intake.coralDetectedTrigger.getAsBoolean())
+                                .withTimeout(FINAL_BACK_TIMEOUT),
                         Commands.run(
                                 () -> {
-                                    Translation2d driveVector;
-                                    if (approachDirection != null && approachDirection.getNorm() > EPSILON) {
-                                        driveVector = approachDirection.times(FINAL_BACK_SPEED);
-                                    } else {
-                                        driveVector =
-                                                new Translation2d(-FINAL_BACK_SPEED, 0).rotateBy(swerve.getRotation());
+                                    updateSpinState();
+                                    boolean hasCoral = endEffector.hasCoral();
+                                    boolean lidarTriggered = intake.alignerHasPiece();
+                                    boolean currentSpike = intake.coralDetectedTrigger.getAsBoolean();
+
+                                    if (!scoreScheduled && (currentSpike || hasCoral)) {
+                                        Command scoreCommand = createScoreSequence();
+                                        if (scoreCommand != null) {
+                                            CommandScheduler.getInstance().schedule(scoreCommand);
+                                            scoreScheduled = true;
+                                        }
                                     }
-                                    swerve.driveFieldCentric(
-                                            MetersPerSecond.of(driveVector.getX()),
-                                            MetersPerSecond.of(driveVector.getY()),
-                                            RadiansPerSecond.zero());
+
+                                    boolean continueDriving = !hasCoral && !lidarTriggered && !currentSpike;
+
+                                    if (continueDriving
+                                            && approachDirection != null
+                                            && approachDirection.getNorm() > EPSILON) {
+                                        Translation2d driveVector = approachDirection.times(FINAL_BACK_SPEED);
+                                        swerve.driveFieldCentric(
+                                                MetersPerSecond.of(driveVector.getX()),
+                                                MetersPerSecond.of(driveVector.getY()),
+                                                RadiansPerSecond.zero());
+                                    } else {
+                                        swerve.stop();
+                                    }
+
+                                    Logger.recordOutput("AutoCoral/IntakeCurrentDetected", currentSpike);
+                                    Logger.recordOutput("AutoCoral/ContinueDriving", continueDriving);
                                 },
                                 swerve))
                 .finallyDo(() -> swerve.stop());
@@ -150,6 +190,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         }
 
         currentCoralField = coralField;
+        distanceMeters = coralField.minus(robotTranslation).getNorm();
         lastDistanceFeet = Units.metersToFeet(distanceMeters);
         Logger.recordOutput("AutoCoral/CoralDistanceFt", lastDistanceFeet);
 
@@ -162,9 +203,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         Translation2d approachTranslation =
                 coralField.minus(directionToCoral.times(IntakeConstants.CORAL_APPROACH_OFFSET.in(Meters)));
         approachDirection = directionToCoral;
-        Rotation2d approachRotation = directionToCoral.getAngle().plus(Rotation2d.kPi); // back (intake) faces coral
-        Pose2d approach = new Pose2d(approachTranslation, approachRotation);
-        lastApproachPose = approach;
+        Pose2d approach =
+                new Pose2d(approachTranslation, directionToCoral.getAngle().plus(Rotation2d.kPi));
+        currentApproachPose = approach;
 
         return Optional.of(approach);
     }
@@ -198,15 +239,40 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     }
 
     private void startIntake(Pose2d approachPose) {
-        intake.setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
-        intake.setAlignSpeed(IntakeConstants.ALIGN_SPEED);
-        endEffector.setSpeed(EndEffectorConstants.INTAKE_SPEED);
+        intake.setGuardEnabled(false);
+        stopIntakeMotors();
         elevator.setGoal(ElevatorConstants.INTAKE_HEIGHT);
         approachStartTime = Timer.getFPGATimestamp();
+        targetActive = false;
+        scoreScheduled = false;
         Logger.recordOutput("AutoCoral/ApproachTarget", approachPose);
     }
 
     private void stopIntake() {
+        intake.setGuardEnabled(true);
+        stopIntakeMotors();
+    }
+
+    private boolean targetActive = false;
+
+    private void updateSpinState() {
+        boolean hasCoral = endEffector.hasCoral();
+        boolean withinRange = currentCoralField != null
+                && currentCoralField.minus(swerve.getPose().getTranslation()).getNorm() <= Units.feetToMeters(6.0);
+        if (!targetActive && withinRange && !hasCoral) {
+            intake.setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+            intake.setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+            endEffector.setSpeed(EndEffectorConstants.INTAKE_SPEED);
+            targetActive = true;
+        } else if (targetActive && hasCoral) {
+            stopIntakeMotors();
+            targetActive = false;
+        } else if (!targetActive && hasCoral) {
+            stopIntakeMotors();
+        }
+    }
+
+    private void stopIntakeMotors() {
         intake.setIntakeSpeed(Volts.zero());
         intake.setAlignSpeed(Volts.zero());
         endEffector.setSpeed(Volts.zero());
@@ -220,25 +286,58 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         return currentCoralField.minus(robotTranslation).getNorm() <= REPLAN_DISTANCE_METERS;
     }
 
-    private AlignToPoseCommand createAlignCommand(Pose2d pose) {
+    private AlignToPoseCommand createAlignCommand(Supplier<Pose2d> poseSupplier) {
         return new AlignToPoseCommand(
-                pose, AlignConstants.CORAL_PICKUP_PID_TRANSLATION, AlignConstants.CORAL_PICKUP_PID_ANGLE, swerve);
+                poseSupplier,
+                AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
+                AlignConstants.CORAL_PICKUP_PID_ANGLE,
+                swerve,
+                ORIENTATION_HOLD_DEGREES);
     }
 
-    private Command buildReplanAlign() {
-        Optional<Pose2d> replanPoseOpt = calculateApproachPose();
-        if (replanPoseOpt.isPresent()) {
-            replanTriggered = true;
-            Logger.recordOutput("AutoCoral/ReplanTriggered", true);
-            Logger.recordOutput("AutoCoral/ApproachPose", replanPoseOpt.get());
-            return createAlignCommand(replanPoseOpt.get());
+    private Command createScoreSequence() {
+        String descriptor = NTConstants.REEF_TELEOP_AUTO_ENTRY.get();
+        if (descriptor == null || descriptor.length() < 2) {
+            return null;
         }
 
-        if (lastApproachPose != null) {
-            Logger.recordOutput("AutoCoral/ReplanTriggered", true);
-            return createAlignCommand(lastApproachPose);
+        char branch = descriptor.charAt(0);
+        Pair<Integer, Integer> sidePosPair = FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.get(Character.valueOf(branch));
+        if (sidePosPair == null) {
+            return null;
         }
 
-        return Commands.none();
+        int side = sidePosPair.getFirst().intValue();
+        int relative = sidePosPair.getSecond().intValue();
+        char level = descriptor.charAt(1);
+
+        double relativePos = relative;
+        Command endEffectorCommand;
+        if (level == '1') {
+            endEffectorCommand = relative > 0 ? endEffector.troughLeftCommand() : endEffector.troughRightCommand();
+            relativePos *= PathConstants.L1_RELATIVE_POS;
+        } else {
+            endEffectorCommand = endEffector.scoreCommand();
+        }
+
+        ApproachReefCommand approach = new ApproachReefCommand(side, relativePos, swerve);
+        Command elevatorCommand = getElevatorTrackCommand(level, approach::getDistanceToTarget);
+
+        return Commands.sequence(
+                Commands.parallel(approach, elevatorCommand),
+                Commands.waitTime(PathConstants.AFTER_WAIT_TIME),
+                endEffectorCommand.asProxy(),
+                Commands.waitTime(PathConstants.AFTER_WAIT_TIME),
+                elevator.goToIntakePosCommand(false));
+    }
+
+    private Command getElevatorTrackCommand(char level, Supplier<Distance> distanceSupplier) {
+        return switch (level) {
+            case '1' -> elevator.trackL1Command(distanceSupplier);
+            case '2' -> elevator.trackL2Command(distanceSupplier);
+            case '3' -> elevator.trackL3Command(distanceSupplier);
+            case '4' -> elevator.trackL4Command(distanceSupplier);
+            default -> elevator.trackL4Command(distanceSupplier);
+        };
     }
 }

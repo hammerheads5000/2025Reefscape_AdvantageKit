@@ -453,8 +453,10 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.5).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.5).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.8).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.8).per(RotationsPerSecondPerSecond))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(1.5))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(2.5));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -474,8 +476,8 @@ public class Constants {
         public static final Distance TOLERANCE = Inches.of(0.5);
 
         // Manual control (duty cycle)
-        public static final Voltage MANUAL_UP_SPEED = Volts.of(3.6);
-        public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-2.4);
+        public static final Voltage MANUAL_UP_SPEED = Volts.of(6);
+        public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-4);
 
         public static final Current STALL_CURRENT = Amps.of(55);
 
@@ -546,9 +548,14 @@ public class Constants {
         public static final int DEPLOY_MOTOR_ID = 22;
         public static final int ALIGN_MOTOR_ID = 11;
 
+        public static final int INTAKE_CANDI_ID = 1;
+
         public static final int ENCODER_ID = 21;
 
-        public static final int ALIGN_LIDAR_ID = 0;
+        public static final Distance INTAKE_EXTENSION = Inches.of(11);
+        public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
+        public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
+        public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
@@ -587,10 +594,10 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(5).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(5).per(RotationsPerSecondPerSecond))
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(0.3))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(0.2));
+                .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(6).per(RotationsPerSecondPerSecond))
+                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(1.2))
+                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(1.5));
         public static final ClosedLoopGeneralConfigs DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS =
                 new ClosedLoopGeneralConfigs().withContinuousWrap(true);
         public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
@@ -620,17 +627,19 @@ public class Constants {
 
         public static final Voltage INTAKE_SPEED = Volts.of(8);
         public static final Voltage EJECT_SPEED = Volts.of(-6);
-        public static final Voltage DEPLOY_SPEED = Volts.of(6);
-        public static final Voltage RETRACT_SPEED = Volts.of(-10);
+        public static final Voltage DEPLOY_SPEED = Volts.of(12);
+        public static final Voltage RETRACT_SPEED = Volts.of(-12);
         public static final Voltage ALIGN_SPEED = Volts.of(2.4);
 
         public static final Angle DEPLOY_POS = Degrees.of(0);
         public static final Angle STOW_POS = Degrees.of(70);
+        public static final Angle STOW_FAST_POS = Degrees.of(40);
+        public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(25);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(16);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
 

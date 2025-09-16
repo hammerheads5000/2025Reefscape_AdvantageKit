@@ -222,6 +222,7 @@ public class RobotContainer {
                 intake = new Intake(new IntakeIOTalonFX(), swerve::getPose);
                 coralDetection = new CoralDetection(new CoralDetectionIOPhotonVision(
                         VisionConstants.CORAL_CAM_NAME, VisionConstants.CORAL_CAM_POS));
+                swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -255,6 +256,7 @@ public class RobotContainer {
                 climber = new Climber(new ClimberIOSim());
                 intake = new Intake(new IntakeIOSim(), swerve::getPose);
                 coralDetection = new CoralDetection(new CoralDetectionIO() {});
+                swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
@@ -283,6 +285,7 @@ public class RobotContainer {
                 climber = new Climber(new ClimberIO() {});
                 intake = new Intake(new IntakeIO() {}, swerve::getPose);
                 coralDetection = new CoralDetection(new CoralDetectionIO() {});
+                swerve.setExternalSpeedScale(intake::getSpeedScale);
 
                 vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
                 break;

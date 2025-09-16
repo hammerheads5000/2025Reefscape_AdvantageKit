@@ -136,9 +136,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
 
         Translation2d directionToCoral = toCoral.div(toCoral.getNorm());
         Translation2d approachTranslation =
-                coralField.minus(directionToCoral.times(IntakeConstants.CORAL_APPROACH_OFFSET.in(Meters)));
+                coralField.plus(directionToCoral.times(IntakeConstants.CORAL_APPROACH_OFFSET.in(Meters)));
         Rotation2d approachRotation =
-                directionToCoral.getAngle().plus(Rotation2d.kPi); // face away so rear is toward coral
+                directionToCoral.getAngle().plus(Rotation2d.kPi); // rear faces coral
 
         return Optional.of(new Pose2d(approachTranslation, approachRotation));
     }

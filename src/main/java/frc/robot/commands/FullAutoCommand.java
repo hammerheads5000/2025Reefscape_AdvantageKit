@@ -125,6 +125,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
                         Commands.sequence(
                                 Commands.waitUntil(
                                         endEffector.intakingTrigger.negate().or(endEffector.coralDetectedTrigger)),
+                                intake.stopIntake(),
+                                endEffector.stopCommand(),
                                 elevator.goToL2Command(true),
                                 Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevatorPosCommand),
@@ -182,6 +184,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
                         Commands.sequence(
                                 Commands.waitUntil(
                                         endEffector.intakingTrigger.negate().or(endEffector.coralDetectedTrigger)),
+                                intake.stopIntake(),
+                                endEffector.stopCommand(),
                                 elevator.goToL2Command(true),
                                 Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevatorPosCommand),

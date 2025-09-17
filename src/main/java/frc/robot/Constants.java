@@ -768,10 +768,10 @@ public class Constants {
         public static final Pose2d RIGHT_CORAL_STATION =
                 new Pose2d(Meters.of(1.16), Meters.of(1.02), Rotation2d.fromDegrees(-125));
 
-        public static final Pose2d STATION_0 =
-                VisionConstants.APRIL_TAGS.getTagPose(12).get().toPose2d();
-        public static final Pose2d STATION_1 =
-                VisionConstants.APRIL_TAGS.getTagPose(13).get().toPose2d();
+        public static final Pose2d LEFT_CORAL_SEARCH_POSE =
+                new Pose2d(Meters.of(2), Meters.of(6), Rotation2d.fromDegrees(-55));
+        public static final Pose2d RIGHT_CORAL_SEARCH_POSE =
+                new Pose2d(Meters.of(2), Meters.of(2), Rotation2d.fromDegrees(55));
 
         public static final Pose2d PROCESSOR = new Pose2d(
                 VisionConstants.APRIL_TAGS.getTagPose(16).get().toPose2d().getMeasureX(),
@@ -848,10 +848,6 @@ public class Constants {
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side
 
-        public static final Distance STATION_APPROACH_DISTANCE = Inches.of(24);
-        public static final Distance SIDE_STATION_OFFSET =
-                Inches.of(29).plus(Dimensions.BUMPER_THICKNESS).div(2);
-
         public static final Time INTAKE_WAIT_TIME = Seconds.of(0.75);
         public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.05); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
@@ -922,8 +918,8 @@ public class Constants {
                 new LoggedNetworkString("/Tuning/Auto Descriptor", "");
         public static final LoggedNetworkString REEF_TELEOP_AUTO_ENTRY =
                 new LoggedNetworkString("/Tuning/Reef Descriptor", "A4");
-        public static final LoggedNetworkString STATION_TELEOP_AUTO_ENTRY =
-                new LoggedNetworkString("/Tuning/Station Descriptor", "S0C");
+        public static final LoggedNetworkString SEARCH_POS_TELEOP_AUTO_ENTRY =
+                new LoggedNetworkString("/Tuning/Coral Search Descriptor", "S0");
     }
 
     private Constants() {}

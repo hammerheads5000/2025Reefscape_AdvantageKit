@@ -48,10 +48,10 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         addRequirements(swerve, intake, endEffector, elevator);
 
         addCommands(
-                elevator.goToIntakePosCommand(true),
-                intake.deployCommand(true),
-                intake.startIntakeCommand(),
-                endEffector.startIntakeCommand(),
+                this.elevator.goToIntakePosCommand(true),
+                this.intake.deployCommand(true),
+                this.intake.startIntakeCommand(),
+                this.endEffector.startIntakeCommand(),
                 driveTowardsCoral().until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)));
     }
 

@@ -76,7 +76,7 @@ public class EndEffector extends SubsystemBase {
 
     public Command startIntakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake Start");
+            return this.runOnce(() -> {simHasCoral = true; intaking = false;}).withName("End Effector Intake Start");
         }
         return Commands.runOnce(() -> setSpeed(EndEffectorConstants.INTAKE_SPEED))
                 .beforeStarting(() -> intaking = true)
@@ -107,7 +107,6 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
         }
         return runCommand(EndEffectorConstants.SCORE_SPEED)
-                .until(coralDetectedTrigger.negate())
                 .withName("End Effector Score");
     }
 

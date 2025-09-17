@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,13 +15,16 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.NTConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.algaemanipulator.AlgaeManipulator;
+import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
+
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -31,27 +35,15 @@ public class FullAutoCommand extends SequentialCommandGroup {
     EndEffector endEffector;
     AlgaeManipulator algaeManipulator;
     Intake intake;
+    CoralDetection coralDetection;
 
-    private Command getStationCommand(int station, int relativePos) {
-        Command command = ApproachCoralStationCommands.pathfindCommand(station, relativePos, swerve);
+    private Command getCoralSearchCommand(int pos) {
+        Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos)).until(coralDetection.hasTarget);
 
-        if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
-            return command.alongWith(elevator.goToIntakePosCommand(false))
-                    .andThen(new ScheduleCommand(endEffector.intakeCommand()));
-        } else {
-            return command.alongWith(
-                    elevator.goToIntakePosCommand(false),
-                    new ScheduleCommand(endEffector.intakeCommand()),
-                    // wait slightly to avoid stopping early
-                    Commands.waitTime(PathConstants.INTAKE_WAIT_TIME)
-                            .andThen(
-                                    new ScheduleCommand(endEffector.intakeCommand()),
-                                    Commands.waitUntil(intake.coralDetectedTrigger)));
+        if (Constants.SIM_MODE == Mode.SIM) {
+            return command.andThen(endEffector.startIntakeCommand());
         }
-    }
-
-    private Command getStationCommand(int station) {
-        return getStationCommand(station, 0);
+        return command;
     }
 
     private Command getElevatorPosCommand(char level) {
@@ -96,7 +88,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
         return getElevatorTrackCommand(level, distanceToReef);
     }
 
-    @SuppressWarnings("unused")
     private Command getReefCommand(int side, double relativePos, char level, boolean algae) {
         Command commandToAdd;
         Command elevatorPosCommand;
@@ -212,34 +203,9 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
     private Command commandFromToken(String token) {
         if (token.charAt(0) == 'S') {
-            int station = token.charAt(1) == '0' ? 0 : 1;
+            int pos = token.charAt(1) == '0' ? 0 : 1;
 
-            Command stationCommand;
-
-            if (token.length() == 3) {
-                int relativePos;
-                switch (token.charAt(2)) {
-                    case 'L':
-                        relativePos = 1;
-                        break;
-                    case 'C':
-                        relativePos = 0;
-                        break;
-                    case 'R':
-                        relativePos = -1;
-                        break;
-                    default:
-                        relativePos = 0;
-                        System.err.println("ERROR: Invalid auto station token: " + token);
-                        break;
-                }
-
-                stationCommand = getStationCommand(station, relativePos);
-            } else {
-                stationCommand = getStationCommand(station);
-            }
-
-            return Commands.defer(() -> stationCommand, Set.of(swerve, elevator));
+            return getCoralSearchCommand(pos);
         } else {
             Pair<Integer, Integer> sidePosPair;
             if (!FieldConstants.LETTER_TO_SIDE_AND_RELATIVE.containsKey(token.charAt(0))) {
@@ -266,8 +232,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
     /**
      * Create FullAutoCommand
      *
-     * @param descriptorString S0-1[L,C,R] (station and optional relative position), A-L1-4[A] (branch and level and
-     *     optional algae removal), space separated (e.g. "E4 S0C A3 S1 K1")
+     * @param descriptorString S0-1 (pos for auto coral pickup), A-L1-4[A] (branch and level and optional algae
+     *     removal), space separated (e.g. "E4 S0 A3 S1 K1")
      * @param swerve
      */
     public FullAutoCommand(
@@ -276,12 +242,14 @@ public class FullAutoCommand extends SequentialCommandGroup {
             Elevator elevator,
             EndEffector endEffector,
             AlgaeManipulator algaeManipulator,
-            Intake intake) {
+            Intake intake,
+            CoralDetection coralDetection) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.endEffector = endEffector;
         this.algaeManipulator = algaeManipulator;
         this.intake = intake;
+        this.coralDetection = coralDetection;
 
         String[] tokens = descriptorString.split(" ");
 

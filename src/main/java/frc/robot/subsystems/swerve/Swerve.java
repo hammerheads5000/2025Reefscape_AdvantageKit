@@ -68,7 +68,6 @@ public class Swerve extends SubsystemBase {
             };
     private SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
-    private Supplier<Double> externalSpeedScale = () -> 1.0;
 
     public Swerve(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
@@ -173,10 +172,6 @@ public class Swerve extends SubsystemBase {
     public void drive(ChassisSpeeds speeds) {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        double scale = Math.max(0.0, externalSpeedScale.get());
-        discreteSpeeds.vxMetersPerSecond *= scale;
-        discreteSpeeds.vyMetersPerSecond *= scale;
-        discreteSpeeds.omegaRadiansPerSecond *= scale;
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, SwerveConstants.SPEED_AT_12V);
 
@@ -197,9 +192,6 @@ public class Swerve extends SubsystemBase {
         drive(ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, omega, getRotation()));
     }
 
-    public void setExternalSpeedScale(Supplier<Double> scaleSupplier) {
-        externalSpeedScale = scaleSupplier != null ? scaleSupplier : () -> 1.0;
-    }
 
     /** Runs the drive in a straight line with the specified drive output. */
     public void runCharacterization(Voltage output) {

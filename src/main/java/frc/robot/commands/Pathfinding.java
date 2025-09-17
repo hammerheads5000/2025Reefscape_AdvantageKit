@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
 import java.util.ArrayList;
+import java.util.List;
 
 /** Container pathfinding class. */
 public class Pathfinding {
@@ -182,20 +183,17 @@ public class Pathfinding {
     }
 
     /**
-     * Generates a PathPlannerPath to approach a coral station
+     * Generates a PathPlannerPath to search for coral
      *
      * @param currentPose Current robot pose
-     * @param station Station number (0 for right, 1 for left)
-     * @param relativePos Relative position on the station (L for left, C for center, R for right)
+     * @param pos Pos number (0 for right, 1 for left)
      * @param startSpeeds Initial chassis speeds to use for the path
      */
-    public static PathPlannerPath generateStationPath(
-            Pose2d currentPose, int station, int relativePos, ChassisSpeeds startSpeeds) {
-        int side = station == 1 ? 1 : 5;
+    public static PathPlannerPath generateCoralSearchPath(Pose2d currentPose, int pos, ChassisSpeeds startSpeeds) {
+        int side = pos == 1 ? 1 : 5;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
-        Pose2d endPose = ApproachCoralStationCommands.getStationPose(station, relativePos);
-        endPose = endPose.rotateAround(endPose.getTranslation(), Rotation2d.k180deg);
-        poses.add(endPose);
+        Pose2d endPose = pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE;
+        poses.add(new Pose2d(endPose.getTranslation(), endPose.getRotation().plus(Rotation2d.k180deg)));
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 
@@ -208,19 +206,18 @@ public class Pathfinding {
         }
         poses.add(0, startPose);
 
-        ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();
-        constraintsZones.add(
-                new ConstraintsZone(poses.size() - 1.3, poses.size() - 1, PathConstants.APPROACH_CONSTRAINTS));
+        List<PointTowardsZone> pointTowardsZones =
+                List.of(new PointTowardsZone("End Rotation Early", endPose.getTranslation(), Rotation2d.k180deg, 1.5, poses.size() - 1));
 
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(poses),
                 new ArrayList<RotationTarget>(),
-                new ArrayList<PointTowardsZone>(),
-                constraintsZones,
+                pointTowardsZones,
+                new ArrayList<ConstraintsZone>(),
                 new ArrayList<EventMarker>(),
                 PathConstants.FAST_CONSTRAINTS,
                 new IdealStartingState(chassisSpeedsToVelocity(startSpeeds), currentPose.getRotation()),
-                new GoalEndState(0, endPose.getRotation().rotateBy(Rotation2d.k180deg)),
+                new GoalEndState(0, endPose.getRotation()),
                 false);
 
         if (AutoBuilder.shouldFlip()) {
@@ -230,14 +227,13 @@ public class Pathfinding {
     }
 
     /**
-     * Generates a PathPlannerPath to approach a coral station (without initial speeds)
+     * Generates a PathPlannerPath to search for coral (without initial speeds)
      *
      * @param currentPose Current robot pose
-     * @param station Station number (0 for right, 1 for left)
-     * @param relativePos Relative position on the station (L for left, C for center, R for right)
+     * @param pos Pos number (0 for right, 1 for left)
      */
-    public static PathPlannerPath generateStationPath(Pose2d currentPose, int station, int relativePos) {
-        return generateStationPath(currentPose, station, relativePos, new ChassisSpeeds());
+    public static PathPlannerPath generateCoralSearchPath(Pose2d currentPose, int pos) {
+        return generateCoralSearchPath(currentPose, pos, new ChassisSpeeds());
     }
 
     /**

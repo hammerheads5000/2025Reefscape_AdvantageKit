@@ -11,7 +11,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -20,6 +19,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.VisionConstants;
 import java.util.List;
 import java.util.function.Supplier;
@@ -36,6 +36,8 @@ public class CoralDetection extends SubsystemBase {
 
     private List<Translation2d> coralList = List.of();
 
+    public Trigger hasTarget = new Trigger(() -> inputs.corals.length > 0).debounce(0.1);
+
     /** Creates a new CoralDetection. */
     public CoralDetection(CoralDetectionIO io, Supplier<Pose2d> poseSupplier) {
         this.io = io;
@@ -44,7 +46,6 @@ public class CoralDetection extends SubsystemBase {
         this.CAMERA_ROTATION_MAT = calculateRotationMat();
 
         this.disconnectedAlert = new Alert("Coral Camera disconnected", AlertType.kWarning);
-        Logger.recordOutput("LKDSFJLKj", new Pose2d(projectCoralPosition(new Translation2d(0, 0)), new Rotation2d()));
     }
 
     @Override
@@ -84,7 +85,7 @@ public class CoralDetection extends SubsystemBase {
         Pose3d[] poses = coralList.stream()
                 .map(translation -> new Pose3d(new Translation3d(translation), new Rotation3d()))
                 .toArray(Pose3d[]::new);
-        Logger.recordOutput("CoralDetection/Coral3ds", poses);
+        Logger.recordOutput("CoralDetection/Corals", poses);
     }
 
     public Translation2d getClosestCoral() {
@@ -110,9 +111,10 @@ public class CoralDetection extends SubsystemBase {
         if (corals.length == 0) {
             return;
         }
-        coralList = List.of(corals).stream().map(this::projectCoralPosition).toList();
-        Logger.recordOutput("COralsss", coralList.toArray(Translation2d[]::new));
-        coralList = coralList.stream().map(this::robotToFieldRelative).toList();
+        coralList = List.of(corals).stream()
+                .map(this::projectCoralPosition)
+                .map(this::robotToFieldRelative)
+                .toList();
     }
 
     // transforms a coral position in (yaw, pitch) to a 2D position in robot space (x, y)
@@ -122,14 +124,11 @@ public class CoralDetection extends SubsystemBase {
 
         Vector<N3> rayDirectionFromCam =
                 VecBuilder.fill(Math.cos(pitch) * Math.cos(yaw), Math.cos(pitch) * Math.sin(yaw), Math.sin(pitch));
-        Logger.recordOutput("CoralDetection/RayDirection", rayDirectionFromCam);
 
         Translation3d camPos = VisionConstants.CORAL_CAM_POS.getTranslation();
-        Rotation3d camRot = VisionConstants.CORAL_CAM_POS.getRotation();
 
         // Robot oriented
         Matrix<N3, N1> rayDirectionFromBot = CAMERA_ROTATION_MAT.times(rayDirectionFromCam);
-        Logger.recordOutput("CoralDetection/RayDirectionBot", rayDirectionFromBot);
 
         // Line: camPos + t*rayDirection = [x, y, 0]
         double t = -camPos.getZ() / rayDirectionFromBot.get(2, 0);

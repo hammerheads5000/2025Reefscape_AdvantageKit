@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,9 +24,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.SlewRateLimiter2d;
 
-/**
- * Ends right after coral detected, without stopping
- */
+/** Ends right after coral detected, without stopping */
 public class AutoCoralCommand extends SequentialCommandGroup {
     private final Swerve swerve;
     private final Intake intake;
@@ -49,33 +48,36 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         addRequirements(swerve, intake, endEffector, elevator);
 
         addCommands(
-            elevator.goToIntakePosCommand(true),
-            intake.deployCommand(true),
-            intake.startIntakeCommand(),
-            endEffector.startIntakeCommand(),
-            driveTowardsCoral().until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger))
-        );
+                elevator.goToIntakePosCommand(true),
+                intake.deployCommand(true),
+                intake.startIntakeCommand(),
+                endEffector.startIntakeCommand(),
+                driveTowardsCoral().until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)));
     }
 
     private Command driveTowardsCoral() {
-        return Commands.run(() -> {
-            Translation2d closestCoral = coralDetection.getClosestCoral();
-            if (closestCoral == null) {
-                Translation2d vel = accelerationLimiter.calculate(new Translation2d());
-                swerve.driveFieldCentric(vel.getMeasureX().per(Second), vel.getMeasureY().per(Second),
-                        RadiansPerSecond.zero());
-                return;
-            }
+        return Commands.run(
+                () -> {
+                    Translation2d closestCoral = coralDetection.getClosestCoral();
+                    if (closestCoral == null) {
+                        Translation2d vel = accelerationLimiter.calculate(new Translation2d());
+                        swerve.driveFieldCentric(
+                                vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), RadiansPerSecond.zero());
+                        return;
+                    }
 
-            Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
-            vel = vel.div(vel.getNorm());
-            vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
-            vel = accelerationLimiter.calculate(vel);
+                    Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
+                    vel = vel.div(vel.getNorm());
+                    vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
+                    vel = accelerationLimiter.calculate(vel);
 
-            AngularVelocity omega = RadiansPerSecond.of(rotationController
-                    .calculate(swerve.getPose().getRotation().getRadians(), vel.getAngle().getRadians()));
+                    AngularVelocity omega = RadiansPerSecond.of(rotationController.calculate(
+                            swerve.getPose().getRotation().getRadians(),
+                            vel.getAngle().plus(Rotation2d.k180deg).getRadians()));
 
-            swerve.driveFieldCentric(vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
-        }, swerve);
+                    swerve.driveFieldCentric(
+                            vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
+                },
+                swerve);
     }
 }

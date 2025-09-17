@@ -31,6 +31,7 @@ public class EndEffector extends SubsystemBase {
             new Trigger(this::rawHasCoral).debounce(0.1).or(isSim.and(() -> simHasCoral));
 
     private boolean intaking = false;
+
     @AutoLogOutput
     public Trigger intakingTrigger = new Trigger(() -> intaking);
 
@@ -65,13 +66,6 @@ public class EndEffector extends SubsystemBase {
         io.setSpeeds(speed, speed);
     }
 
-    public boolean hasCoral() {
-        if (isSim.getAsBoolean()) {
-            return simHasCoral;
-        }
-        return rawHasCoral();
-    }
-
     private Command runCommand(Voltage left, Voltage right) {
         return this.startEnd(() -> io.setSpeeds(left, right), io::stop);
     }
@@ -91,16 +85,17 @@ public class EndEffector extends SubsystemBase {
 
     public Command stopCommand() {
         return Commands.runOnce(() -> {
-            io.stop();
-            intaking = false;
-        }).withName("End Effector Stop");
+                    io.stop();
+                    intaking = false;
+                })
+                .withName("End Effector Stop");
     }
 
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake");
         }
-        return runCommand(EndEffectorConstants.INTAKE_SPEED)
+        return Commands.startEnd(() -> setSpeed(EndEffectorConstants.INTAKE_SPEED), io::stop)
                 .beforeStarting(() -> intaking = true)
                 .finallyDo(() -> intaking = false)
                 .until(coralDetectedTrigger)
@@ -108,12 +103,11 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Command scoreCommand() {
-        return Commands.startEnd(() -> setSpeed(EndEffectorConstants.SCORE_SPEED), () -> {
-                    setSpeed(Volts.zero());
-                    io.stop();
-                })
-                .withTimeout(0.5)
-                .andThen(Commands.runOnce(() -> simHasCoral = false))
+        if (isSim.getAsBoolean()) {
+            return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
+        }
+        return runCommand(EndEffectorConstants.SCORE_SPEED)
+                .until(coralDetectedTrigger.negate())
                 .withName("End Effector Score");
     }
 

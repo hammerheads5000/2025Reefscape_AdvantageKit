@@ -449,9 +449,7 @@ public class Constants {
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(0.8).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.8).per(RotationsPerSecondPerSecond))
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(1.5))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(2.5));
+                .withMotionMagicExpo_kA(Volts.of(0.8).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -471,8 +469,8 @@ public class Constants {
         public static final Distance TOLERANCE = Inches.of(0.5);
 
         // Manual control (duty cycle)
-        public static final Voltage MANUAL_UP_SPEED = Volts.of(6);
-        public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-4);
+        public static final Voltage MANUAL_UP_SPEED = Volts.of(3.6);
+        public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-2.4);
 
         public static final Current STALL_CURRENT = Amps.of(55);
 
@@ -486,7 +484,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
         public static final Distance L4_HEIGHT = Inches.of(75.7);
-        public static final Distance INTAKE_HEIGHT = Inches.of(9.9);
+        public static final Distance INTAKE_HEIGHT = Inches.of(13.3);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -634,7 +632,7 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(16);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(80);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
 
@@ -746,7 +744,7 @@ public class Constants {
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0), Inches.of(12), Inches.of(34)),
-                new Rotation3d(Degrees.of(-3), Degrees.of(-22.2), Degrees.of(172.6)));
+                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(169))); // Degrees.of(172.6)));
     }
 
     public static class FieldConstants {

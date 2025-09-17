@@ -362,6 +362,10 @@ public class Constants {
                 .withProfile(3, 7)
                 .withTolerance(Inches.of(4).in(Meters));
 
+        public static final ControlConstants CORAL_PICKUP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withProfile(3, 2)
+                .withTolerance(Inches.of(4).in(Meters));
+
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
                 new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.5);
@@ -635,6 +639,11 @@ public class Constants {
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(80);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
+        public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
+
+        public static final Time CORAL_TIMEOUT = Seconds.of(4);
+
+        public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(10);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()

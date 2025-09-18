@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PathConstants;
@@ -18,9 +19,9 @@ import org.littletonrobotics.junction.Logger;
 /** Add your docs here. */
 public class BoundaryProtections {
     // perimeter, counter clockwise
-    private static final double[] PERIMETER_X = {1.758, 15.791, 17.548, 17.548, 15.791, 1.758, 0.0, 0.0};
+    private static final double[] PERIMETER_X = { 1.758, 15.791, 17.548, 17.548, 15.791, 1.758, 0.0, 0.0 };
 
-    private static final double[] PERIMETER_Y = {0.0, 0.0, 1.267, 6.775, 8.052, 8.052, 6.775, 1.267};
+    private static final double[] PERIMETER_Y = { 0.0, 0.0, 1.267, 6.775, 8.052, 8.052, 6.775, 1.267 };
 
     private static final double[] EDGE_VECTORS_X = new double[PERIMETER_X.length];
     private static final double[] EDGE_VECTORS_Y = new double[PERIMETER_X.length];
@@ -40,8 +41,8 @@ public class BoundaryProtections {
         }
     }
 
-    private static final double CIRCUMSCRIBED_REEF_RADIUS =
-            FieldConstants.REEF_APOTHEM.minus(PathConstants.DISTANCE_TO_REEF).in(Meters) * 2 / Math.sqrt(3);
+    private static final double CIRCUMSCRIBED_REEF_RADIUS = FieldConstants.REEF_APOTHEM
+            .minus(PathConstants.DISTANCE_TO_REEF).in(Meters) * 2 / Math.sqrt(3);
     private static final double[] BLUE_REEF_X = new double[6];
     private static final double[] BLUE_REEF_Y = new double[6];
     private static final double[] RED_REEF_X = new double[6];
@@ -115,8 +116,8 @@ public class BoundaryProtections {
 
     // nearest point on reef, facing outwards
     public static final Pose2d nearestReefPose(Translation2d pos) {
-        final boolean nearBlue =
-                pos.getDistance(FieldConstants.REEF_CENTER_BLUE) < pos.getDistance(FieldConstants.REEF_CENTER_RED);
+        final boolean nearBlue = pos.getDistance(FieldConstants.REEF_CENTER_BLUE) < pos
+                .getDistance(FieldConstants.REEF_CENTER_RED);
         final double[] reefX = nearBlue ? BLUE_REEF_X : RED_REEF_X;
         final double[] reefY = nearBlue ? BLUE_REEF_Y : RED_REEF_Y;
 
@@ -165,8 +166,8 @@ public class BoundaryProtections {
         Pose2d nearestPerimeter = nearestPerimeterPose(pose.getTranslation());
         Pose2d nearestReef = nearestReefPose(pose.getTranslation());
         Pose2d nearestPoint;
-        if (nearestPerimeter.getTranslation().getDistance(pose.getTranslation())
-                < nearestReef.getTranslation().getDistance(pose.getTranslation())) {
+        if (nearestPerimeter.getTranslation().getDistance(pose.getTranslation()) < nearestReef.getTranslation()
+                .getDistance(pose.getTranslation())) {
             nearestPoint = nearestPerimeter;
         } else {
             nearestPoint = nearestReef;
@@ -174,18 +175,20 @@ public class BoundaryProtections {
 
         Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
 
+        Translation2d wallNormalInwards = new Translation2d(
+                Math.cos(nearestPoint.getRotation().getRadians()),
+                Math.sin(nearestPoint.getRotation().getRadians()))
+                .unaryMinus();
+
+        double minDistanceToWall = IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters)
+                + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+
         // bot is not near wall, or not facing wall, return desired velocity
-        if (nearestPoint.getTranslation().getDistance(pose.getTranslation())
-                        > IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters)
-                || Math.abs(pose.getRotation().minus(nearestPoint.getRotation()).getRadians())
-                        > IntakeConstants.ANGLE_TO_FACE_WALL.in(Radians)) {
+        if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > minDistanceToWall
+                || Math.abs(pose.getRotation().minus(nearestPoint.getRotation())
+                        .getRadians()) > IntakeConstants.ANGLE_TO_FACE_WALL.in(Radians)) {
             return desiredVel;
         }
-
-        Translation2d wallNormalInwards = new Translation2d(
-                        Math.cos(nearestPoint.getRotation().getRadians()),
-                        Math.sin(nearestPoint.getRotation().getRadians()))
-                .unaryMinus();
 
         double velTowardsWall = desiredVel.getX() * wallNormalInwards.getX()
                 + desiredVel.getY() * wallNormalInwards.getY(); // dot product
@@ -199,6 +202,18 @@ public class BoundaryProtections {
         return adjustedVel;
     }
 
+    private static double offsetDistanceFromRotation(Rotation2d robotRotation, Translation2d wallNormal) {
+        double robotApothem = Dimensions.ROBOT_SIZE.div(2).in(Meters);
+        double extension = IntakeConstants.INTAKE_EXTENSION.in(Meters);
+        double h = Math.hypot(extension + robotApothem, robotApothem); // distance from robot center to intake tip
+        double intakeAngle = Math.atan2(robotApothem, extension + robotApothem); // angle from forward to intake tip
+        double angleFromWall = Math.abs(wallNormal.getAngle().minus(robotRotation).getRadians()); // absolute angle from
+                                                                                                  // facing wall
+
+        return h * Math.cos(angleFromWall - intakeAngle);
+    }
+
     // prevent instantiation
-    private BoundaryProtections() {}
+    private BoundaryProtections() {
+    }
 }

@@ -9,7 +9,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -30,9 +31,10 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     private final CANdi lidarCANdi;
 
-    private final MotionMagicVoltage deployRequest = new MotionMagicVoltage(0);
+    private final MotionMagicExpoVoltage deployRequest = new MotionMagicExpoVoltage(0);
     private final VoltageOut intakeRequest = new VoltageOut(0);
     private final VoltageOut alignRequest = new VoltageOut(0);
+    private final NeutralOut stopRequest = new NeutralOut();
 
     public IntakeIOTalonFX() {
         intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_ID, Constants.CAN_FD_BUS);
@@ -88,5 +90,10 @@ public class IntakeIOTalonFX implements IntakeIO {
     @Override
     public void setAlignSpeed(Voltage speed) {
         alignMotor.setControl(alignRequest.withOutput(speed));
+    }
+
+    @Override
+    public void stopDeploy() {
+        deployMotor.setControl(stopRequest);
     }
 }

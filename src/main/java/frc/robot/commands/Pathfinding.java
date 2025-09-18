@@ -206,8 +206,8 @@ public class Pathfinding {
         }
         poses.add(0, startPose);
 
-        List<PointTowardsZone> pointTowardsZones =
-                List.of(new PointTowardsZone("End Rotation Early", endPose.getTranslation(), Rotation2d.k180deg, 1.5, poses.size() - 1));
+        List<PointTowardsZone> pointTowardsZones = List.of(new PointTowardsZone(
+                "End Rotation Early", endPose.getTranslation(), Rotation2d.k180deg, 1.5, poses.size() - 1));
 
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(poses),

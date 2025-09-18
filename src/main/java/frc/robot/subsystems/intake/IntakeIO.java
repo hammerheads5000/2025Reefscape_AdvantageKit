@@ -44,4 +44,6 @@ public interface IntakeIO {
     default void setIntakeSpeed(Voltage speed) {}
 
     default void setAlignSpeed(Voltage speed) {}
+
+    default void stopDeploy() {}
 }

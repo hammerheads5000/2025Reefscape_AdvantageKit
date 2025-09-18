@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MutLinearVelocity;
@@ -42,7 +43,6 @@ import frc.robot.Constants.PathConstants;
 import frc.robot.Constants.SwerveConstants;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -192,7 +192,6 @@ public class Swerve extends SubsystemBase {
         drive(ChassisSpeeds.fromFieldRelativeSpeeds(xVel, yVel, omega, getRotation()));
     }
 
-
     /** Runs the drive in a straight line with the specified drive output. */
     public void runCharacterization(Voltage output) {
         for (int i = 0; i < 4; i++) {
@@ -272,6 +271,10 @@ public class Swerve extends SubsystemBase {
     /** Returns the current odometry rotation. */
     public Rotation2d getRotation() {
         return getPose().getRotation();
+    }
+
+    public Angle getRoll() {
+        return gyroInputs.roll;
     }
 
     /** Resets the current odometry pose. */

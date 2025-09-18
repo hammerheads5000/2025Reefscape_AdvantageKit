@@ -362,7 +362,8 @@ public class Constants {
                 .withProfile(3, 7)
                 .withTolerance(Inches.of(4).in(Meters));
 
-        public static final ControlConstants CORAL_PICKUP_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+        public static final ControlConstants CORAL_PICKUP_PID_TRANSLATION = new ControlConstants(
+                        SCORING_PID_TRANSLATION)
                 .withProfile(3, 2)
                 .withTolerance(Inches.of(4).in(Meters));
 
@@ -465,7 +466,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.56298828125)
+                .withMagnetOffset(-0.571044921875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -488,7 +489,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(37.13);
         public static final Distance L3_HEIGHT = Inches.of(52.37);
         public static final Distance L4_HEIGHT = Inches.of(75.7);
-        public static final Distance INTAKE_HEIGHT = Inches.of(13.3);
+        public static final Distance INTAKE_HEIGHT = Inches.of(10);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -526,7 +527,7 @@ public class Constants {
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
         // Coral detection
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(65);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(40);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
@@ -581,7 +582,7 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(20 * 50 / 24.0); // 20:1 gearbox and 50:24 gears
         public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
-                .withKP(5)
+                .withKP(3)
                 .withKI(0.1)
                 .withKD(1)
                 .withKS(0.1)
@@ -592,9 +593,10 @@ public class Constants {
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(6).per(RotationsPerSecondPerSecond))
-                .withMotionMagicCruiseVelocity(RotationsPerSecond.of(1.2))
-                .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(1.5));
+                .withMotionMagicExpo_kA(Volts.of(15).per(RotationsPerSecondPerSecond));
+        public static final MotionMagicConfigs STOW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
+                .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(6).per(RotationsPerSecondPerSecond));
         public static final ClosedLoopGeneralConfigs DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS =
                 new ClosedLoopGeneralConfigs().withContinuousWrap(true);
         public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
@@ -633,15 +635,16 @@ public class Constants {
         public static final Angle STOW_FAST_POS = Degrees.of(40);
         // public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
-        public static final Angle DEPLOY_TOLERANCE = Degrees.of(10);
+        public static final Angle DEPLOY_TOLERANCE = Degrees.of(40);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(80);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(42);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
 
         public static final Time CORAL_TIMEOUT = Seconds.of(4);
+        public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.4);
 
         public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(10);
 
@@ -686,7 +689,7 @@ public class Constants {
 
     public static class ClimberConstants {
         public static final int CLIMB_MOTOR_ID = 14;
-        public static final int CLIMB_ENCODER_ID = 6; // fd bus
+        public static final int CLIMB_PIGEON_ID = 2; // fd bus
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
 
@@ -696,22 +699,13 @@ public class Constants {
 
         public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
 
-        public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
-                .withFeedbackRemoteSensorID(CLIMB_ENCODER_ID)
-                .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
-                .withRotorToSensorRatio(GEAR_RATIO);
-
-        public static final Angle GRAB_ANGLE = Rotations.of(0.22);
-        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
-        public static final Angle RESET_ANGLE = Rotations.of(0.59);
+        public static final Angle GRAB_ANGLE = Degrees.of(-10);
+        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(90);
+        public static final Angle RESET_ANGLE = Degrees.of(70);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
-                .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
-                .withFeedback(FEEDBACK_CONFIGS);
-
-        public static final MagnetSensorConfigs ENCODER_CONFIGS =
-                new MagnetSensorConfigs().withMagnetOffset(-0.5).withAbsoluteSensorDiscontinuityPoint(1);
+                .withCurrentLimits(CURRENT_LIMITS_CONFIGS);
 
         public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage BREAK_SPEED = Volts.of(6);

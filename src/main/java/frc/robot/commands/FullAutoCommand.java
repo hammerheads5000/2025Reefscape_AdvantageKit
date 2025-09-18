@@ -24,7 +24,6 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
-
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -38,7 +37,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
     CoralDetection coralDetection;
 
     private Command getCoralSearchCommand(int pos) {
-        Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos)).until(coralDetection.hasTarget);
+        Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
+                .until(coralDetection.hasTarget);
 
         if (Constants.SIM_MODE == Mode.SIM) {
             return command.andThen(endEffector.startIntakeCommand());

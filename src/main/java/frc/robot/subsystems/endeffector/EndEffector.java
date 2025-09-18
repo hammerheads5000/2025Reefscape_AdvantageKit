@@ -76,7 +76,11 @@ public class EndEffector extends SubsystemBase {
 
     public Command startIntakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> {simHasCoral = true; intaking = false;}).withName("End Effector Intake Start");
+            return this.runOnce(() -> {
+                        simHasCoral = true;
+                        intaking = false;
+                    })
+                    .withName("End Effector Intake Start");
         }
         return Commands.runOnce(() -> setSpeed(EndEffectorConstants.INTAKE_SPEED))
                 .beforeStarting(() -> intaking = true)
@@ -106,8 +110,7 @@ public class EndEffector extends SubsystemBase {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
         }
-        return runCommand(EndEffectorConstants.SCORE_SPEED)
-                .withName("End Effector Score");
+        return runCommand(EndEffectorConstants.SCORE_SPEED).withName("End Effector Score");
     }
 
     public Command troughLeftCommand() {

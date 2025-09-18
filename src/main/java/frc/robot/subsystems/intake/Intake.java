@@ -4,11 +4,13 @@
 
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,7 +34,9 @@ public class Intake extends SubsystemBase {
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
 
     @AutoLogOutput
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.3);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
+
+    private Timer intakingTimer = new Timer();
 
     private Angle goal = IntakeConstants.STOW_POS;
 
@@ -41,6 +45,8 @@ public class Intake extends SubsystemBase {
     public Intake(IntakeIO io, Supplier<Pose2d> poseSupplier) {
         this.io = io;
         this.visualizer = new IntakeVisualizer(coralDetectedTrigger, poseSupplier);
+
+        this.deployedTrigger.onTrue(this.stopIntake());
 
         SmartDashboard.putData("Intake Deploy", deployCommand(true));
         SmartDashboard.putData("Intake Stow", stowCommand(true));
@@ -83,7 +89,8 @@ public class Intake extends SubsystemBase {
     }
 
     private boolean rawCoralDetected() {
-        return inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT);
+        return intakingTimer.hasElapsed(IntakeConstants.INTAKE_STARTUP_TIME.in(Seconds))
+                && inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT);
     }
 
     public Command toggleCommand(boolean instant) {
@@ -112,6 +119,7 @@ public class Intake extends SubsystemBase {
 
     public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
+                    intakingTimer.restart();
                     setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
                     setAlignSpeed(IntakeConstants.ALIGN_SPEED);
                 })
@@ -129,6 +137,7 @@ public class Intake extends SubsystemBase {
     public Command intakeCommand() {
         return Commands.startEnd(
                         () -> {
+                            intakingTimer.restart();
                             setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
                             setAlignSpeed(IntakeConstants.ALIGN_SPEED);
                         },
@@ -150,6 +159,10 @@ public class Intake extends SubsystemBase {
                             setAlignSpeed(Volts.zero());
                         })
                 .withName("Eject Command");
+    }
+
+    private Command stopDeploy() {
+        return Commands.runOnce(() -> io.stopDeploy());
     }
 
     public Command stopIntake() {

@@ -9,8 +9,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
-import java.util.Set;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +28,7 @@ import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.SlewRateLimiter2d;
+import java.util.Set;
 
 /** Ends right after coral detected, without stopping */
 public class AutoCoralCommand extends SequentialCommandGroup {
@@ -67,12 +66,15 @@ public class AutoCoralCommand extends SequentialCommandGroup {
 
     private Command driveTowardsCoral() {
         // If the coral is next to a wall, use AlignToPoseCommand to not slam into wall
-        Translation2d coral = coralDetection.getClosestCoral();
-        if (coral != null && isCoralNextToWall(coral)) {
-            Translation2d dir = coral.minus(swerve.getPose().getTranslation());
-            return new AlignToPoseCommand(new Pose2d(coral, dir.getAngle()),
-                    AlignConstants.CORAL_PICKUP_PID_TRANSLATION, AlignConstants.CORAL_PICKUP_PID_ANGLE, swerve);
-        }
+        // Translation2d coral = coralDetection.getClosestCoral();
+        // if (coral != null && isCoralNextToWall(coral)) {
+        //     Translation2d dir = coral.minus(swerve.getPose().getTranslation());
+        //     return new AlignToPoseCommand(
+        //             new Pose2d(coral, dir.getAngle()),
+        //             AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
+        //             AlignConstants.CORAL_PICKUP_PID_ANGLE,
+        //             swerve);
+        // }
         return Commands.run(
                 () -> {
                     Translation2d closestCoral = coralDetection.getClosestCoral();
@@ -100,27 +102,29 @@ public class AutoCoralCommand extends SequentialCommandGroup {
 
     private boolean isCoralNextToWall(Translation2d coral) {
         double threshold = IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters);
-        boolean xBounds = coral.getX() < threshold
-                || coral.getX() > VisionConstants.APRIL_TAGS.getFieldLength()
-                        - threshold;
-        boolean yBounds = coral.getY() < threshold
-                || coral.getY() > VisionConstants.APRIL_TAGS.getFieldWidth()
-                        - threshold;
+        boolean xBounds =
+                coral.getX() < threshold || coral.getX() > VisionConstants.APRIL_TAGS.getFieldLength() - threshold;
+        boolean yBounds =
+                coral.getY() < threshold || coral.getY() > VisionConstants.APRIL_TAGS.getFieldWidth() - threshold;
 
-        Translation2d relativeToLeftStation = new Transform2d(FieldConstants.LEFT_CORAL_STATION,
-                new Pose2d(coral, FieldConstants.LEFT_CORAL_STATION.getRotation())).getTranslation();
+        Translation2d relativeToLeftStation = new Transform2d(
+                        FieldConstants.LEFT_CORAL_STATION,
+                        new Pose2d(coral, FieldConstants.LEFT_CORAL_STATION.getRotation()))
+                .getTranslation();
 
         boolean nearLeftStation = relativeToLeftStation.getMeasureX().lt(IntakeConstants.CORAL_ON_WALL_THRESHOLD);
 
-        Translation2d relativeToRightStation = new Transform2d(FieldConstants.RIGHT_CORAL_STATION,
-                new Pose2d(coral, FieldConstants.RIGHT_CORAL_STATION.getRotation())).getTranslation();
+        Translation2d relativeToRightStation = new Transform2d(
+                        FieldConstants.RIGHT_CORAL_STATION,
+                        new Pose2d(coral, FieldConstants.RIGHT_CORAL_STATION.getRotation()))
+                .getTranslation();
 
         boolean nearRightStation = relativeToRightStation.getMeasureX().lt(IntakeConstants.CORAL_ON_WALL_THRESHOLD);
 
-        boolean nearReef = coral.getDistance(FieldConstants.REEF_CENTER_RED) < FieldConstants.REEF_APOTHEM.in(Meters)
-                + threshold
-                || coral.getDistance(FieldConstants.REEF_CENTER_BLUE) < FieldConstants.REEF_APOTHEM.in(Meters)
-                        + threshold;
+        boolean nearReef =
+                coral.getDistance(FieldConstants.REEF_CENTER_RED) < FieldConstants.REEF_APOTHEM.in(Meters) + threshold
+                        || coral.getDistance(FieldConstants.REEF_CENTER_BLUE)
+                                < FieldConstants.REEF_APOTHEM.in(Meters) + threshold;
 
         return xBounds || yBounds || nearLeftStation || nearRightStation || nearReef;
     }

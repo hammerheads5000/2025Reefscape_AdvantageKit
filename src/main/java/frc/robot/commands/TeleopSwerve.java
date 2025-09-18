@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
 import java.util.function.DoubleSupplier;
 
@@ -74,6 +75,7 @@ public class TeleopSwerve extends Command {
         Translation2d linearVelocity = getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
         linearVelocity = linearVelocity.times(maxDriveSpeed.in(MetersPerSecond));
         linearVelocity = driveLimiter.calculate(linearVelocity);
+        linearVelocity = BoundaryProtections.adjustVelocity(swerve.getPose(), linearVelocity); // prevent running the intake into walls
 
         double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), ControllerConstants.CONTROLLER_DEADBAND);
         omega = Math.copySign(omega * omega, omega); // square for more precise rotation control

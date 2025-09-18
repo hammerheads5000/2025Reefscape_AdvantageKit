@@ -699,6 +699,10 @@ public class Constants {
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
+        public static final Pigeon2Configuration PIGEON_CONFIGS = new Pigeon2Configuration()
+                .withMountPose(new MountPoseConfigs().withMountPosePitch(Degrees.of(90)));
+
+
         public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
 
         public static final Angle GRAB_ANGLE = Degrees.of(-10);

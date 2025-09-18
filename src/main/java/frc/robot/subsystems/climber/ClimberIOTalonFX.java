@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.Radians;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
@@ -38,9 +41,10 @@ public class ClimberIOTalonFX implements ClimberIO {
     public ClimberIOTalonFX(Supplier<Angle> robotRollSupplier) {
         climbMotor = new TalonFX(ClimberConstants.CLIMB_MOTOR_ID, Constants.CAN_FD_BUS);
         grabMotor = new TalonFX(ClimberConstants.GRAB_MOTOR_ID, Constants.CAN_FD_BUS);
+        pigeon = new Pigeon2(ClimberConstants.CLIMB_PIGEON_ID, Constants.CAN_FD_BUS);
         tryUntilOk(5, () -> climbMotor.getConfigurator().apply(ClimberConstants.CLIMB_CONFIGS));
         tryUntilOk(5, () -> grabMotor.getConfigurator().apply(ClimberConstants.GRAB_CONFIGS));
-        pigeon = new Pigeon2(ClimberConstants.CLIMB_PIGEON_ID, Constants.CAN_FD_BUS);
+        tryUntilOk(5, () -> pigeon.getConfigurator().apply(ClimberConstants.PIGEON_CONFIGS));
         this.robotRollSupplier = robotRollSupplier;
         // climbEncoder = new CANcoder(ClimberConstants.CLIMB_ENCODER_ID, Constants.CAN_FD_BUS);
         // tryUntilOk(5, () -> climbEncoder.getConfigurator().apply(ClimberConstants.ENCODER_CONFIGS));
@@ -60,6 +64,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         // inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
         inputs.pigeonConnected = pigeonConnectedDebouncer.calculate(pigeon.isConnected());
         inputs.pos = pigeon.getYaw().getValue().minus(robotRollSupplier.get());
+        inputs.pos = Radians.of(MathUtil.angleModulus(inputs.pos.in(Radians)));
     }
 
     @Override

@@ -114,6 +114,7 @@ public class CoralDetection extends SubsystemBase {
         coralList = List.of(corals).stream()
                 .map(this::projectCoralPosition)
                 .map(this::robotToFieldRelative)
+                .filter(this::coralInBounds)
                 .toList();
     }
 
@@ -141,5 +142,10 @@ public class CoralDetection extends SubsystemBase {
     private Translation2d robotToFieldRelative(Translation2d pos) {
         Pose2d robotPose = poseSupplier.get();
         return robotPose.getTranslation().plus(pos.rotateBy(robotPose.getRotation()));
+    }
+
+    private boolean coralInBounds(Translation2d pos) {
+        return pos.getX() >= 0 && pos.getX() <= VisionConstants.APRIL_TAGS.getFieldLength()
+                && pos.getY() >= 0 && pos.getY() <= VisionConstants.APRIL_TAGS.getFieldWidth();
     }
 }

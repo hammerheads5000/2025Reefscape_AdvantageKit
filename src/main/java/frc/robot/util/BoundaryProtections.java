@@ -161,17 +161,19 @@ public class BoundaryProtections {
         return new Pose2d(nearestX, nearestY, new Rotation2d(nearestEdgeVecY, -nearestEdgeVecX));
     }
 
+    public static final Pose2d nearestBoundaryPose(Translation2d pos) {
+        Pose2d nearestPerimeter = nearestPerimeterPose(pos);
+        Pose2d nearestReef = nearestReefPose(pos);
+        if (nearestPerimeter.getTranslation().getDistance(pos) < nearestReef.getTranslation().getDistance(pos)) {
+            return nearestPerimeter;
+        } else {
+            return nearestReef;
+        }
+    }
+
     // adjust velocity to not go into walls when facing them
     public static final Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel) {
-        Pose2d nearestPerimeter = nearestPerimeterPose(pose.getTranslation());
-        Pose2d nearestReef = nearestReefPose(pose.getTranslation());
-        Pose2d nearestPoint;
-        if (nearestPerimeter.getTranslation().getDistance(pose.getTranslation()) < nearestReef.getTranslation()
-                .getDistance(pose.getTranslation())) {
-            nearestPoint = nearestPerimeter;
-        } else {
-            nearestPoint = nearestReef;
-        }
+        Pose2d nearestPoint = nearestBoundaryPose(pose.getTranslation());
 
         Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
 

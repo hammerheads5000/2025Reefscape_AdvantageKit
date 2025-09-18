@@ -554,6 +554,8 @@ public class Constants {
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
+        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(16).plus(Dimensions.ROBOT_SIZE.div(2));
+        public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
@@ -703,9 +705,8 @@ public class Constants {
         public static final Angle MAX_CLIMB_ANGLE = Degrees.of(90);
         public static final Angle RESET_ANGLE = Degrees.of(70);
 
-        public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
-                .withMotorOutput(OUTPUT_CONFIGS)
-                .withCurrentLimits(CURRENT_LIMITS_CONFIGS);
+        public static final TalonFXConfiguration CLIMB_CONFIGS =
+                new TalonFXConfiguration().withMotorOutput(OUTPUT_CONFIGS).withCurrentLimits(CURRENT_LIMITS_CONFIGS);
 
         public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage BREAK_SPEED = Volts.of(6);

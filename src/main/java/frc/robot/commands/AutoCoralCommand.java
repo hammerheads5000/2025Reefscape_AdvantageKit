@@ -4,24 +4,19 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
@@ -98,34 +93,5 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                             vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
                 },
                 swerve);
-    }
-
-    private boolean isCoralNextToWall(Translation2d coral) {
-        double threshold = IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters);
-        boolean xBounds =
-                coral.getX() < threshold || coral.getX() > VisionConstants.APRIL_TAGS.getFieldLength() - threshold;
-        boolean yBounds =
-                coral.getY() < threshold || coral.getY() > VisionConstants.APRIL_TAGS.getFieldWidth() - threshold;
-
-        Translation2d relativeToLeftStation = new Transform2d(
-                        FieldConstants.LEFT_CORAL_STATION,
-                        new Pose2d(coral, FieldConstants.LEFT_CORAL_STATION.getRotation()))
-                .getTranslation();
-
-        boolean nearLeftStation = relativeToLeftStation.getMeasureX().lt(IntakeConstants.CORAL_ON_WALL_THRESHOLD);
-
-        Translation2d relativeToRightStation = new Transform2d(
-                        FieldConstants.RIGHT_CORAL_STATION,
-                        new Pose2d(coral, FieldConstants.RIGHT_CORAL_STATION.getRotation()))
-                .getTranslation();
-
-        boolean nearRightStation = relativeToRightStation.getMeasureX().lt(IntakeConstants.CORAL_ON_WALL_THRESHOLD);
-
-        boolean nearReef =
-                coral.getDistance(FieldConstants.REEF_CENTER_RED) < FieldConstants.REEF_APOTHEM.in(Meters) + threshold
-                        || coral.getDistance(FieldConstants.REEF_CENTER_BLUE)
-                                < FieldConstants.REEF_APOTHEM.in(Meters) + threshold;
-
-        return xBounds || yBounds || nearLeftStation || nearRightStation || nearReef;
     }
 }

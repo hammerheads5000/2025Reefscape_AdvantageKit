@@ -4,26 +4,38 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
+import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
 import java.util.Set;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 /** Ends right after coral detected, without stopping */
 public class AutoCoralCommand extends SequentialCommandGroup {
@@ -61,15 +73,12 @@ public class AutoCoralCommand extends SequentialCommandGroup {
 
     private Command driveTowardsCoral() {
         // If the coral is next to a wall, use AlignToPoseCommand to not slam into wall
-        // Translation2d coral = coralDetection.getClosestCoral();
-        // if (coral != null && isCoralNextToWall(coral)) {
-        //     Translation2d dir = coral.minus(swerve.getPose().getTranslation());
-        //     return new AlignToPoseCommand(
-        //             new Pose2d(coral, dir.getAngle()),
-        //             AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
-        //             AlignConstants.CORAL_PICKUP_PID_ANGLE,
-        //             swerve);
-        // }
+        Translation2d coral = coralDetection.getClosestCoral();
+        Pose2d nearestBoundaryPose;
+        if (coral != null && (nearestBoundaryPose = BoundaryProtections.nearestBoundaryPose(coral)).getTranslation()
+                .getDistance(coral) < IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
+            return pathfindToCoralCommand(coral, nearestBoundaryPose);
+        }
         return Commands.run(
                 () -> {
                     Translation2d closestCoral = coralDetection.getClosestCoral();
@@ -83,6 +92,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                     Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
                     vel = vel.div(vel.getNorm());
                     vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
+                    vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
                     vel = accelerationLimiter.calculate(vel);
 
                     AngularVelocity omega = RadiansPerSecond.of(rotationController.calculate(
@@ -93,5 +103,26 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                             vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
                 },
                 swerve);
+    }
+
+    private Command pathfindToCoralCommand(Translation2d coralPose, Pose2d nearestBoundaryPose) {
+        double coralDistToWall = coralPose.getDistance(nearestBoundaryPose.getTranslation());
+        double endRobotDistToWall = coralDistToWall + Dimensions.ROBOT_SIZE.in(Meters) / 2
+                + IntakeConstants.INTAKE_EXTENSION.in(Meters);
+
+        Pose2d endPose = nearestBoundaryPose.transformBy(
+                new Transform2d(new Translation2d(endRobotDistToWall, 0), Rotation2d.k180deg));
+        Pose2d approachPose = endPose.transformBy(
+                new Transform2d(
+                        new Translation2d(-PathConstants.CORAL_APPROACH_DISTANCE.in(Meters), 0),
+                        Rotation2d.kZero));
+
+        PathPlannerPath path = new PathPlannerPath(
+                PathPlannerPath.waypointsFromPoses(swerve.getPose(), approachPose, endPose),
+                PathConstants.APPROACH_CONSTRAINTS,
+                new IdealStartingState(0, Rotation2d.kZero),
+                new GoalEndState(0, endPose.getRotation()));
+
+        return AutoBuilder.followPath(path);
     }
 }

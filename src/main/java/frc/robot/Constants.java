@@ -167,9 +167,8 @@ public class Constants {
 
         private static final CANcoderConfiguration ENCODER_CONFIGS = new CANcoderConfiguration();
 
-        private static final Pigeon2Configuration PIGEON_CONFIGS = new Pigeon2Configuration()
-                .withMountPose(
-                        new MountPoseConfigs().withMountPoseYaw(Degrees.of(-90)).withMountPosePitch(Degrees.of(180)));
+        public static final Pigeon2Configuration PIGEON_CONFIGS =
+                new Pigeon2Configuration().withMountPose(new MountPoseConfigs().withMountPoseRoll(Degrees.of(180)));
 
         public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.44); // maybe needs tuning
 
@@ -485,10 +484,10 @@ public class Constants {
         // Setpoints (from floor)
         public static final Distance MIN_HEIGHT = Inches.of(9);
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
-        public static final Distance L1_HEIGHT = Inches.of(25.54);
-        public static final Distance L2_HEIGHT = Inches.of(37.13);
-        public static final Distance L3_HEIGHT = Inches.of(52.37);
-        public static final Distance L4_HEIGHT = Inches.of(75.7);
+        public static final Distance L1_HEIGHT = Inches.of(29);
+        public static final Distance L2_HEIGHT = Inches.of(39);
+        public static final Distance L3_HEIGHT = Inches.of(55);
+        public static final Distance L4_HEIGHT = Inches.of(76.7);
         public static final Distance INTAKE_HEIGHT = Inches.of(10);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -550,11 +549,11 @@ public class Constants {
 
         public static final int ENCODER_ID = 21;
 
-        public static final Distance INTAKE_EXTENSION = Inches.of(11);
+        public static final Distance INTAKE_EXTENSION = Inches.of(13.5);
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
-        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(5);
+        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(10);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
@@ -696,30 +695,30 @@ public class Constants {
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
 
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
         public static final Pigeon2Configuration PIGEON_CONFIGS = new Pigeon2Configuration()
-                .withMountPose(new MountPoseConfigs().withMountPosePitch(Degrees.of(90)));
-
+                .withMountPose(new MountPoseConfigs()
+                        .withMountPoseYaw(Degrees.of(90))
+                        .withMountPosePitch(0)
+                        .withMountPoseRoll(Degrees.of(90)));
 
         public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
 
-        public static final Angle GRAB_ANGLE = Degrees.of(-10);
-        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(90);
-        public static final Angle RESET_ANGLE = Degrees.of(70);
+        public static final Angle GRAB_ANGLE = Degrees.of(-5);
+        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(110); // 116
+        public static final Angle RESET_ANGLE = Degrees.of(114); // 118
 
         public static final TalonFXConfiguration CLIMB_CONFIGS =
                 new TalonFXConfiguration().withMotorOutput(OUTPUT_CONFIGS).withCurrentLimits(CURRENT_LIMITS_CONFIGS);
 
-        public static final Voltage CLIMB_SPEED = Volts.of(12);
-        public static final Voltage BREAK_SPEED = Volts.of(6);
-        public static final Voltage RELEASE_SPEED = Volts.of(-12);
-
-        public static final Voltage STALL_VOLTAGE = Volts.of(0.1);
+        public static final Voltage CLIMB_SPEED = Volts.of(3);
+        public static final Voltage REVERSE_SPEED = Volts.of(-3);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
+        public static final Voltage RELEASE_SPEED = Volts.of(-3);
         public static final MotorOutputConfigs GRAB_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
@@ -751,7 +750,7 @@ public class Constants {
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
-                new Translation3d(Inches.of(0), Inches.of(12), Inches.of(34)),
+                new Translation3d(Inches.of(0.51), Inches.of(10.32), Inches.of(33.92)),
                 new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(169))); // Degrees.of(172.6)));
     }
 

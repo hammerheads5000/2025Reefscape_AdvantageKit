@@ -130,8 +130,8 @@ public class RobotContainer {
     private final Trigger reefTrigger = driveController.a();
     private final Trigger coralSearchTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
-    private final Trigger autoClimbTrigger = driveController.start().and(algaeButtonLayerTrigger);
-    private final Trigger unclimbTrigger = driveController.back().and(algaeButtonLayerTrigger);
+    private final Trigger autoClimbTrigger = driveController.start();
+    private final Trigger unclimbTrigger = driveController.back();
     private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger;
 

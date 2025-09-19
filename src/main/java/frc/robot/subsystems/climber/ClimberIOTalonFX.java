@@ -11,7 +11,6 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
@@ -63,7 +62,7 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         // inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
         inputs.pigeonConnected = pigeonConnectedDebouncer.calculate(pigeon.isConnected());
-        inputs.pos = pigeon.getYaw().getValue().minus(robotRollSupplier.get());
+        inputs.pos = pigeon.getRoll().getValue().minus(robotRollSupplier.get());
         inputs.pos = Radians.of(MathUtil.angleModulus(inputs.pos.in(Radians)));
     }
 

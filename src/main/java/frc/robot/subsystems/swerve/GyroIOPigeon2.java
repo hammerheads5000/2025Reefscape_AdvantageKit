@@ -16,7 +16,6 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -35,7 +34,7 @@ public class GyroIOPigeon2 implements GyroIO {
     private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
     public GyroIOPigeon2() {
-        pigeon.getConfigurator().apply(new Pigeon2Configuration());
+        pigeon.getConfigurator().apply(SwerveConstants.PIGEON_CONFIGS);
         pigeon.getConfigurator().setYaw(0.0);
         yaw.setUpdateFrequency(SwerveConstants.ODOMETRY_UPDATE_FREQ);
         yawVelocity.setUpdateFrequency(50.0);

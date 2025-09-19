@@ -46,7 +46,7 @@ public class Climber extends SubsystemBase {
     }
 
     public Command reverseCommand() {
-        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.RELEASE_SPEED), io::stopClimb)
+        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.REVERSE_SPEED), io::stopClimb)
                 .withName("Unclimb");
     }
 
@@ -63,9 +63,6 @@ public class Climber extends SubsystemBase {
     public Command goToGrabPosCommand() {
         return Commands.sequence(
                         reverseCommand().until(() -> inputs.pos.lte(ClimberConstants.GRAB_ANGLE)),
-                        this.runOnce(() -> io.setClimberOutput(ClimberConstants.CLIMB_SPEED)),
-                        Commands.waitUntil(() -> inputs.pos.gte(ClimberConstants.GRAB_ANGLE)),
-                        this.runOnce(io::stopClimb),
                         this.runOnce(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED)))
                 .withName("Go to Cage Grab Pos");
     }

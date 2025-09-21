@@ -216,7 +216,7 @@ public class RobotContainer {
                         algaeManipulator.deployedTrigger,
                         algaeManipulator.algaeDetectedTrigger,
                         swerve::getPose);
-                climber = new Climber(new ClimberIOTalonFX(swerve::getRoll));
+                climber = new Climber(new ClimberIOTalonFX());
                 intake = new Intake(new IntakeIOTalonFX(), swerve::getPose);
                 coralDetection = new CoralDetection(
                         new CoralDetectionIOPhotonVision(VisionConstants.CORAL_CAM_NAME, VisionConstants.CORAL_CAM_POS),

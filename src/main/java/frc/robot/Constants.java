@@ -689,8 +689,8 @@ public class Constants {
     }
 
     public static class ClimberConstants {
-        public static final int CLIMB_MOTOR_ID = 14;
-        public static final int CLIMB_PIGEON_ID = 2; // fd bus
+        public static final int CLIMB_MOTOR_ID = 14; // fd bus
+        public static final int CLIMB_ENCODER_ID = 6; // fd bus
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
                 new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40));
 
@@ -698,20 +698,24 @@ public class Constants {
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
-        public static final Pigeon2Configuration PIGEON_CONFIGS = new Pigeon2Configuration()
-                .withMountPose(new MountPoseConfigs()
-                        .withMountPoseYaw(Degrees.of(90))
-                        .withMountPosePitch(0)
-                        .withMountPoseRoll(Degrees.of(90)));
-
         public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
 
-        public static final Angle GRAB_ANGLE = Degrees.of(-5);
-        public static final Angle MAX_CLIMB_ANGLE = Degrees.of(110); // 116
-        public static final Angle RESET_ANGLE = Degrees.of(114); // 118
+        public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
+                .withFeedbackRemoteSensorID(CLIMB_ENCODER_ID)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+                .withRotorToSensorRatio(GEAR_RATIO);
 
-        public static final TalonFXConfiguration CLIMB_CONFIGS =
-                new TalonFXConfiguration().withMotorOutput(OUTPUT_CONFIGS).withCurrentLimits(CURRENT_LIMITS_CONFIGS);
+        public static final Angle GRAB_ANGLE = Rotations.of(0.22);
+        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
+        public static final Angle RESET_ANGLE = Rotations.of(0.59);
+
+        public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
+                .withMotorOutput(OUTPUT_CONFIGS)
+                .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
+                .withFeedback(FEEDBACK_CONFIGS);
+
+        public static final MagnetSensorConfigs ENCODER_CONFIGS =
+                new MagnetSensorConfigs().withMagnetOffset(-0.5).withAbsoluteSensorDiscontinuityPoint(1);
 
         public static final Voltage CLIMB_SPEED = Volts.of(3);
         public static final Voltage REVERSE_SPEED = Volts.of(-3);

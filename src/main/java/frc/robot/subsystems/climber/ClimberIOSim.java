@@ -30,7 +30,7 @@ public class ClimberIOSim implements ClimberIO {
         inputs.grabVelocity = RadiansPerSecond.zero();
         inputs.grabAppliedVolts = Volts.zero();
 
-        inputs.pigeonConnected = true;
+        inputs.encoderConnected = true;
         inputs.pos = Radians.zero();
     }
 

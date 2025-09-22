@@ -32,10 +32,13 @@ public class Vision extends SubsystemBase {
     private final VisionIO[] io;
     private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
+    private final ReefVisionIO reefIO;
+    private final ReefVisionIOInputsAutoLogged reefInputs;
 
-    public Vision(VisionConsumer consumer, VisionIO... io) {
+    public Vision(VisionConsumer consumer, ReefVisionIO reefIO, VisionIO... io) {
         this.consumer = consumer;
         this.io = io;
+        this.reefIO = reefIO;
 
         this.inputs = new VisionIOInputsAutoLogged[io.length];
         for (int i = 0; i < inputs.length; i++) {
@@ -46,6 +49,8 @@ public class Vision extends SubsystemBase {
         for (int i = 0; i < inputs.length; i++) {
             disconnectedAlerts[i] = new Alert("Camera " + i + " disconnected", AlertType.kWarning);
         }
+
+        this.reefInputs = new ReefVisionIOInputsAutoLogged();
     }
 
     /**
@@ -82,6 +87,9 @@ public class Vision extends SubsystemBase {
             allRobotPosesAccepted.addAll(cameraResult.robotPosesAccepted);
             allRobotPosesRejected.addAll(cameraResult.robotPosesRejected);
         }
+
+        reefIO.updateInputs(reefInputs);
+        Logger.processInputs("ReefVision/", reefInputs);
 
         // Log summary data
         Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));

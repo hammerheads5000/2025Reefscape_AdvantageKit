@@ -111,6 +111,11 @@ public class Elevator extends SubsystemBase {
         io.setGoal(this.goal);
     }
 
+    /** Returns true if the set goal is equivalent to the argument */
+    public boolean isGoal(Distance goal) {
+        return this.goal.isNear(goal, Inches.of(tolerance.get()));
+    }
+
     @AutoLogOutput
     /** Whether position is within tolerance of goal */
     public boolean atGoal() {

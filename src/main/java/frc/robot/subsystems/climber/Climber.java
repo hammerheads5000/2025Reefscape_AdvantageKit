@@ -23,6 +23,7 @@ public class Climber extends SubsystemBase {
         this.io = io;
 
         SmartDashboard.putData("Climb", climbCommand());
+        SmartDashboard.putData("Auto Climb", autoClimbCommand());
         SmartDashboard.putData("Unclimb", reverseCommand());
         SmartDashboard.putData("Climber Grab", grabCommand());
         SmartDashboard.putData("Climber Ungrab", releaseCommand());
@@ -43,6 +44,11 @@ public class Climber extends SubsystemBase {
                         },
                         io::stopClimb)
                 .withName("Climb");
+    }
+
+    public Command slowClimbCommand() {
+        return this.startEnd(() -> io.setClimberOutput(ClimberConstants.SLOW_CLIMB_SPEED), io::stopClimb)
+                .withName("Slow Climb");
     }
 
     public Command reverseCommand() {
@@ -68,10 +74,12 @@ public class Climber extends SubsystemBase {
     }
 
     public Command autoClimbCommand() {
-        return Commands.repeatingSequence(
-                        climbCommand().until(() -> inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)),
+        return climbCommand()
+                .until(() -> inputs.pos.gte(ClimberConstants.SLOW_ANGLE))
+                .andThen(Commands.repeatingSequence(
+                        slowClimbCommand().until(() -> inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)),
                         Commands.waitUntil(
-                                () -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE))))
+                                () -> !atMaxHeight.calculate(inputs.pos.gte(ClimberConstants.MAX_CLIMB_ANGLE)))))
                 .withName("Auto Climb");
     }
 

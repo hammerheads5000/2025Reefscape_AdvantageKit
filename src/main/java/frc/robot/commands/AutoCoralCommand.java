@@ -66,20 +66,21 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                 Commands.defer(this::driveTowardsCoral, Set.of(swerve))
                         .withTimeout(IntakeConstants.CORAL_TIMEOUT)
                         .repeatedly() // will keep restarting after timeout until coral detected in intake
-                        .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)));
+                        .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
+                this.intake.startSlowIntakeCommand());
     }
 
     private Command driveTowardsCoral() {
         // If the coral is next to a wall, use AlignToPoseCommand to not slam into wall
         Translation2d coral = coralDetection.getClosestCoral();
         Pose2d nearestBoundaryPose;
-        // if (coral != null
-        //         && (nearestBoundaryPose = BoundaryProtections.nearestBoundaryPose(coral))
-        //                         .getTranslation()
-        //                         .getDistance(coral)
-        //                 < IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
-        //     return pathfindToCoralCommand(coral, nearestBoundaryPose);
-        // }
+        if (coral != null
+                && (nearestBoundaryPose = BoundaryProtections.nearestBoundaryPose(coral))
+                                .getTranslation()
+                                .getDistance(coral)
+                        < IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
+            return pathfindToCoralCommand(coral, nearestBoundaryPose);
+        }
         return Commands.run(
                 () -> {
                     Translation2d closestCoral = coralDetection.getClosestCoral();

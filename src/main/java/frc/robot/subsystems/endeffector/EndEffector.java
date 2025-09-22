@@ -59,7 +59,9 @@ public class EndEffector extends SubsystemBase {
 
     private boolean rawHasCoral() {
         return inputs.leftTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT)
-                || inputs.rightTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT);
+                || inputs.leftTorqueCurrent.lte(EndEffectorConstants.CORAL_DETECTION_CURRENT.unaryMinus())
+                || inputs.rightTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT)
+                || inputs.rightTorqueCurrent.lte(EndEffectorConstants.CORAL_DETECTION_CURRENT.unaryMinus());
     }
 
     public void setSpeed(Voltage speed) {
@@ -110,7 +112,9 @@ public class EndEffector extends SubsystemBase {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Score");
         }
-        return runCommand(EndEffectorConstants.SCORE_SPEED).withName("End Effector Score");
+        return runCommand(EndEffectorConstants.SCORE_SPEED)
+                .withTimeout(EndEffectorConstants.CORAL_SHOOT_TIME)
+                .withName("End Effector Score");
     }
 
     public Command troughLeftCommand() {

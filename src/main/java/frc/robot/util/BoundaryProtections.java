@@ -14,6 +14,7 @@ import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.Constants.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
@@ -215,6 +216,11 @@ public class BoundaryProtections {
         // facing wall
 
         return h * Math.cos(angleFromWall - intakeAngle);
+    }
+
+    public static boolean inBargeZone(Translation2d pos) {
+        return pos.getX() > FieldConstants.BARGE_X.in(Meters)
+                && pos.getX() < VisionConstants.APRIL_TAGS.getFieldLength() - FieldConstants.BARGE_X.in(Meters);
     }
 
     // prevent instantiation

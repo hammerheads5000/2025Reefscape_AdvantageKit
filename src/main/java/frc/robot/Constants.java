@@ -10,6 +10,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -24,6 +25,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -452,8 +454,8 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.8).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.8).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.4).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.4).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -487,8 +489,8 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(29);
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(55);
-        public static final Distance L4_HEIGHT = Inches.of(76.7);
-        public static final Distance INTAKE_HEIGHT = Inches.of(10);
+        public static final Distance L4_HEIGHT = Inches.of(78.8);
+        public static final Distance INTAKE_HEIGHT = Inches.of(11.0);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -526,12 +528,13 @@ public class Constants {
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
         // Coral detection
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(40);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(45);
+        public static final Time CORAL_SHOOT_TIME = Seconds.of(0.2);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2);
+        public static final Voltage SCORE_SPEED = Volts.of(3);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
 
@@ -553,7 +556,7 @@ public class Constants {
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
-        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(10);
+        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(20);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
@@ -625,7 +628,11 @@ public class Constants {
                 .withMagnetOffset(0.248046875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
+        public static final DigitalInputsConfigs CANDI_CONFIGS =
+                new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow);
+
         public static final Voltage INTAKE_SPEED = Volts.of(8);
+        public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3);
         public static final Voltage EJECT_SPEED = Volts.of(-6);
         public static final Voltage DEPLOY_SPEED = Volts.of(12);
         public static final Voltage RETRACT_SPEED = Volts.of(-12);
@@ -639,7 +646,7 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(40);
         public static final Angle STOW_TOLERANCE = Degrees.of(10);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(42);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
@@ -705,9 +712,10 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(GEAR_RATIO);
 
-        public static final Angle GRAB_ANGLE = Rotations.of(0.22);
-        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.53);
-        public static final Angle RESET_ANGLE = Rotations.of(0.59);
+        public static final Angle GRAB_ANGLE = Rotations.of(-0.02);
+        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.31);
+        public static final Angle RESET_ANGLE = Rotations.of(0.315);
+        public static final Angle SLOW_ANGLE = Rotations.of(0.28);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
@@ -715,16 +723,17 @@ public class Constants {
                 .withFeedback(FEEDBACK_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS =
-                new MagnetSensorConfigs().withMagnetOffset(-0.5).withAbsoluteSensorDiscontinuityPoint(1);
+                new MagnetSensorConfigs().withMagnetOffset(0.230224609375).withAbsoluteSensorDiscontinuityPoint(0.5);
 
-        public static final Voltage CLIMB_SPEED = Volts.of(3);
-        public static final Voltage REVERSE_SPEED = Volts.of(-3);
+        public static final Voltage CLIMB_SPEED = Volts.of(4);
+        public static final Voltage SLOW_CLIMB_SPEED = Volts.of(3);
+        public static final Voltage REVERSE_SPEED = Volts.of(-6);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
         public static final Voltage RELEASE_SPEED = Volts.of(-3);
         public static final MotorOutputConfigs GRAB_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
     }
 
@@ -756,6 +765,10 @@ public class Constants {
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0.51), Inches.of(10.32), Inches.of(33.92)),
                 new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(169))); // Degrees.of(172.6)));
+
+        public static final int REEF_VISION_CANDI_ID = 2; // fd bus
+        public static final Angle HORIZONTAL_FOV = Degrees.of(63);
+        public static final Distance MAX_DISTANCE = Meters.of(2);
     }
 
     public static class FieldConstants {
@@ -823,7 +836,7 @@ public class Constants {
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
         private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-20);
-        private static final Distance BARGE_X = Meters.of(7.5);
+        public static final Distance BARGE_X = Meters.of(7.5);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 'I', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
@@ -842,7 +855,8 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance DISTANCE_TO_REEF = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
+        public static final Distance DISTANCE_TO_REEF =
+                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(4.5));
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
@@ -861,7 +875,7 @@ public class Constants {
         // around to other side
 
         public static final Time INTAKE_WAIT_TIME = Seconds.of(0.75);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.05); // for L1-L3
+        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
         public static final Time BARGE_SETTLE_TIME = Seconds.of(0.2);
 

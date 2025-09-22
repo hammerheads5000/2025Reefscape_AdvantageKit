@@ -89,8 +89,9 @@ public class Intake extends SubsystemBase {
     }
 
     private boolean rawCoralDetected() {
-        return intakingTimer.hasElapsed(IntakeConstants.INTAKE_STARTUP_TIME.in(Seconds))
-                && inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT);
+        return inputs.alignLidar
+                || (intakingTimer.hasElapsed(IntakeConstants.INTAKE_STARTUP_TIME.in(Seconds))
+                        && inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT));
     }
 
     public Command toggleCommand(boolean instant) {
@@ -121,6 +122,15 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> {
                     intakingTimer.restart();
                     setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
+                    setAlignSpeed(IntakeConstants.ALIGN_SPEED);
+                })
+                .withName("Start Intake Command");
+    }
+
+    public Command startSlowIntakeCommand() {
+        return Commands.runOnce(() -> {
+                    intakingTimer.restart();
+                    setIntakeSpeed(IntakeConstants.SLOW_INTAKE_SPEED);
                     setAlignSpeed(IntakeConstants.ALIGN_SPEED);
                 })
                 .withName("Start Intake Command");

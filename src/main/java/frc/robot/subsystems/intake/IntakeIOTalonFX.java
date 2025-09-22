@@ -50,6 +50,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         tryUntilOk(5, () -> deployMotor.getConfigurator().apply(IntakeConstants.DEPLOY_MOTOR_CONFIGS));
 
         tryUntilOk(5, () -> encoder.getConfigurator().apply(IntakeConstants.ENCODER_CONFIGS));
+        tryUntilOk(5, () -> lidarCANdi.getConfigurator().apply(IntakeConstants.CANDI_CONFIGS));
     }
 
     @Override

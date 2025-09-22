@@ -63,6 +63,8 @@ import frc.robot.subsystems.swerve.ModuleIO;
 import frc.robot.subsystems.swerve.ModuleIOSim;
 import frc.robot.subsystems.swerve.ModuleIOTalonFX;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.ReefVisionIO;
+import frc.robot.subsystems.vision.ReefVisionIOArducam;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -224,6 +226,7 @@ public class RobotContainer {
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
+                        new ReefVisionIOArducam(),
                         new VisionIOPhotonVision(
                                 VisionConstants.FRONT_LEFT_CAM_NAME, VisionConstants.FRONT_LEFT_CAM_POS),
                         new VisionIOPhotonVision(
@@ -257,6 +260,7 @@ public class RobotContainer {
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
+                        new ReefVisionIO() {},
                         new VisionIOPhotonVisionSim(
                                 VisionConstants.FRONT_LEFT_CAM_NAME,
                                 VisionConstants.FRONT_LEFT_CAM_POS,
@@ -283,7 +287,8 @@ public class RobotContainer {
                 intake = new Intake(new IntakeIO() {}, swerve::getPose);
                 coralDetection = new CoralDetection(new CoralDetectionIO() {}, swerve::getPose);
 
-                vision = new Vision(swerve::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+                vision = new Vision(
+                        swerve::addVisionMeasurement, new ReefVisionIO() {}, new VisionIO() {}, new VisionIO() {});
                 break;
         }
 

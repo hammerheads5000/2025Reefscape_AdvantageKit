@@ -20,10 +20,13 @@ public class ReefVisionIOArducam implements ReefVisionIO {
     @Override
     public void updateInputs(ReefVisionIOInputs inputs) {
         double dutyCycleAngle = candi.getPWM1Position().getValue().in(Rotations);
+        dutyCycleAngle -= Math.floor(dutyCycleAngle);
         dutyCycleAngle = (dutyCycleAngle - 0.5) * 2; // center around 0
         double dutyCycleDistance = candi.getPWM2Position().getValue().in(Rotations);
+        dutyCycleDistance -= Math.floor(dutyCycleDistance);
 
-        inputs.angle = VisionConstants.HORIZONTAL_FOV.times(dutyCycleAngle / 2);
-        inputs.distance = VisionConstants.MAX_DISTANCE.times((dutyCycleDistance + 1) / 2);
+        inputs.angle = VisionConstants.VERTICAL_FOV.times(dutyCycleAngle / 2);
+        inputs.distance = VisionConstants.MIN_DISTANCE.plus(
+                VisionConstants.MAX_DISTANCE.minus(VisionConstants.MIN_DISTANCE).times(dutyCycleDistance));
     }
 }

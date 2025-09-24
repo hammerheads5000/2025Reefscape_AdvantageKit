@@ -767,8 +767,9 @@ public class Constants {
                 new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(169))); // Degrees.of(172.6)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
-        public static final Angle HORIZONTAL_FOV = Degrees.of(63);
-        public static final Distance MAX_DISTANCE = Meters.of(2);
+        public static final Angle VERTICAL_FOV = Degrees.of(46);
+        public static final Distance MIN_DISTANCE = Millimeters.of(100);
+        public static final Distance MAX_DISTANCE = Millimeters.of(1000);
     }
 
     public static class FieldConstants {

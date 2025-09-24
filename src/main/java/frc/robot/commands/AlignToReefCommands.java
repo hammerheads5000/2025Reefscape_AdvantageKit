@@ -15,6 +15,7 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
 
 /** Container class for aligning to reef */
@@ -136,6 +137,19 @@ public class AlignToReefCommands {
         return new AlignAndFacePoseCommand(
                 getReefPose(side, relativePos),
                 getBranchPose(side, relativePos),
+                AlignConstants.SCORING_PID_TRANSLATION,
+                AlignConstants.SCORING_PID_ANGLE,
+                swerve);
+    }
+
+    public static AlignAndFacePoseCommand advancedAlignToReef(
+            int side, double relativePos, Swerve swerve, Vision vision) {
+        return new AlignAndFacePoseCommand(
+                getReefPose(side, relativePos),
+                getBranchPose(side, relativePos),
+                () -> vision.getRelativeBranchTransform()
+                        .map(transform -> swerve.getPose().plus(transform)) // convert to field-relative
+                        .orElse(getBranchPose(side, relativePos)), // default to static branch pose if no vision
                 AlignConstants.SCORING_PID_TRANSLATION,
                 AlignConstants.SCORING_PID_ANGLE,
                 swerve);

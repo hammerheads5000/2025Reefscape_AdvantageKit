@@ -16,15 +16,19 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -60,6 +64,18 @@ public class Vision extends SubsystemBase {
      */
     public Rotation2d getTargetX(int cameraIndex) {
         return inputs[cameraIndex].latestTarget.tx();
+    }
+
+    /**
+     * Returns branch transform relative to robot via reef vision. Returns null if branch is farther than
+     * PathConstants.SWITCH_TO_REEFVISION_DISTANCE
+     */
+    public Optional<Transform2d> getRelativeBranchTransform() {
+        if (reefInputs.distance.gt(PathConstants.SWITCH_TO_REEFVISION_DISTANCE)) {
+            return Optional.empty();
+        }
+        return Optional.of(new Transform2d(
+                new Translation2d(reefInputs.distance, Meters.zero()), new Rotation2d(reefInputs.angle)));
     }
 
     @Override

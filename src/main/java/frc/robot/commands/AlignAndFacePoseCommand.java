@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.ControlConstants;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -31,7 +32,8 @@ import org.littletonrobotics.junction.Logger;
  */
 public class AlignAndFacePoseCommand extends Command {
     private final Pose2d targetPose;
-    private final Pose2d poseToFace;
+    private Supplier<Pose2d> poseToFaceSupplier;
+    private Pose2d poseToFace;
     private final ProfiledPIDController pidControllerX;
     private final ProfiledPIDController pidControllerY;
     private final PIDController pidControllerAngle;
@@ -40,21 +42,26 @@ public class AlignAndFacePoseCommand extends Command {
     private final Swerve swerve;
 
     /**
-     * Aligns the robot to a given pose (translation) while facing that pose.
+     * Aligns the robot to a given pose (translation) while facing supplied pose.
      *
      * @param targetPose The target pose to align to.
+     * @param defaultPoseToFace The default pose to face if the supplier returns null.
+     * @param poseToFaceSupplier A supplier that provides the pose to face. If it returns null, the defaultPoseToFace is
+     *     used.
      * @param linearControlConstants The control constants for linear movement (meters).
      * @param angleControlConstants The control constants for angular movement (degrees).
      * @param swerve The swerve subsystem.
      */
     public AlignAndFacePoseCommand(
             Pose2d targetPose,
-            Pose2d poseToFace,
+            Pose2d defaultPoseToFace,
+            Supplier<Pose2d> poseToFaceSupplier,
             ControlConstants linearControlConstants,
             ControlConstants angleControlConstants,
             Swerve swerve) {
         this.targetPose = targetPose;
-        this.poseToFace = poseToFace;
+        this.poseToFaceSupplier = poseToFaceSupplier;
+        this.poseToFace = defaultPoseToFace;
         this.swerve = swerve;
 
         pidControllerX = linearControlConstants.getProfiledPIDController();
@@ -71,6 +78,24 @@ public class AlignAndFacePoseCommand extends Command {
                 .debounce(AlignConstants.ALIGN_TIME.in(Seconds), DebounceType.kRising);
 
         addRequirements(swerve);
+    }
+
+    /**
+     * Aligns the robot to a given pose (translation) while facing given pose.
+     *
+     * @param targetPose The target pose to align to.
+     * @param poseToFace The pose to face.
+     * @param linearControlConstants The control constants for linear movement (meters).
+     * @param angleControlConstants The control constants for angular movement (degrees).
+     * @param swerve The swerve subsystem.
+     */
+    public AlignAndFacePoseCommand(
+            Pose2d targetPose,
+            Pose2d poseToFace,
+            ControlConstants linearControlConstants,
+            ControlConstants angleControlConstants,
+            Swerve swerve) {
+        this(targetPose, poseToFace, () -> poseToFace, linearControlConstants, angleControlConstants, swerve);
     }
 
     // Called when the command is initially scheduled.
@@ -95,6 +120,8 @@ public class AlignAndFacePoseCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        processPoseToFace();
+
         pidControllerAngle.setSetpoint(Pathfinding.pointPoseTowards(swerve.getPose(), poseToFace)
                 .getRotation()
                 .getDegrees());
@@ -124,6 +151,13 @@ public class AlignAndFacePoseCommand extends Command {
 
     public Trigger withinDistanceToTarget(Distance distance) {
         return new Trigger(() -> getDistanceToTarget().lt(distance));
+    }
+
+    private void processPoseToFace() {
+        Pose2d pose = poseToFaceSupplier.get();
+        if (pose != null) {
+            poseToFace = pose;
+        }
     }
 
     // Called once the command ends or is interrupted.

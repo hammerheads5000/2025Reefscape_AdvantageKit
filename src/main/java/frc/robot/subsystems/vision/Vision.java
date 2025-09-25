@@ -124,7 +124,7 @@ public class Vision extends SubsystemBase {
 
         getRelativeBranchTransform()
                 .map(transform -> poseSupplier.get().plus(new Transform2d(transform, Rotation2d.kZero)))
-                .ifPresent((pose) -> Logger.recordOutput("Vision/ReefVision/BranchPos", pose));
+                .ifPresent((pose) -> Logger.recordOutput("ReefVision/BranchPos", pose));
     }
 
     /**

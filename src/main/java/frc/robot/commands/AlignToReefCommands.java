@@ -153,11 +153,14 @@ public class AlignToReefCommands {
                 getBranchPose(side, relativePos),
                 () -> {
                     Optional<Translation2d> pose = vision.getRelativeBranchTransform();
-                    if (!pose.isPresent() || elevator.getGoal().lte(VisionConstants.MIN_HEIGHT_FOR_ACCURACY)) {
-                        Logger.recordOutput("ReefVision/Dying", true);
+                    // filter out pose if not present, elevator is not at height, or too far from ideal branch pos
+                    if (!pose.isPresent() || elevator.getGoal().lte(VisionConstants.MIN_HEIGHT_FOR_ACCURACY) 
+                            || pose.get().getDistance(getBranchPose(side, relativePos).getTranslation()) 
+                                    > VisionConstants.MAX_DISTANCE_TO_BRANCH.in(Meters)) {
+                        Logger.recordOutput("ReefVision/Tracking", false);
                         return getBranchPose(side, relativePos);
                     } else {
-                        Logger.recordOutput("ReefVision/Dying", false);
+                        Logger.recordOutput("ReefVision/Tracking", true);
                         return swerve.getPose()
                                 .plus(new Transform2d(pose.get(), Rotation2d.kZero)); // convert to field-relative
                     }

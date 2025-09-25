@@ -17,6 +17,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,7 +53,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorVisualizer setpointVisualizer;
 
     // Triggers to detect stage changes
-    private final Trigger stageIs2 = new Trigger(() -> heightToStage(inputs.position) == Stage.STAGE2);
+    public final Trigger stageIs2 = new Trigger(() -> heightToStage(inputs.position) == Stage.STAGE2);
 
     public Elevator(
             ElevatorIO io,
@@ -113,6 +114,10 @@ public class Elevator extends SubsystemBase {
 
     public Distance getGoal() {
         return goal;
+    }
+
+    public LinearVelocity getVelocity() {
+        return inputs.velocity;
     }
 
     /** Returns true if the set goal is equivalent to the argument */

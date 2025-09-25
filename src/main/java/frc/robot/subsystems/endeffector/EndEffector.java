@@ -134,4 +134,10 @@ public class EndEffector extends SubsystemBase {
                 .until(coralDetectedTrigger.negate())
                 .withName("End Effector Right Trough");
     }
+
+    public Command adjustCoralCommand() {
+        return runCommand(EndEffectorConstants.ADJUST_SPEED)
+                .withTimeout(EndEffectorConstants.ADJUST_TIME)
+                .withName("End Effector Adjust");
+    }
 }

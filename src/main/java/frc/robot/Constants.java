@@ -537,10 +537,12 @@ public class Constants {
         public static final Voltage SCORE_SPEED = Volts.of(3);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
+        public static final Voltage ADJUST_SPEED =  Volts.of(-0.5);
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
         public static final Time STALL_TIME = Seconds.of(0.5);
+        public static final Time ADJUST_TIME = Seconds.of(0.1);
     }
 
     public static class IntakeConstants {

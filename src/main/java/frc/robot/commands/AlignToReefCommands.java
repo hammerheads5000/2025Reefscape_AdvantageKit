@@ -8,14 +8,18 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
 /** Container class for aligning to reef */
@@ -143,13 +147,21 @@ public class AlignToReefCommands {
     }
 
     public static AlignAndFacePoseCommand advancedAlignToReef(
-            int side, double relativePos, Swerve swerve, Vision vision) {
+            int side, double relativePos, Swerve swerve, Vision vision, Elevator elevator) {
         return new AlignAndFacePoseCommand(
                 getReefPose(side, relativePos),
                 getBranchPose(side, relativePos),
-                () -> vision.getRelativeBranchTransform()
-                        .map(transform -> swerve.getPose().plus(transform)) // convert to field-relative
-                        .orElse(getBranchPose(side, relativePos)), // default to static branch pose if no vision
+                () -> {
+                    Optional<Translation2d> pose = vision.getRelativeBranchTransform();
+                    if (!pose.isPresent() || elevator.getGoal().lte(VisionConstants.MIN_HEIGHT_FOR_ACCURACY)) {
+                        Logger.recordOutput("ReefVision/Dying", true);
+                        return getBranchPose(side, relativePos);
+                    } else {
+                        Logger.recordOutput("ReefVision/Dying", false);
+                        return swerve.getPose()
+                                .plus(new Transform2d(pose.get(), Rotation2d.kZero)); // convert to field-relative
+                    }
+                },
                 AlignConstants.SCORING_PID_TRANSLATION,
                 AlignConstants.SCORING_PID_ANGLE,
                 swerve);

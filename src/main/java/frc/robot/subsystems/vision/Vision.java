@@ -25,10 +25,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.PathConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
@@ -38,11 +40,13 @@ public class Vision extends SubsystemBase {
     private final Alert[] disconnectedAlerts;
     private final ReefVisionIO reefIO;
     private final ReefVisionIOInputsAutoLogged reefInputs;
+    private final Supplier<Pose2d> poseSupplier;
 
-    public Vision(VisionConsumer consumer, ReefVisionIO reefIO, VisionIO... io) {
+    public Vision(VisionConsumer consumer, Supplier<Pose2d> poseSupplier, ReefVisionIO reefIO, VisionIO... io) {
         this.consumer = consumer;
         this.io = io;
         this.reefIO = reefIO;
+        this.poseSupplier = poseSupplier;
 
         this.inputs = new VisionIOInputsAutoLogged[io.length];
         for (int i = 0; i < inputs.length; i++) {
@@ -70,12 +74,13 @@ public class Vision extends SubsystemBase {
      * Returns branch transform relative to robot via reef vision. Returns null if branch is farther than
      * PathConstants.SWITCH_TO_REEFVISION_DISTANCE
      */
-    public Optional<Transform2d> getRelativeBranchTransform() {
+    public Optional<Translation2d> getRelativeBranchTransform() {
         if (reefInputs.distance.gt(PathConstants.SWITCH_TO_REEFVISION_DISTANCE)) {
             return Optional.empty();
         }
-        return Optional.of(new Transform2d(
-                new Translation2d(reefInputs.distance, Meters.zero()), new Rotation2d(reefInputs.angle)));
+        return Optional.of(new Translation2d(reefInputs.distance, Meters.zero())
+                .plus(VisionConstants.TOF_CAM_POS)
+                .rotateBy(new Rotation2d(reefInputs.angle.unaryMinus())));
     }
 
     @Override
@@ -105,7 +110,7 @@ public class Vision extends SubsystemBase {
         }
 
         reefIO.updateInputs(reefInputs);
-        Logger.processInputs("ReefVision/", reefInputs);
+        Logger.processInputs("ReefVision", reefInputs);
 
         // Log summary data
         Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
@@ -116,6 +121,10 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput(
                 "Vision/Summary/RobotPosesRejected",
                 allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+
+        getRelativeBranchTransform()
+                .map(transform -> poseSupplier.get().plus(new Transform2d(transform, Rotation2d.kZero)))
+                .ifPresent((pose) -> Logger.recordOutput("Vision/ReefVision/BranchPos", pose));
     }
 
     /**

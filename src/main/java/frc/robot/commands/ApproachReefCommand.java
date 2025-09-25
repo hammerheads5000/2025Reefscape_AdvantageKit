@@ -10,14 +10,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.PathConstants;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.Vision;
 
 /** Follow generated path to reef if necessary, then align */
 public class ApproachReefCommand extends SequentialCommandGroup {
     private final AlignAndFacePoseCommand alignToReefCommand;
     /** Creates a new ApproachReefCommand. */
-    public ApproachReefCommand(int side, double relativePos, Swerve swerve) {
-        alignToReefCommand = AlignToReefCommands.alignToReefFacingBranch(side, relativePos, swerve);
+    public ApproachReefCommand(int side, double relativePos, Swerve swerve, Elevator elevator, Vision vision) {
+        alignToReefCommand = AlignToReefCommands.advancedAlignToReef(side, relativePos, swerve, vision, elevator);
 
         // don't generate path if too short
         if (alignToReefCommand

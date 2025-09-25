@@ -25,7 +25,6 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToReefCommands;
 import frc.robot.commands.ApproachBargeCommands;
-import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.AutoCoralCommand;
 import frc.robot.commands.FullAutoCommand;
 import frc.robot.commands.LollipopCommands;
@@ -226,6 +225,7 @@ public class RobotContainer {
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
+                        swerve::getPose,
                         new ReefVisionIOArducam(),
                         new VisionIOPhotonVision(
                                 VisionConstants.FRONT_LEFT_CAM_NAME, VisionConstants.FRONT_LEFT_CAM_POS),
@@ -260,6 +260,7 @@ public class RobotContainer {
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,
+                        swerve::getPose,
                         new ReefVisionIO() {},
                         new VisionIOPhotonVisionSim(
                                 VisionConstants.FRONT_LEFT_CAM_NAME,
@@ -288,7 +289,11 @@ public class RobotContainer {
                 coralDetection = new CoralDetection(new CoralDetectionIO() {}, swerve::getPose);
 
                 vision = new Vision(
-                        swerve::addVisionMeasurement, new ReefVisionIO() {}, new VisionIO() {}, new VisionIO() {});
+                        swerve::addVisionMeasurement,
+                        swerve::getPose,
+                        new ReefVisionIO() {},
+                        new VisionIO() {},
+                        new VisionIO() {});
                 break;
         }
 
@@ -308,7 +313,8 @@ public class RobotContainer {
                                         endEffector,
                                         algaeManipulator,
                                         intake,
-                                        coralDetection)),
+                                        coralDetection,
+                                        vision)),
                         Set.of(swerve, elevator))
                 .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
@@ -321,7 +327,8 @@ public class RobotContainer {
                                 endEffector,
                                 algaeManipulator,
                                 intake,
-                                coralDetection),
+                                coralDetection,
+                                vision),
                         Set.of(swerve, elevator))
                 .withName("Coral Search Auto");
 
@@ -353,9 +360,9 @@ public class RobotContainer {
         SmartDashboard.putData("Nearest Lollipop", lollipopCommand);
         SmartDashboard.putData("Process", processCommand);
 
-        ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
-        SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
-
+        // ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
+        // SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
+        // SmartDashboard.putData("Advanced Align", AlignToReefCommands.advancedAlignToReef(1, 1, swerve, vision));
         sweepCommand =
                 Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve)).withName("Sweep");
 
@@ -484,6 +491,7 @@ public class RobotContainer {
                 endEffector,
                 algaeManipulator,
                 intake,
-                coralDetection);
+                coralDetection,
+                vision);
     }
 }

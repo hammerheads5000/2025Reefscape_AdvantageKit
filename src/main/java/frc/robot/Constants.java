@@ -343,7 +343,7 @@ public class Constants {
                 .withPID(2, 0.5, 0.0)
                 .withFeedforward(1, 0)
                 .withTolerance(Inches.of(2).in(Meters), 0.1)
-                .withProfile(2, 3);
+                .withProfile(1, 2);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -370,7 +370,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.5);
+                new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -467,7 +467,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.571044921875)
+                .withMagnetOffset(-0.048828125)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -490,7 +490,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(55);
         public static final Distance L4_HEIGHT = Inches.of(78.8);
-        public static final Distance INTAKE_HEIGHT = Inches.of(11.0);
+        public static final Distance INTAKE_HEIGHT = Inches.of(10.0);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -763,14 +763,15 @@ public class Constants {
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
-                new Translation3d(Inches.of(0.51), Inches.of(10.32), Inches.of(33.92)),
-                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(169))); // Degrees.of(172.6)));
+                new Translation3d(Inches.of(0.88), Inches.of(10.25), Inches.of(34.08)),
+                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(172.6))); // Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);
-        public static final Distance MIN_DISTANCE = Millimeters.of(100);
+        public static final Distance MIN_DISTANCE = Millimeters.of(170);
         public static final Distance MAX_DISTANCE = Millimeters.of(1000);
-        public static final Distance MIN_HEIGHT_FOR_ACCURACY = Inches.of(64); // of elevator
+        public static final Distance MIN_HEIGHT_FOR_ACCURACY = Inches.of(70); // of elevator
+        public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
     }
 
     public static class FieldConstants {

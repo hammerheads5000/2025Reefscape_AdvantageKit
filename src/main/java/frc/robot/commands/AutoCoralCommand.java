@@ -121,7 +121,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                 PathPlannerPath.waypointsFromPoses(swerve.getPose(), approachPose, endPose),
                 PathConstants.APPROACH_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
-                new GoalEndState(0, endPose.getRotation()));
+                new GoalEndState(0, endPose.getRotation().rotateBy(Rotation2d.k180deg)));
+
+        path.preventFlipping = true;
 
         return AutoBuilder.followPath(path);
     }

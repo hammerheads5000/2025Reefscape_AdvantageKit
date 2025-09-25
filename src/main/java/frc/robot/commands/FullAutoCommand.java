@@ -24,6 +24,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.vision.Vision;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -35,6 +36,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
     AlgaeManipulator algaeManipulator;
     Intake intake;
     CoralDetection coralDetection;
+    Vision vision;
 
     private Command getCoralSearchCommand(int pos) {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
@@ -103,7 +105,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
             relativePos *= PathConstants.L1_RELATIVE_POS;
         }
 
-        ApproachReefCommand approachReefCommand = new ApproachReefCommand(side, relativePos, swerve);
+        ApproachReefCommand approachReefCommand = new ApproachReefCommand(side, relativePos, swerve, elevator, vision);
 
         Distance deployDistance;
         switch (Elevator.levelToStage(level)) {
@@ -149,7 +151,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
         Command commandToAdd;
         Command elevatorPosCommand;
 
-        ApproachReefCommand approachReefCommand = new ApproachReefCommand(side, relativePos, swerve);
+        ApproachReefCommand approachReefCommand = new ApproachReefCommand(side, relativePos, swerve, elevator, vision);
 
         if (DriverStation.isAutonomous()) {
             elevatorPosCommand = getElevatorTrackCommand(level, approachReefCommand::getDistanceToTarget);
@@ -248,13 +250,15 @@ public class FullAutoCommand extends SequentialCommandGroup {
             EndEffector endEffector,
             AlgaeManipulator algaeManipulator,
             Intake intake,
-            CoralDetection coralDetection) {
+            CoralDetection coralDetection,
+            Vision vision) {
         this.swerve = swerve;
         this.elevator = elevator;
         this.endEffector = endEffector;
         this.algaeManipulator = algaeManipulator;
         this.intake = intake;
         this.coralDetection = coralDetection;
+        this.vision = vision;
 
         String[] tokens = descriptorString.split(" ");
 

@@ -4,8 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-//#region Imports
+// #region Imports
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.wpilibj.Alert;
@@ -76,7 +75,7 @@ import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-//#endregion
+// #endregion
 
 public class RobotContainer {
     // Controllers
@@ -84,7 +83,7 @@ public class RobotContainer {
     private final CommandGenericHID buttonBoardReef = new CommandGenericHID(1);
     private final CommandGenericHID buttonBoardOther = new CommandGenericHID(2);
 
-    //#region Subsystems
+    // #region Subsystems
     @SuppressWarnings("unused")
     private final Vision vision;
 
@@ -95,9 +94,9 @@ public class RobotContainer {
     private final AlgaeManipulator algaeManipulator;
     private final Intake intake;
     private final CoralDetection coralDetection;
-    //#endregion
-    
-    //#region Commands
+    // #endregion
+
+    // #region Commands
     private final TeleopSwerve teleopSwerveCommand;
 
     private final Command rumbleCommand;
@@ -115,9 +114,9 @@ public class RobotContainer {
     private final Command lollipopCommand;
 
     private final AutoCoralCommand autoCoralCommand;
-    //#endregion
-    
-    //#region Triggers
+    // #endregion
+
+    // #region Triggers
     private final Trigger algaeButtonLayerTrigger = driveController.leftTrigger();
     private final Trigger speedUpTrigger = driveController.rightTrigger();
     // private final Trigger slowDownTrigger = driveController.leftTrigger();
@@ -179,9 +178,9 @@ public class RobotContainer {
     };
 
     private final Trigger[] coralSearchTriggers = new Trigger[6];
-    //#endregion
-    
-    //#region Alerts
+    // #endregion
+
+    // #region Alerts
     private final Alert lowBatteryAlert = new Alert("Low Battery Voltage!", AlertType.kError);
     private final Notification lowBatteryNotification = new Notification(
             NotificationLevel.ERROR,
@@ -197,8 +196,8 @@ public class RobotContainer {
 
     private final Trigger endgameTrigger =
             new Trigger(() -> (DriverStation.isTeleop() && DriverStation.getMatchTime() < 20));
-    //#endregion
-    
+    // #endregion
+
     public RobotContainer() {
         AlignToReefCommands.testReefPoses();
         AlignToReefCommands.testBranchPoses();
@@ -208,7 +207,7 @@ public class RobotContainer {
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set("A4");
         NTConstants.SEARCH_POS_TELEOP_AUTO_ENTRY.set("S0");
 
-        //#region Instantiate Subsystems
+        // #region Instantiate Subsystems
         switch (Constants.CURRENT_MODE) {
             case REAL:
                 swerve = new Swerve(
@@ -305,9 +304,9 @@ public class RobotContainer {
                         new VisionIO() {});
                 break;
         }
-        //#endregion
-        
-        //#region Instantiate Commands
+        // #endregion
+
+        // #region Instantiate Commands
         teleopSwerveCommand = new TeleopSwerve(swerve, driveController);
 
         rumbleCommand = Commands.startEnd(
@@ -388,11 +387,14 @@ public class RobotContainer {
         endgameTrigger.onTrue(Commands.runOnce(() -> Elastic.selectTab("Endgame")));
 
         // adjust coral when elevator is being raised
-        elevator.stageIs2.onFalse(endEffector.adjustCoralCommand().onlyIf(() -> elevator.getVelocity().gt(MetersPerSecond.zero())));
+        Trigger aboveAdjustHeightTrigger =
+                new Trigger(() -> elevator.getHeight().gt(EndEffectorConstants.CORAL_ADJUST_HEIGHT)).debounce(0.1);
+        aboveAdjustHeightTrigger.onTrue(endEffector.adjustCoralCommand());
+        aboveAdjustHeightTrigger.onFalse(endEffector.unAdjustCoralCommand());
 
         autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection);
-        //#endregion
-        
+        // #endregion
+
         SmartDashboard.putData("Coral Search Auto", coralSearchCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
         SmartDashboard.putData("Algae Auto", algaeCommand);
@@ -473,7 +475,7 @@ public class RobotContainer {
 
         noAutoSelected.set(NTConstants.AUTO_DESCRIPTOR_ENTRY.get().equals(""));
     }
-    //#region Auto Descriptor Setters 
+    // #region Auto Descriptor Setters
     private void setTeleopAutoDescriptorLetter(char letter) {
         String descriptor = NTConstants.REEF_TELEOP_AUTO_ENTRY.get();
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set(letter + descriptor.substring(1));
@@ -497,7 +499,7 @@ public class RobotContainer {
         return Commands.startEnd(() -> setAlgaeAutoDescriptor(true), () -> setAlgaeAutoDescriptor(false))
                 .withName("Toggle Algae");
     }
-    //#endregion
+    // #endregion
 
     public Command getAutonomousCommand() {
         return new FullAutoCommand(

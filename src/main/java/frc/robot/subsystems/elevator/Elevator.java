@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -85,6 +86,7 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putData("L3", goToL3Command(true));
         SmartDashboard.putData("L4", goToL4Command(true));
         SmartDashboard.putData("Intake", goToIntakePosCommand(true));
+        SmartDashboard.putData("Reset Encoder", resetEncoderCommand());
         SmartDashboard.putData("Zero Encoder", zeroEncoderCommand());
     }
 
@@ -118,6 +120,10 @@ public class Elevator extends SubsystemBase {
 
     public LinearVelocity getVelocity() {
         return inputs.velocity;
+    }
+
+    public Distance getHeight() {
+        return inputs.position;
     }
 
     /** Returns true if the set goal is equivalent to the argument */
@@ -154,8 +160,15 @@ public class Elevator extends SubsystemBase {
      * Resets encoder to within a rotation. Note this does not zero the encoder to the exact current position, but to
      * the aboslute position within a rotation that represents 0
      */
+    public Command resetEncoderCommand() {
+        return this.runOnce(io::resetEncoder).withName("Reset Encoder");
+    }
+
     public Command zeroEncoderCommand() {
-        return this.runOnce(io::zeroEncoder).withName("Zero Encoder");
+        return elevatorDownCommand()
+                .until(() -> inputs.outputCurrent.abs(Amps) >= ElevatorConstants.STALL_CURRENT.in(Amps))
+                .andThen(io::zeroEncoder)
+                .withName("Zero Encoder");
     }
 
     public Command goToHeightCommand(boolean instant, Distance goal) {

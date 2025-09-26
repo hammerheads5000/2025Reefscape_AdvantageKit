@@ -136,8 +136,14 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Command adjustCoralCommand() {
-        return runCommand(EndEffectorConstants.ADJUST_SPEED)
+        return runCommand(EndEffectorConstants.ADJUST_SPEED.unaryMinus())
                 .withTimeout(EndEffectorConstants.ADJUST_TIME)
+                .withName("End Effector Adjust");
+    }
+
+    public Command unAdjustCoralCommand() {
+        return runCommand(EndEffectorConstants.ADJUST_SPEED)
+                .withTimeout(EndEffectorConstants.UNADJUST_TIME)
                 .withName("End Effector Adjust");
     }
 }

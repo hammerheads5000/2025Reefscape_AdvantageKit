@@ -42,6 +42,9 @@ public interface ElevatorIO {
 
     public default void setManualOverride(boolean override) {}
 
-    /** Resets encoder position to current absolute position */
+    /** Resets encoder position to current absolute position w/i a rotation */
+    public default void resetEncoder() {}
+
+    /** Zeroes encoder position to current absolute position (overwrites config) */
     public default void zeroEncoder() {}
 }

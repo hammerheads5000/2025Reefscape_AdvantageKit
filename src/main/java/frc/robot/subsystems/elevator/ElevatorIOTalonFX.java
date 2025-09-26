@@ -116,7 +116,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void zeroEncoder() {
+    public void resetEncoder() {
         encoder.setPosition(encoder.getAbsolutePosition().getValue().in(Rotations) % 1);
+    }
+
+    @Override
+    public void zeroEncoder() {
+        encoder.setPosition(0);
     }
 }

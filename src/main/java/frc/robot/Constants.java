@@ -370,7 +370,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(6, 2, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(4, 0.5, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -441,7 +441,7 @@ public class Constants {
                 .withKV(0.5)
                 .withKA(0.01)
                 .withKS(0.12)
-                .withKG(0.35)
+                .withKG(0.4)
                 .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
                 .withKP(15)
@@ -450,7 +450,7 @@ public class Constants {
                 .withKV(0.55)
                 .withKA(0.015)
                 .withKS(0.15)
-                .withKG(0.38)
+                .withKG(0.41)
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
@@ -467,7 +467,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.048828125)
+                .withMagnetOffset(-0.309326171875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -478,7 +478,7 @@ public class Constants {
         public static final Voltage MANUAL_UP_SPEED = Volts.of(3.6);
         public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-2.4);
 
-        public static final Current STALL_CURRENT = Amps.of(55);
+        public static final Current STALL_CURRENT = Amps.of(60);
 
         // Sim constants
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
@@ -489,7 +489,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(29);
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(55);
-        public static final Distance L4_HEIGHT = Inches.of(78.8);
+        public static final Distance L4_HEIGHT = Inches.of(78);
         public static final Distance INTAKE_HEIGHT = Inches.of(10.0);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -534,15 +534,18 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(3);
+        public static final Voltage SCORE_SPEED = Volts.of(2.5);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
-        public static final Voltage ADJUST_SPEED =  Volts.of(-0.5);
+        public static final Voltage ADJUST_SPEED = Volts.of(1);
 
         public static final Time COOLER_INTAKE_CYCLE = Seconds.of(0.1);
         public static final AngularVelocity MIN_VEL = RotationsPerSecond.of(2);
         public static final Time STALL_TIME = Seconds.of(0.5);
-        public static final Time ADJUST_TIME = Seconds.of(0.1);
+        public static final Time ADJUST_TIME = Seconds.of(0.15);
+        public static final Time UNADJUST_TIME = Seconds.of(0.1);
+
+        public static final Distance CORAL_ADJUST_HEIGHT = Meters.of(1.3);
     }
 
     public static class IntakeConstants {
@@ -554,7 +557,7 @@ public class Constants {
 
         public static final int ENCODER_ID = 21;
 
-        public static final Distance INTAKE_EXTENSION = Inches.of(13.5);
+        public static final Distance INTAKE_EXTENSION = Inches.of(10.5);
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
@@ -773,7 +776,8 @@ public class Constants {
         public static final Distance MIN_DISTANCE = Millimeters.of(170);
         public static final Distance MAX_DISTANCE = Millimeters.of(1000);
         public static final Distance MIN_HEIGHT_FOR_ACCURACY = Inches.of(70); // of elevator
-        public static final Distance MAX_DISTANCE_TO_BRANCH = Inches.of(5); // max distance from detected branch to ideal branch pos
+        public static final Distance MAX_DISTANCE_TO_BRANCH =
+                Inches.of(15); // max distance from detected branch to ideal branch pos
         public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
     }
 
@@ -868,15 +872,15 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(10);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(20);
         public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(30);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(3);
         public static final Distance FLIP_DISTANCE = Inches.of(80);
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
-        public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(30);
-        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(20);
+        public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(20);
+        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(30);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side

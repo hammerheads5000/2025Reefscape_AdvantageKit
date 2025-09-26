@@ -67,5 +67,12 @@ public class IntakeVisualizer {
         }
 
         Logger.recordOutput("Mechanism3d/Intake/Coral", coral);
+
+        Logger.recordOutput(
+                "Mechanism3d/Intake/Intake",
+                new Pose3d(poseSupplier.get())
+                        .transformBy(new Transform3d(
+                                new Translation3d(-0.12, 0, 0.2),
+                                new Rotation3d(Degrees.zero(), position, Degrees.of(0)))));
     }
 }

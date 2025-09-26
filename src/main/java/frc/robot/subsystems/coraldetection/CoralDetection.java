@@ -20,9 +20,11 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import java.util.List;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class CoralDetection extends SubsystemBase {
@@ -88,6 +90,7 @@ public class CoralDetection extends SubsystemBase {
         Logger.recordOutput("CoralDetection/CoralPoses", poses);
     }
 
+    @AutoLogOutput
     public Translation2d getClosestCoral() {
         Translation2d closest = null;
         Translation2d robotPos = poseSupplier.get().getTranslation();
@@ -104,10 +107,15 @@ public class CoralDetection extends SubsystemBase {
         if (corals.length == 0) {
             return;
         }
+        if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
+            // In sim, the corals are already in field-relative coordinates
+            coralList = List.of(corals);
+            return;
+        }
         coralList = List.of(corals).stream()
                 .map(this::projectCoralPosition)
                 .map(this::robotToFieldRelative)
-                .filter(this::coralInBounds)
+                // .filter(this::coralInBounds)
                 .toList();
     }
 

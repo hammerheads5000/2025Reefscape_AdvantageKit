@@ -7,6 +7,7 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -67,12 +68,8 @@ public class IntakeVisualizer {
         }
 
         Logger.recordOutput("Mechanism3d/Intake/Coral", coral);
-
         Logger.recordOutput(
                 "Mechanism3d/Intake/Intake",
-                new Pose3d(poseSupplier.get())
-                        .transformBy(new Transform3d(
-                                new Translation3d(-0.12, 0, 0.2),
-                                new Rotation3d(Degrees.zero(), position, Degrees.of(0)))));
+                new Pose3d(new Translation3d(-0.12, 0, 0.2), new Rotation3d(0, position.in(Radians), 0)));
     }
 }

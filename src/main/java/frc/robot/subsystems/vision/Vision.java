@@ -74,13 +74,21 @@ public class Vision extends SubsystemBase {
      * Returns branch transform relative to robot via reef vision. Returns null if branch is farther than
      * PathConstants.SWITCH_TO_REEFVISION_DISTANCE
      */
-    public Optional<Translation2d> getRelativeBranchTransform() {
+    public Optional<Translation2d> getRelativeBranchPos() {
         if (reefInputs.distance.gt(PathConstants.SWITCH_TO_REEFVISION_DISTANCE)) {
             return Optional.empty();
         }
         return Optional.of(new Translation2d(reefInputs.distance, Meters.zero())
                 .plus(VisionConstants.TOF_CAM_POS)
                 .rotateBy(new Rotation2d(reefInputs.angle.unaryMinus())));
+    }
+
+    /**
+     * Returns branch position on the field via reef vision. Returns empty if branch is farther than
+     * PathConstants.SWITCH_TO_REEFVISION_DISTANCE
+     */
+    public Optional<Pose2d> getBranchPos() {
+        return getRelativeBranchPos().map(pos -> poseSupplier.get().plus(new Transform2d(pos, Rotation2d.kZero)));
     }
 
     @Override
@@ -122,9 +130,7 @@ public class Vision extends SubsystemBase {
                 "Vision/Summary/RobotPosesRejected",
                 allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
 
-        getRelativeBranchTransform()
-                .map(transform -> poseSupplier.get().plus(new Transform2d(transform, Rotation2d.kZero)))
-                .ifPresent((pose) -> Logger.recordOutput("ReefVision/BranchPos", pose));
+        getBranchPos().ifPresent(pos -> Logger.recordOutput("ReefVision/BranchPos", pos));
     }
 
     /**

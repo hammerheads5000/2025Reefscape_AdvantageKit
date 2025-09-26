@@ -89,13 +89,6 @@ public class CoralDetection extends SubsystemBase {
     }
 
     public Translation2d getClosestCoral() {
-        // Translation2d closest = null;
-        // for (var coral : inputs.corals) {
-        //     if (closest == null || coral.getY() < closest.getY()) {
-        //         closest = coral;
-        //     }
-        // }
-        // return closest;
         Translation2d closest = null;
         Translation2d robotPos = poseSupplier.get().getTranslation();
         for (var coral : coralList) {
@@ -114,7 +107,7 @@ public class CoralDetection extends SubsystemBase {
         coralList = List.of(corals).stream()
                 .map(this::projectCoralPosition)
                 .map(this::robotToFieldRelative)
-                // .filter(this::coralInBounds)
+                .filter(this::coralInBounds)
                 .toList();
     }
 

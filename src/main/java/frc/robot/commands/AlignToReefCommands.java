@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -151,28 +150,36 @@ public class AlignToReefCommands {
         return new AlignAndFacePoseCommand(
                 getReefPose(side, relativePos),
                 getBranchPose(side, relativePos),
-                () -> {
-                    Optional<Translation2d> pose = vision.getRelativeBranchTransform();
-                    // filter out pose if not present, elevator is not at height, or too far from ideal branch pos
-                    if (!pose.isPresent()
-                            || elevator.getGoal().lte(VisionConstants.MIN_HEIGHT_FOR_ACCURACY)
-                            || swerve.getPose()
-                                            .plus(new Transform2d(pose.get(), Rotation2d.kZero))
-                                            .getTranslation()
-                                            .getDistance(getBranchPose(side, relativePos)
-                                                    .getTranslation())
-                                    > VisionConstants.MAX_DISTANCE_TO_BRANCH.in(Meters)) {
-                        Logger.recordOutput("ReefVision/Tracking", false);
-                        return getBranchPose(side, relativePos);
-                    } else {
-                        Logger.recordOutput("ReefVision/Tracking", true);
-                        return swerve.getPose()
-                                .plus(new Transform2d(pose.get(), Rotation2d.kZero)); // convert to field-relative
-                    }
-                },
+                () -> processBranchPos(side, relativePos, swerve, vision, elevator),
                 AlignConstants.SCORING_PID_TRANSLATION,
                 AlignConstants.SCORING_PID_ANGLE,
                 swerve);
+    }
+
+    private static Pose2d processBranchPos(
+            int side, double relativePos, Swerve swerve, Vision vision, Elevator elevator) {
+        Optional<Pose2d> branchPosOptional = vision.getBranchPos();
+        if (branchPosOptional.isEmpty()) {
+            Logger.recordOutput("ReefVision/Tracking", "no target");
+            return getBranchPose(side, relativePos);
+        }
+        if (elevator.getHeight().lte(VisionConstants.MIN_HEIGHT_FOR_ACCURACY)) {
+            Logger.recordOutput("ReefVision/Tracking", "elevator too low");
+            return getBranchPose(side, relativePos);
+        }
+
+        Pose2d branchPos = branchPosOptional.get();
+
+        if (branchPos
+                        .getTranslation()
+                        .getDistance(getBranchPose(side, relativePos).getTranslation())
+                > VisionConstants.MAX_DISTANCE_TO_BRANCH.in(Meters)) {
+            Logger.recordOutput("ReefVision/Tracking", "too far from ideal");
+            return getBranchPose(side, relativePos);
+        }
+
+        Logger.recordOutput("ReefVision/Tracking", "tracking");
+        return branchPos;
     }
 
     public static void testReefPoses() {

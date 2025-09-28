@@ -26,6 +26,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
+import com.ctre.phoenix6.signals.S2CloseStateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -370,7 +371,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(4, 0.5, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(2, 1, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -445,7 +446,7 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
                 .withKP(15)
-                .withKI(5)
+                .withKI(7)
                 .withKD(0.1)
                 .withKV(0.55)
                 .withKA(0.015)
@@ -467,7 +468,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.309326171875)
+                .withMagnetOffset(-0.303466796875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -484,13 +485,13 @@ public class Constants {
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
 
         // Setpoints (from floor)
-        public static final Distance MIN_HEIGHT = Inches.of(9);
+        public static final Distance MIN_HEIGHT = Inches.of(10);
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(29);
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(55);
-        public static final Distance L4_HEIGHT = Inches.of(78);
-        public static final Distance INTAKE_HEIGHT = Inches.of(10.0);
+        public static final Distance L4_HEIGHT = Inches.of(80);
+        public static final Distance INTAKE_HEIGHT = Inches.of(10.2);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -528,6 +529,7 @@ public class Constants {
                 new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)).withStatorCurrentLimitEnable(false);
 
         // Coral detection
+        public static final int LIDAR_ID = 9; // DIO
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(45);
         public static final Time CORAL_SHOOT_TIME = Seconds.of(0.2);
 
@@ -633,8 +635,10 @@ public class Constants {
                 .withMagnetOffset(0.248046875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
-        public static final DigitalInputsConfigs CANDI_CONFIGS =
-                new DigitalInputsConfigs().withS1CloseState(S1CloseStateValue.CloseWhenLow);
+        // S1 = align, S2 = beam break
+        public static final DigitalInputsConfigs CANDI_CONFIGS = new DigitalInputsConfigs()
+                .withS1CloseState(S1CloseStateValue.CloseWhenLow)
+                .withS2CloseState(S2CloseStateValue.CloseWhenNotLow);
 
         public static final Voltage INTAKE_SPEED = Volts.of(8);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3);

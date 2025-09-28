@@ -28,7 +28,7 @@ public class EndEffector extends SubsystemBase {
 
     @AutoLogOutput
     public Trigger coralDetectedTrigger =
-            new Trigger(this::rawHasCoral).debounce(0.1).or(isSim.and(() -> simHasCoral));
+            new Trigger(() -> inputs.hasPiece).debounce(0.1).or(isSim.and(() -> simHasCoral));
 
     private boolean intaking = false;
 
@@ -55,13 +55,6 @@ public class EndEffector extends SubsystemBase {
 
         leftDisconnectedAlert.set(!inputs.leftConnected);
         rightDisconnectedAlert.set(!inputs.rightConnected);
-    }
-
-    private boolean rawHasCoral() {
-        return inputs.leftTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT)
-                || inputs.leftTorqueCurrent.lte(EndEffectorConstants.CORAL_DETECTION_CURRENT.unaryMinus())
-                || inputs.rightTorqueCurrent.gte(EndEffectorConstants.CORAL_DETECTION_CURRENT)
-                || inputs.rightTorqueCurrent.lte(EndEffectorConstants.CORAL_DETECTION_CURRENT.unaryMinus());
     }
 
     public void setSpeed(Voltage speed) {

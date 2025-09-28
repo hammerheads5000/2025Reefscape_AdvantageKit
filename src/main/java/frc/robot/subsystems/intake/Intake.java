@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -89,9 +88,7 @@ public class Intake extends SubsystemBase {
     }
 
     private boolean rawCoralDetected() {
-        return inputs.alignLidar
-                || (intakingTimer.hasElapsed(IntakeConstants.INTAKE_STARTUP_TIME.in(Seconds))
-                        && inputs.intakeCurrent.gte(IntakeConstants.CORAL_DETECTION_CURRENT));
+        return inputs.alignLidar || inputs.coralDetected;
     }
 
     public Command toggleCommand(boolean instant) {

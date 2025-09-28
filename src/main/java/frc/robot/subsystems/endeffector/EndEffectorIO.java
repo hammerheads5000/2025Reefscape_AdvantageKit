@@ -17,6 +17,8 @@ public interface EndEffectorIO {
         public AngularVelocity rightVelocity = RadiansPerSecond.zero();
         public Current leftTorqueCurrent = Amps.zero();
         public Current rightTorqueCurrent = Amps.zero();
+
+        public boolean hasPiece = false;
     }
 
     default void updateInputs(EndEffectorIOInputs inputs) {}

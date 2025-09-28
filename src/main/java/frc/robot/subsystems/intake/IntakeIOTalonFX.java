@@ -70,6 +70,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         inputs.deployTorqueCurrent = deployMotor.getTorqueCurrent().getValue();
 
         inputs.alignLidar = lidarCANdi.getS1Closed().getValue();
+        inputs.coralDetected = lidarCANdi.getS2Closed().getValue();
 
         inputs.setpointPos = Rotations.of(deployMotor.getClosedLoopReference().getValue());
         inputs.setpointVel =

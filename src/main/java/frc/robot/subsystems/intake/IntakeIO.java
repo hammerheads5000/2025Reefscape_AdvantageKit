@@ -33,6 +33,7 @@ public interface IntakeIO {
         public Current deployTorqueCurrent = Amps.zero();
 
         public boolean alignLidar = false;
+        public boolean coralDetected = false; // beam break sensor
 
         public Angle position = Radians.zero();
     }

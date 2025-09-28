@@ -11,6 +11,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.Constants.EndEffectorConstants;
 
@@ -20,6 +21,8 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
 
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final NeutralOut neutralRequest = new NeutralOut();
+
+    private final DigitalInput lidar = new DigitalInput(EndEffectorConstants.LIDAR_ID);
 
     private final Debouncer leftConnectedDebouncer = new Debouncer(0.5);
     private final Debouncer rightConnectedDebouncer = new Debouncer(0.5);
@@ -43,6 +46,7 @@ public class EndEffectorIOTalonFX implements EndEffectorIO {
         inputs.rightVelocity = rightMotor.getVelocity().getValue();
         inputs.leftTorqueCurrent = leftMotor.getTorqueCurrent().getValue();
         inputs.rightTorqueCurrent = rightMotor.getTorqueCurrent().getValue();
+        inputs.hasPiece = !lidar.get();
     }
 
     @Override

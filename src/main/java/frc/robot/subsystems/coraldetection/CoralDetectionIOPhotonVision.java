@@ -6,10 +6,13 @@ package frc.robot.subsystems.coraldetection;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** Add your docs here. */
 public class CoralDetectionIOPhotonVision implements CoralDetectionIO {
@@ -33,13 +36,25 @@ public class CoralDetectionIOPhotonVision implements CoralDetectionIO {
 
         List<Translation2d> observations = new LinkedList<>();
         for (var result : camera.getAllUnreadResults()) {
-            if (result.hasTargets()) {
-                observations.add(new Translation2d(
-                        result.getBestTarget().getYaw(), result.getBestTarget().getPitch()));
-            }
+            observations.addAll(processResult(result));
         }
 
         inputs.corals = observations.toArray(Translation2d[]::new);
         Logger.recordOutput("CoralDetection/Corals", inputs.corals);
+    }
+
+    private List<Translation2d> processResult(PhotonPipelineResult result) {
+        List<Translation2d> observations = new ArrayList<Translation2d>();
+        if (!result.hasTargets()) {
+            return observations;
+        }
+
+        for (PhotonTrackedTarget target : result.getTargets()) {
+            if (target.getDetectedObjectClassID() == 1) {
+                observations.add(new Translation2d(target.getYaw(), target.getPitch()));
+            }
+        }
+
+        return observations;
     }
 }

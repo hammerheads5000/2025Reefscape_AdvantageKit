@@ -108,9 +108,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     }
 
     private Command pathfindToCoralCommand(Translation2d coralPose, Pose2d nearestBoundaryPose) {
-        double coralDistToWall = coralPose.getDistance(nearestBoundaryPose.getTranslation());
-        double endRobotDistToWall =
-                coralDistToWall + Dimensions.ROBOT_SIZE.in(Meters) / 2 + IntakeConstants.INTAKE_EXTENSION.in(Meters);
+        double endRobotDistToWall = Dimensions.ROBOT_SIZE.in(Meters) / 2 + IntakeConstants.INTAKE_EXTENSION.in(Meters);
 
         Pose2d endPose = nearestBoundaryPose.transformBy(
                 new Transform2d(new Translation2d(endRobotDistToWall, 0), Rotation2d.k180deg));
@@ -118,7 +116,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                 new Translation2d(-PathConstants.CORAL_APPROACH_DISTANCE.in(Meters), 0), Rotation2d.kZero));
 
         PathPlannerPath path = new PathPlannerPath(
-                PathPlannerPath.waypointsFromPoses(swerve.getPose(), approachPose, endPose),
+                PathPlannerPath.waypointsFromPoses(swerve.getPose().rotateAround(swerve.getPose().getTranslation(), Rotation2d.k180deg), approachPose, endPose),
                 PathConstants.APPROACH_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
                 new GoalEndState(0, endPose.getRotation().rotateBy(Rotation2d.k180deg)));

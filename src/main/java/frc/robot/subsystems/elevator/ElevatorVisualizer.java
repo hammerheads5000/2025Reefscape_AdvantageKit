@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -17,6 +20,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.Mode;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -38,7 +42,7 @@ public class ElevatorVisualizer {
 
     private final LoggedMechanism2d mechanism =
             new LoggedMechanism2d(Inches.of(30).in(Meters), Inches.of(95).in(Meters), new Color8Bit(Color.kAliceBlue));
-    private final Translation2d rootPos = new Translation2d(0.6, 0.1);
+    private final Translation2d rootPos = new Translation2d(0.47, 0.04);
     private final LoggedMechanismLigament2d ligament;
     private final LoggedMechanismLigament2d algaeManipulatorLigamentBottom;
 
@@ -77,7 +81,7 @@ public class ElevatorVisualizer {
                 new Pose3d(poseSupplier.get())
                         .transformBy(new Transform3d(
                                 new Translation3d(rootPos.getX() / 2, 0, rootPos.getY() + height.in(Meters)),
-                                new Rotation3d()))
+                                new Rotation3d(0, ElevatorConstants.SHOOT_ANGLE.in(Radians), 0)))
             };
         } else {
             coral = new Pose3d[] {};
@@ -90,7 +94,7 @@ public class ElevatorVisualizer {
                         .transformBy(new Transform3d(
                                 new Translation3d(
                                         rootPos.getX() / 2 + 0.15, 0, rootPos.getY() + height.in(Meters) + 0.2),
-                                new Rotation3d()))
+                                new Rotation3d(0, 0, 0)))
             };
         } else {
             algae = new Pose3d[] {};
@@ -98,5 +102,40 @@ public class ElevatorVisualizer {
 
         Logger.recordOutput("Mechanism3d/" + name + "/Coral", coral);
         Logger.recordOutput("Mechanism3d/" + name + "/Algae", algae);
+
+        double stage3Height = MathUtil.clamp(height.in(Meters), 0, ElevatorConstants.MAX_HEIGHT.in(Meters));
+        double stage2Height = MathUtil.clamp(
+                height.in(Meters) - ElevatorConstants.STAGE2_HEIGHT.in(Meters),
+                0,
+                ElevatorConstants.STAGE1_HEIGHT
+                        .plus(ElevatorConstants.STAGE2_HEIGHT)
+                        .in(Meters));
+        double stage1Height = MathUtil.clamp(
+                height.in(Meters) - ElevatorConstants.STAGE1_HEIGHT.in(Meters),
+                0,
+                ElevatorConstants.STAGE2_HEIGHT.in(Meters));
+
+        Logger.recordOutput("Mechanism3d/Zero", new Pose3d());
+        Logger.recordOutput(
+                "Mechanism3d/" + name + "/Stage1",
+                new Pose3d(new Translation3d(0.09, 0, stage1Height + 0.143), new Rotation3d(0, 0, 0)));
+        Logger.recordOutput(
+                "Mechanism3d/" + name + "/Stage2",
+                new Pose3d(new Translation3d(0.09, 0, stage2Height + 0.169), new Rotation3d(0, 0, 0)));
+        Logger.recordOutput(
+                "Mechanism3d/" + name + "/EndEffector",
+                new Pose3d(
+                        new Translation3d(0.09, 0, stage3Height - ElevatorConstants.MIN_HEIGHT.in(Meters) + 0.195),
+                        new Rotation3d(0, 0, 0)));
+        Logger.recordOutput(
+                "Mechanism3d/" + name + "/Hinge",
+                new Pose3d(
+                        new Translation3d(0.28, 0, stage3Height - ElevatorConstants.MIN_HEIGHT.in(Meters) + 0.36),
+                        new Rotation3d(
+                                0,
+                                algaeDeployed.getAsBoolean()
+                                        ? 0
+                                        : Degrees.of(-80).in(Radians),
+                                0)));
     }
 }

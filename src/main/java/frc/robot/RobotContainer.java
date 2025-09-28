@@ -45,6 +45,7 @@ import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.coraldetection.CoralDetection;
 import frc.robot.subsystems.coraldetection.CoralDetectionIO;
 import frc.robot.subsystems.coraldetection.CoralDetectionIOPhotonVision;
+import frc.robot.subsystems.coraldetection.CoralDetectionIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -264,7 +265,7 @@ public class RobotContainer {
                         swerve::getPose);
                 climber = new Climber(new ClimberIOSim());
                 intake = new Intake(new IntakeIOSim(), swerve::getPose);
-                coralDetection = new CoralDetection(new CoralDetectionIO() {}, swerve::getPose);
+                coralDetection = new CoralDetection(new CoralDetectionIOSim(), swerve::getPose);
 
                 vision = new Vision(
                         swerve::addVisionMeasurement,

@@ -120,11 +120,11 @@ public class Pathfinding {
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 
         // if robot is moving fast enough (and in teleop), smoothly transition into path
-        if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {
-            poses.add(0, pointPoseTowards(currentPose, poses.get(0)));
-        } else {
-            poses.add(0, new Pose2d(currentPose.getTranslation(), chassisSpeedsToHeading(startSpeeds)));
-        }
+        // if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {
+        poses.add(0, pointPoseTowards(currentPose, poses.get(0)));
+        // } else {
+        //     poses.add(0, new Pose2d(currentPose.getTranslation(), chassisSpeedsToHeading(startSpeeds)));
+        // }
 
         // add rotation target for end pose
         ArrayList<RotationTarget> rotationTargets = new ArrayList<>();

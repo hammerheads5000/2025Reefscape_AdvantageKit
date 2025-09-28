@@ -67,7 +67,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                         .withTimeout(IntakeConstants.CORAL_TIMEOUT)
                         .repeatedly() // will keep restarting after timeout until coral detected in intake
                         .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
-                this.intake.startSlowIntakeCommand());
+                this.intake.startSlowIntakeCommand(),
+                Commands.waitSeconds(0.05),
+                Commands.runOnce(() -> this.swerve.stop()));
     }
 
     private Command driveTowardsCoral() {
@@ -85,9 +87,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                 () -> {
                     Translation2d closestCoral = coralDetection.getClosestCoral();
                     if (closestCoral == null) {
-                        Translation2d vel = accelerationLimiter.calculate(new Translation2d());
+                        // Translation2d vel = accelerationLimiter.calculate(new Translation2d());
                         swerve.driveFieldCentric(
-                                vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), RadiansPerSecond.zero());
+                                MetersPerSecond.zero(), MetersPerSecond.zero(), RadiansPerSecond.zero());
                         return;
                     }
 
@@ -95,11 +97,12 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                     vel = vel.div(vel.getNorm());
                     vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
                     vel = accelerationLimiter.calculate(vel);
-                    vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
 
                     AngularVelocity omega = RadiansPerSecond.of(rotationController.calculate(
                             swerve.getPose().getRotation().getRadians(),
                             vel.getAngle().plus(Rotation2d.k180deg).getRadians()));
+
+                    vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
 
                     swerve.driveFieldCentric(
                             vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
@@ -116,7 +119,10 @@ public class AutoCoralCommand extends SequentialCommandGroup {
                 new Translation2d(-PathConstants.CORAL_APPROACH_DISTANCE.in(Meters), 0), Rotation2d.kZero));
 
         PathPlannerPath path = new PathPlannerPath(
-                PathPlannerPath.waypointsFromPoses(swerve.getPose().rotateAround(swerve.getPose().getTranslation(), Rotation2d.k180deg), approachPose, endPose),
+                PathPlannerPath.waypointsFromPoses(
+                        swerve.getPose().rotateAround(swerve.getPose().getTranslation(), Rotation2d.k180deg),
+                        approachPose,
+                        endPose),
                 PathConstants.APPROACH_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
                 new GoalEndState(0, endPose.getRotation().rotateBy(Rotation2d.k180deg)));

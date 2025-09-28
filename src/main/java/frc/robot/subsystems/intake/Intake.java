@@ -33,7 +33,7 @@ public class Intake extends SubsystemBase {
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
 
     @AutoLogOutput
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.05);
 
     private Timer intakingTimer = new Timer();
 

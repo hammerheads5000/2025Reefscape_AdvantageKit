@@ -125,8 +125,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
-                                Commands.waitUntil(
-                                        endEffector.intakingTrigger.negate().or(endEffector.coralDetectedTrigger)),
+                                Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
                                 elevator.goToL2Command(true),
@@ -184,8 +183,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
-                                Commands.waitUntil(
-                                        endEffector.intakingTrigger.negate().or(endEffector.coralDetectedTrigger)),
+                                Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
                                 elevator.goToL2Command(true),

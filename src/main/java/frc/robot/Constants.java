@@ -141,10 +141,11 @@ public class Constants {
 
         private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
                 .withKP(1.3)
-                .withKI(0.01)
+                .withKI(0.1)
                 .withKD(0.0)
-                .withKS(0.175)
-                .withKV(0.132);
+                .withKS(0.13) // 0.11828, 0.16033, 0.12378
+                .withKV(0.127) // 0.12867, 0.12604, 0.12584, 0.12882
+                .withKA(0.02); // 0.016755, 0.041694, 0.0088714, 0.019146
 
         private static final ClosedLoopOutputType STEER_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
         private static final ClosedLoopOutputType DRIVE_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
@@ -341,10 +342,10 @@ public class Constants {
     public static class AlignConstants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
-                .withPID(2, 0.5, 0.0)
+                .withPID(1.5, 0.5, 0.0)
                 .withFeedforward(1, 0)
                 .withTolerance(Inches.of(2).in(Meters), 0.1)
-                .withProfile(1, 2);
+                .withProfile(2, 2);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -371,7 +372,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(2, 1, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(1.5, 0.5, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -468,7 +469,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.303466796875)
+                .withMagnetOffset(-0.345947265625)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -490,7 +491,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(29);
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(55);
-        public static final Distance L4_HEIGHT = Inches.of(80);
+        public static final Distance L4_HEIGHT = Inches.of(77.5);
         public static final Distance INTAKE_HEIGHT = Inches.of(10.2);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -531,12 +532,12 @@ public class Constants {
         // Coral detection
         public static final int LIDAR_ID = 9; // DIO
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(45);
-        public static final Time CORAL_SHOOT_TIME = Seconds.of(0.2);
+        public static final Time CORAL_SHOOT_TIME = Seconds.of(0.3);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2.5);
+        public static final Voltage SCORE_SPEED = Volts.of(2);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
         public static final Voltage ADJUST_SPEED = Volts.of(1);
@@ -564,6 +565,7 @@ public class Constants {
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
         public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(20);
+        public static final Distance SLOWDOWN_DISTANCE = Inches.of(60);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
@@ -632,7 +634,7 @@ public class Constants {
                 .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.248046875)
+                .withMagnetOffset(0.245849609375)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         // S1 = align, S2 = beam break
@@ -657,13 +659,13 @@ public class Constants {
 
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
 
-        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
+        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(2);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
 
         public static final Time CORAL_TIMEOUT = Seconds.of(4);
         public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.4);
 
-        public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(10);
+        public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(20);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
@@ -764,11 +766,11 @@ public class Constants {
         // yaw)
         public static final Transform3d FRONT_LEFT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(29.0 / 2 - 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(0), Degrees.of(-23), Degrees.of(-30)));
+                new Rotation3d(Degrees.of(0), Degrees.of(-23), Degrees.of(-34)));
 
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.zero(), Degrees.of(-22), Degrees.of(31)));
+                new Rotation3d(Degrees.of(0), Degrees.of(-26), Degrees.of(28)));
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
@@ -781,7 +783,7 @@ public class Constants {
         public static final Distance MAX_DISTANCE = Millimeters.of(1000);
         public static final Distance MIN_HEIGHT_FOR_ACCURACY = Inches.of(70); // of elevator
         public static final Distance MAX_DISTANCE_TO_BRANCH =
-                Inches.of(15); // max distance from detected branch to ideal branch pos
+                Inches.of(12); // max distance from detected branch to ideal branch pos
         public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
     }
 
@@ -870,7 +872,7 @@ public class Constants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
         public static final Distance DISTANCE_TO_REEF =
-                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(4.5));
+                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(2.5));
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
@@ -915,25 +917,25 @@ public class Constants {
         // PathPlanner
 
         // output: m/s, measure: m
-        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(10, 0.5, 1.0);
+        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(3, 0.1, 0.01);
         // output: rad/s, measure: rad
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.5);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(4.0),
-                MetersPerSecondPerSecond.of(7),
+                MetersPerSecondPerSecond.of(4.5),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.6),
-                MetersPerSecondPerSecond.of(2),
+                MetersPerSecond.of(2.5),
+                MetersPerSecondPerSecond.of(2.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(1.6),
-                MetersPerSecondPerSecond.of(1.3),
+                MetersPerSecond.of(1.0),
+                MetersPerSecondPerSecond.of(1.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

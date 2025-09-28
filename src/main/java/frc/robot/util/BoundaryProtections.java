@@ -187,8 +187,11 @@ public class BoundaryProtections {
         double minDistanceToWall = IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters)
                 + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
 
+        double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
+                + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+
         // bot is not near wall, or not facing wall, return desired velocity
-        if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > minDistanceToWall
+        if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > slowDownDistance
                 || Math.abs(pose.getRotation().minus(nearestPoint.getRotation()).getRadians())
                         > IntakeConstants.ANGLE_TO_FACE_WALL.in(Radians)) {
             return desiredVel;
@@ -200,7 +203,12 @@ public class BoundaryProtections {
             return desiredVel;
         }
 
-        Translation2d adjustedVel = desiredVel.minus(wallNormalInwards.times(velTowardsWall));
+        double scaleFactor = nearestPoint.getTranslation().getDistance(pose.getTranslation()) - minDistanceToWall;
+        scaleFactor /= slowDownDistance - minDistanceToWall;
+        scaleFactor = MathUtil.clamp(scaleFactor, 0, 1);
+        scaleFactor = 1 - scaleFactor; // invert, 0 when far, 1 when close
+
+        Translation2d adjustedVel = desiredVel.minus(wallNormalInwards.times(velTowardsWall * scaleFactor));
         Logger.recordOutput("Boundaries/Desired Velocity", new Pose2d(pose.getTranslation(), desiredVel.getAngle()));
         Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(), adjustedVel.getAngle()));
         return adjustedVel;

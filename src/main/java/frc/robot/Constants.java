@@ -535,9 +535,9 @@ public class Constants {
         public static final Time CORAL_SHOOT_TIME = Seconds.of(0.3);
 
         // Speed (voltage)
-        public static final Voltage INTAKE_SPEED = Volts.of(4);
+        public static final Voltage INTAKE_SPEED = Volts.of(4.5);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2);
+        public static final Voltage SCORE_SPEED = Volts.of(1.8);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
         public static final Voltage ADJUST_SPEED = Volts.of(1);
@@ -564,8 +564,8 @@ public class Constants {
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
-        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(20);
-        public static final Distance SLOWDOWN_DISTANCE = Inches.of(60);
+        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(16);
+        public static final Distance SLOWDOWN_DISTANCE = Inches.of(48);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
@@ -775,7 +775,7 @@ public class Constants {
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0.88), Inches.of(10.25), Inches.of(34.08)),
-                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(172.6))); // Degrees.of(169)));
+                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(175))); // used to be 172.6 Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);

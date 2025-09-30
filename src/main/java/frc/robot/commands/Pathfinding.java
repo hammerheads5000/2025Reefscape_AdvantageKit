@@ -17,6 +17,7 @@ import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PointTowardsZone;
 import com.pathplanner.lib.path.RotationTarget;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -155,9 +156,8 @@ public class Pathfinding {
                 new GoalEndState(0, endPose.getRotation()),
                 false);
 
-        if (AutoBuilder.shouldFlip()) {
-            path = path.flipPath();
-        }
+        path.preventFlipping = true;
+
         return path;
     }
 
@@ -193,6 +193,9 @@ public class Pathfinding {
         int side = pos == 1 ? 1 : 5;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
         Pose2d endPose = pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE;
+        if (AutoBuilder.shouldFlip()) {
+            endPose = FlippingUtil.flipFieldPose(endPose);
+        }
         poses.add(new Pose2d(endPose.getTranslation(), endPose.getRotation().plus(Rotation2d.k180deg)));
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
@@ -220,9 +223,8 @@ public class Pathfinding {
                 new GoalEndState(0, endPose.getRotation()),
                 false);
 
-        if (AutoBuilder.shouldFlip()) {
-            path = path.flipPath();
-        }
+        path.preventFlipping = true;
+
         return path;
     }
 
@@ -276,9 +278,8 @@ public class Pathfinding {
                 new GoalEndState(0, endPose.getRotation()),
                 false);
 
-        if (AutoBuilder.shouldFlip()) {
-            path = path.flipPath();
-        }
+        path.preventFlipping = true;
+
         return path;
     }
 
@@ -294,7 +295,7 @@ public class Pathfinding {
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
         Pose2d endPose = FieldConstants.PROCESSOR;
         if (AutoBuilder.shouldFlip()) {
-            endPose = AlignToReefCommands.flipPose(endPose);
+            endPose = FlippingUtil.flipFieldPose(endPose);
         }
         poses.add(endPose);
 
@@ -324,9 +325,8 @@ public class Pathfinding {
                 new GoalEndState(0, endPose.getRotation()),
                 false);
 
-        if (AutoBuilder.shouldFlip()) {
-            path = path.flipPath();
-        }
+        path.preventFlipping = true;
+
         return path;
     }
 }

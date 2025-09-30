@@ -40,6 +40,8 @@ public class Elevator extends SubsystemBase {
 
     private Distance goal = ElevatorConstants.INTAKE_HEIGHT;
     private final Debouncer atGoalDebouncer = new Debouncer(ElevatorConstants.AT_GOAL_DEBOUNCE_TIME.in(Seconds));
+    private final Trigger stallTrigger =
+            new Trigger(() -> inputs.outputCurrent.abs(Amps) >= ElevatorConstants.STALL_CURRENT.in(Amps)).debounce(0.1);
 
     private final Alert leadDisconnectedAlert;
     private final Alert followDisconnectedAlert;
@@ -80,6 +82,8 @@ public class Elevator extends SubsystemBase {
 
         measuredVisualizer = new ElevatorVisualizer("Measured", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
         setpointVisualizer = new ElevatorVisualizer("Setpoint", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
+
+        stallTrigger.onTrue(Commands.runOnce(io::zeroEncoder));
 
         SmartDashboard.putData("L1", goToL1Command(true));
         SmartDashboard.putData("L2", goToL2Command(true));
@@ -166,7 +170,7 @@ public class Elevator extends SubsystemBase {
 
     public Command zeroEncoderCommand() {
         return elevatorDownCommand()
-                .until(() -> inputs.outputCurrent.abs(Amps) >= ElevatorConstants.STALL_CURRENT.in(Amps))
+                .until(stallTrigger)
                 .andThen(io::zeroEncoder)
                 .withName("Zero Encoder");
     }

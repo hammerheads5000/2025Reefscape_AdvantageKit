@@ -141,7 +141,7 @@ public class Constants {
 
         private static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
                 .withKP(1.3)
-                .withKI(0.1)
+                .withKI(0.01)
                 .withKD(0.0)
                 .withKS(0.13) // 0.11828, 0.16033, 0.12378
                 .withKV(0.127) // 0.12867, 0.12604, 0.12584, 0.12882
@@ -492,7 +492,7 @@ public class Constants {
         public static final Distance L2_HEIGHT = Inches.of(39);
         public static final Distance L3_HEIGHT = Inches.of(56);
         public static final Distance L4_HEIGHT = Inches.of(77.5);
-        public static final Distance INTAKE_HEIGHT = Inches.of(10.2);
+        public static final Distance INTAKE_HEIGHT = Inches.of(10.5);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted

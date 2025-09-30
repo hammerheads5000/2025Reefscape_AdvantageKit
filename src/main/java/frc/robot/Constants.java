@@ -490,7 +490,7 @@ public class Constants {
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(29);
         public static final Distance L2_HEIGHT = Inches.of(39);
-        public static final Distance L3_HEIGHT = Inches.of(55);
+        public static final Distance L3_HEIGHT = Inches.of(56);
         public static final Distance L4_HEIGHT = Inches.of(77.5);
         public static final Distance INTAKE_HEIGHT = Inches.of(10.2);
 
@@ -775,7 +775,8 @@ public class Constants {
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0.88), Inches.of(10.25), Inches.of(34.08)),
-                new Rotation3d(Degrees.of(-1), Degrees.of(-22.6), Degrees.of(175))); // used to be 172.6 Degrees.of(169)));
+                new Rotation3d(
+                        Degrees.of(-1), Degrees.of(-22.6), Degrees.of(175))); // used to be 172.6 Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);

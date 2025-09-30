@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -46,6 +47,8 @@ public class AutoCoralCommand extends ParallelCommandGroup {
     private SlewRateLimiter2d accelerationLimiter = new SlewRateLimiter2d(2);
     private PIDController rotationController = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController(); // in radians
 
+    private Distance distanceToCoral = Meters.of(100); // default very far away
+
     public AutoCoralCommand(
             Swerve swerve, Intake intake, EndEffector endEffector, Elevator elevator, CoralDetection coralDetection) {
         this.swerve = swerve;
@@ -62,14 +65,16 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                         this.elevator.zeroEncoderCommand(),
                         this.elevator.goToIntakePosCommand(true)),
                 Commands.sequence(
+                        Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
+                        this.intake.startIntakeCommand()),
+                Commands.sequence(
                         this.intake.deployCommand(true),
-                        this.intake.startIntakeCommand(),
-                        this.endEffector.startIntakeCommand(),
                         Commands.defer(this::driveTowardsCoral, Set.of(swerve))
                                 .withTimeout(IntakeConstants.CORAL_TIMEOUT)
                                 .repeatedly() // will keep restarting after timeout until coral detected in intake
-                                .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
+                                .until(intake.coralDetectedTrigger),
                         this.intake.startSlowIntakeCommand(),
+                        this.endEffector.startIntakeCommand(),
                         Commands.waitSeconds(0.05),
                         Commands.runOnce(() -> this.swerve.stop())));
     }
@@ -96,6 +101,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                     }
 
                     Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
+                    distanceToCoral = Meters.of(vel.getNorm());
                     vel = vel.div(vel.getNorm());
                     vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
                     vel = accelerationLimiter.calculate(vel);
@@ -131,6 +137,13 @@ public class AutoCoralCommand extends ParallelCommandGroup {
 
         path.preventFlipping = true;
 
-        return AutoBuilder.followPath(path);
+        Command updateCoralDistanceCommand = Commands.run(() -> {
+            distanceToCoral = Meters.of(
+                    BoundaryProtections.nearestBoundaryPose(swerve.getPose().getTranslation())
+                            .getTranslation()
+                            .getDistance(swerve.getPose().getTranslation()));
+        });
+
+        return AutoBuilder.followPath(path).deadlineFor(updateCoralDistanceCommand);
     }
 }

@@ -2,8 +2,6 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
@@ -20,7 +18,7 @@ public interface VisionIO {
 
     /** Represents a robot pose sample used for pose estimation. */
     public static record PoseObservation(
-            Time timestamp, Pose3d pose, double ambiguity, int tagCount, Distance averageTagDistance) {}
+            double timestamp, Pose3d pose, double ambiguity, int tagCount, double averageTagDistance) {}
 
     public default void updateInputs(VisionIOInputs inputs) {}
 }

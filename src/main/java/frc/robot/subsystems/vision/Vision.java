@@ -5,6 +5,7 @@
 package frc.robot.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.VisionConstants.ANGULAR_STD_DEV_BASELINE;
 import static frc.robot.Constants.VisionConstants.APRIL_TAGS;
 import static frc.robot.Constants.VisionConstants.LINEAR_STD_DEV_BASELINE;
@@ -171,14 +172,14 @@ public class Vision extends SubsystemBase {
                 continue;
             }
 
-            double stdDevFactor = Math.pow(observation.averageTagDistance().in(Meters), 2.0) / observation.tagCount();
+            double stdDevFactor = Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
             double linearStdDev = LINEAR_STD_DEV_BASELINE * stdDevFactor;
             double angularStdDev = ANGULAR_STD_DEV_BASELINE * stdDevFactor;
 
             // Send vision observation
             consumer.accept(
                     observation.pose().toPose2d(),
-                    observation.timestamp(),
+                    Seconds.of(observation.timestamp()),
                     VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
         }
 
@@ -201,7 +202,7 @@ public class Vision extends SubsystemBase {
     }
 
     private boolean isObservationValid(PoseObservation observation) {
-        boolean nonNull = observation.averageTagDistance() != null && observation.timestamp() != null;
+        boolean nonNull = observation.pose() != null;
         boolean hasTargets = observation.tagCount() > 0;
         boolean isAmbiguous = observation.tagCount() == 1 && observation.ambiguity() > MAX_AMBIGUITY;
         boolean unrealisticZ = Math.abs(observation.pose().getZ()) > MAX_Z_ERROR.in(Meters);

@@ -13,8 +13,6 @@
 
 package frc.robot.subsystems.vision;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.VisionConstants.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -80,11 +78,11 @@ public class VisionIOPhotonVision implements VisionIO {
 
                 // Add observation
                 poseObservations.add(new PoseObservation(
-                        Seconds.of(result.getTimestampSeconds()), // Timestamp
+                        result.getTimestampSeconds(), // Timestamp
                         robotPose, // 3D pose estimate
                         multitagResult.estimatedPose.ambiguity, // Ambiguity
                         multitagResult.fiducialIDsUsed.size(), // Tag count
-                        Meters.of(totalTagDistance / result.targets.size()))); // Average tag distance
+                        totalTagDistance / result.targets.size())); // Average tag distance
 
             } else if (!result.targets.isEmpty()) { // Single tag result
                 var target = result.targets.get(0);
@@ -104,11 +102,11 @@ public class VisionIOPhotonVision implements VisionIO {
 
                     // Add observation
                     poseObservations.add(new PoseObservation(
-                            Seconds.of(result.getTimestampSeconds()), // Timestamp
+                            result.getTimestampSeconds(), // Timestamp
                             robotPose, // 3D pose estimate
                             target.poseAmbiguity, // Ambiguity
                             1, // Tag count
-                            Meters.of(cameraToTarget.getTranslation().getNorm()))); // Average tag distance
+                            cameraToTarget.getTranslation().getNorm())); // Average tag distance
                 }
             }
         }

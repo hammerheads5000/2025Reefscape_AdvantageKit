@@ -33,7 +33,7 @@ public class Intake extends SubsystemBase {
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
 
     @AutoLogOutput
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.05);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.08);
 
     private Timer intakingTimer = new Timer();
 
@@ -44,8 +44,6 @@ public class Intake extends SubsystemBase {
     public Intake(IntakeIO io, Supplier<Pose2d> poseSupplier) {
         this.io = io;
         this.visualizer = new IntakeVisualizer(coralDetectedTrigger, poseSupplier);
-
-        this.deployedTrigger.onTrue(this.stopIntake());
 
         SmartDashboard.putData("Intake Deploy", deployCommand(true));
         SmartDashboard.putData("Intake Stow", stowCommand(true));

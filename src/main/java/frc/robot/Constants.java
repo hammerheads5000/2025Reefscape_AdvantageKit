@@ -443,7 +443,7 @@ public class Constants {
                 .withKV(0.5)
                 .withKA(0.01)
                 .withKS(0.12)
-                .withKG(0.4)
+                .withKG(0.36)
                 .withGravityType(GravityTypeValue.Elevator_Static);
         public static final Slot2Configs STAGE1_GAINS = new Slot2Configs() // real gains
                 .withKP(15)
@@ -488,9 +488,9 @@ public class Constants {
         // Setpoints (from floor)
         public static final Distance MIN_HEIGHT = Inches.of(10);
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
-        public static final Distance L1_HEIGHT = Inches.of(29);
-        public static final Distance L2_HEIGHT = Inches.of(39);
-        public static final Distance L3_HEIGHT = Inches.of(56);
+        public static final Distance L1_HEIGHT = Inches.of(29.8);
+        public static final Distance L2_HEIGHT = Inches.of(37.5);
+        public static final Distance L3_HEIGHT = Inches.of(53.8);
         public static final Distance L4_HEIGHT = Inches.of(77.5);
         public static final Distance INTAKE_HEIGHT = Inches.of(10.5);
 
@@ -567,6 +567,7 @@ public class Constants {
         public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(16);
         public static final Distance SLOWDOWN_DISTANCE = Inches.of(48);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
+        public static final Distance START_DISTANCE = Inches.of(65);
 
         public static final MotorOutputConfigs INTAKE_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive)
@@ -776,7 +777,7 @@ public class Constants {
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0.88), Inches.of(10.25), Inches.of(34.08)),
                 new Rotation3d(
-                        Degrees.of(-1), Degrees.of(-22.6), Degrees.of(175))); // used to be 172.6 Degrees.of(169)));
+                        Degrees.of(10), Degrees.of(-22), Degrees.of(172.6))); // used to be 172.6 Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);
@@ -929,7 +930,7 @@ public class Constants {
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(2.5),
+                MetersPerSecond.of(3.0),
                 MetersPerSecondPerSecond.of(2.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));

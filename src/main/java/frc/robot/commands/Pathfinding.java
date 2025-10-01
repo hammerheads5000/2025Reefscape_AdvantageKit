@@ -66,28 +66,37 @@ public class Pathfinding {
         return (currentSide - 1 + 6) % 6;
     }
 
+    // both follow reef side order (0 for facing drivers, increasing CW)
+    private static final Pose2d[] CCW_APPROACH_POSES = new Pose2d[6];
+    private static final Pose2d[] CW_APPROACH_POSES = new Pose2d[6];
+
+    static {
+        for (int side = 0; side < 6; side++) {
+            Pose2d sidePose = AlignToReefCommands.getReefPose(side, 0);
+
+            // move side pose outwards by TRAVERSE_DISTANCE
+            sidePose = sidePose.transformBy(new Transform2d(
+                    new Translation2d(PathConstants.TRAVERSE_DISTANCE.unaryMinus(), Meters.zero()), Rotation2d.kZero));
+
+            // give pose tangential rotation for smooth CCW path
+            sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCW_90deg);
+
+            CCW_APPROACH_POSES[side] = sidePose;
+            CW_APPROACH_POSES[side] = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.k180deg);
+        }
+    }
+
     /** Generates a list of poses to approach the reef from the current pose to the target side */
     private static ArrayList<Pose2d> generateApproachPoses(Pose2d currentPose, int side) {
         int currentSide = getClosestReefSide(currentPose);
 
+        boolean CCW = getNextSide(currentSide, side) == (currentSide + 1) % 6;
         ArrayList<Pose2d> poses = new ArrayList<>();
         // move around reef until within 1 side of target side
         while (distanceBetweenSides(currentSide, side) > 1) {
             int nextSide = getNextSide(currentSide, side);
-            Pose2d sidePose = AlignToReefCommands.getReefPose(nextSide, 0);
 
-            // move side pose outwards by TRAVBERSE_DISTANCE
-            sidePose = sidePose.transformBy(new Transform2d(
-                    new Translation2d(PathConstants.TRAVERSE_DISTANCE.unaryMinus(), Meters.zero()), Rotation2d.kZero));
-
-            // give pose tangential rotation for smooth path
-            if (nextSide == (currentSide + 1 + 6) % 6) {
-                sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCCW_90deg);
-            } else {
-                sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCW_90deg);
-            }
-
-            poses.add(sidePose);
+            poses.add(CCW ? CCW_APPROACH_POSES[nextSide] : CW_APPROACH_POSES[nextSide]);
             currentSide = nextSide;
         }
 

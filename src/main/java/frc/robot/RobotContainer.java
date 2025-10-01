@@ -308,7 +308,7 @@ public class RobotContainer {
         // #endregion
 
         // #region Instantiate Commands
-        teleopSwerveCommand = new TeleopSwerve(swerve, driveController);
+        teleopSwerveCommand = new TeleopSwerve(swerve, driveController, intakeTrigger);
 
         rumbleCommand = Commands.startEnd(
                         () -> driveController.setRumble(RumbleType.kBothRumble, ControllerConstants.CONTROLLER_RUMBLE),

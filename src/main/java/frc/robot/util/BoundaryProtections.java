@@ -174,7 +174,7 @@ public class BoundaryProtections {
     }
 
     // adjust velocity to not go into walls when facing them
-    public static final Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel) {
+    public static final Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel, boolean intaking) {
         Pose2d nearestPoint = nearestBoundaryPose(pose.getTranslation());
 
         Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
@@ -184,8 +184,10 @@ public class BoundaryProtections {
                         Math.sin(nearestPoint.getRotation().getRadians()))
                 .unaryMinus();
 
-        double minDistanceToWall = IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters)
-                + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+        double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+        if (!intaking) {
+            minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
+        }
 
         double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
                 + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());

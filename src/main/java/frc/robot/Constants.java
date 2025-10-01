@@ -889,6 +889,7 @@ public class Constants {
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
         public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(20);
         public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(30);
+        public static final Distance BACKUP_FROM_WALL_DISTANCE = Inches.of(30);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side

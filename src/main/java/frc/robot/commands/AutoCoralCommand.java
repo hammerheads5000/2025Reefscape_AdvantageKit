@@ -119,27 +119,29 @@ public class AutoCoralCommand extends ParallelCommandGroup {
     }
 
     private Command pathfindToCoralCommand(Translation2d coralPose, Pose2d nearestBoundaryPose) {
+        Pose2d pose = swerve.getPose();
         double endRobotDistToWall = Dimensions.ROBOT_SIZE.in(Meters) / 2 + IntakeConstants.INTAKE_EXTENSION.in(Meters);
 
-        Pose2d endPose = nearestBoundaryPose.transformBy(
+        Pose2d pickupPose = nearestBoundaryPose.transformBy(
                 new Transform2d(new Translation2d(endRobotDistToWall, 0), Rotation2d.k180deg));
-        Pose2d approachPose = endPose.transformBy(new Transform2d(
+        Pose2d approachPose = pickupPose.transformBy(new Transform2d(
                 new Translation2d(-PathConstants.CORAL_APPROACH_DISTANCE.in(Meters), 0), Rotation2d.kZero));
 
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(
-                        swerve.getPose().rotateAround(swerve.getPose().getTranslation(), Rotation2d.k180deg),
+                        pose.rotateAround(pose.getTranslation(), Rotation2d.k180deg),
                         approachPose,
-                        endPose),
+                        pickupPose,
+                        pose),
                 PathConstants.APPROACH_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
-                new GoalEndState(0, endPose.getRotation().rotateBy(Rotation2d.k180deg)));
+                new GoalEndState(0, pose.getRotation()));
 
         path.preventFlipping = true;
 
         Command updateCoralDistanceCommand = Commands.run(() -> {
             distanceToCoral = Meters.of(
-                    BoundaryProtections.nearestBoundaryPose(swerve.getPose().getTranslation())
+                    BoundaryProtections.nearestBoundaryPose(pose.getTranslation())
                             .getTranslation()
                             .getDistance(swerve.getPose().getTranslation()));
         });

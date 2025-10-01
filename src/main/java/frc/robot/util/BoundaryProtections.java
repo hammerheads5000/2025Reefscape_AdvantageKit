@@ -174,23 +174,23 @@ public class BoundaryProtections {
     }
 
     // adjust velocity to not go into walls when facing them
-    public static final Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel, boolean intaking) {
+    public static Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel, boolean intaking) {
         Pose2d nearestPoint = nearestBoundaryPose(pose.getTranslation());
 
         Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
 
-        Translation2d wallNormalInwards = new Translation2d(
+        Translation2d wallNormalOutwards = new Translation2d(
                         Math.cos(nearestPoint.getRotation().getRadians()),
                         Math.sin(nearestPoint.getRotation().getRadians()))
                 .unaryMinus();
 
-        double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+        double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
         if (!intaking) {
             minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
         }
 
         double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
-                + offsetDistanceFromRotation(pose.getRotation(), wallNormalInwards.unaryMinus());
+                + offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
 
         // bot is not near wall, or not facing wall, return desired velocity
         if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > slowDownDistance
@@ -199,8 +199,8 @@ public class BoundaryProtections {
             return desiredVel;
         }
 
-        double velTowardsWall = desiredVel.getX() * wallNormalInwards.getX()
-                + desiredVel.getY() * wallNormalInwards.getY(); // dot product
+        double velTowardsWall = desiredVel.getX() * wallNormalOutwards.getX()
+                + desiredVel.getY() * wallNormalOutwards.getY(); // dot product
         if (velTowardsWall <= 0) { // not going towards wall
             return desiredVel;
         }
@@ -210,13 +210,17 @@ public class BoundaryProtections {
         scaleFactor = MathUtil.clamp(scaleFactor, 0, 1);
         scaleFactor = 1 - scaleFactor; // invert, 0 when far, 1 when close
 
-        Translation2d adjustedVel = desiredVel.minus(wallNormalInwards.times(velTowardsWall * scaleFactor));
+        Translation2d adjustedVel = desiredVel.minus(wallNormalOutwards.times(velTowardsWall * scaleFactor));
         Logger.recordOutput("Boundaries/Desired Velocity", new Pose2d(pose.getTranslation(), desiredVel.getAngle()));
         Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(), adjustedVel.getAngle()));
         return adjustedVel;
     }
 
-    private static double offsetDistanceFromRotation(Rotation2d robotRotation, Translation2d wallNormal) {
+    public static Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel) {
+        return adjustVelocity(pose, desiredVel, false);
+    }
+
+    public static double offsetDistanceFromRotation(Rotation2d robotRotation, Translation2d wallNormal) {
         double robotApothem = Dimensions.ROBOT_SIZE.div(2).in(Meters);
         double extension = IntakeConstants.INTAKE_EXTENSION.in(Meters);
         double h = Math.hypot(extension + robotApothem, robotApothem); // distance from robot center to intake tip

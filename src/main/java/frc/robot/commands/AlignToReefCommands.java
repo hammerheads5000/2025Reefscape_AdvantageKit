@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -21,8 +22,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
-
-import com.pathplanner.lib.util.FlippingUtil;
 
 /** Container class for aligning to reef */
 public class AlignToReefCommands {
@@ -41,7 +40,7 @@ public class AlignToReefCommands {
             // robot position centered on close reef side
             Translation2d translation =
                     reefCenter.plus(new Translation2d(FieldConstants.REEF_APOTHEM.unaryMinus(), Meters.zero()));
-            
+
             // rotate to correct side
             translation = translation.rotateAround(reefCenter, Rotation2d.fromDegrees(-60 * side));
 
@@ -52,8 +51,8 @@ public class AlignToReefCommands {
             RED_REEF_POSES[side] = FlippingUtil.flipFieldPose(reefPose);
 
             Transform2d branchTransform = new Transform2d(
-                new Translation2d(PathConstants.DISTANCE_TO_REEF.plus(PathConstants.BRANCH_INSET), Meters.zero()),
-                Rotation2d.kZero);
+                    new Translation2d(PathConstants.DISTANCE_TO_REEF.plus(PathConstants.BRANCH_INSET), Meters.zero()),
+                    Rotation2d.kZero);
 
             BLUE_BRANCH_POSES[side] = BLUE_REEF_POSES[side].plus(branchTransform);
             RED_BRANCH_POSES[side] = RED_REEF_POSES[side].plus(branchTransform);
@@ -82,7 +81,8 @@ public class AlignToReefCommands {
      * @return The calculated Pose2d for scoring.
      */
     public static Pose2d getReefPose(int side, double relativePos, boolean isRed) {
-        Transform2d branchTransform = new Transform2d(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos), Rotation2d.kZero);
+        Transform2d branchTransform =
+                new Transform2d(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos), Rotation2d.kZero);
         return isRed ? RED_REEF_POSES[side].plus(branchTransform) : BLUE_REEF_POSES[side].plus(branchTransform);
     }
 
@@ -108,7 +108,8 @@ public class AlignToReefCommands {
      * @return The calculated Pose2d for scoring.
      */
     public static Pose2d getBranchPose(int side, double relativePos, boolean isRed) {
-        Transform2d branchTransform = new Transform2d(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos), Rotation2d.kZero);
+        Transform2d branchTransform =
+                new Transform2d(FieldConstants.CENTERED_TO_LEFT_BRANCH.times(relativePos), Rotation2d.kZero);
         return isRed ? RED_BRANCH_POSES[side].plus(branchTransform) : BLUE_BRANCH_POSES[side].plus(branchTransform);
     }
 

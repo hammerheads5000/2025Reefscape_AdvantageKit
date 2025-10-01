@@ -72,7 +72,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                         Commands.defer(this::driveTowardsCoral, Set.of(swerve))
                                 .withTimeout(IntakeConstants.CORAL_TIMEOUT)
                                 .repeatedly() // will keep restarting after timeout until coral detected in intake
-                                .until(intake.coralDetectedTrigger),
+                                .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
                         this.intake.startSlowIntakeCommand(),
                         this.endEffector.startIntakeCommand(),
                         Commands.waitSeconds(0.05),
@@ -129,23 +129,25 @@ public class AutoCoralCommand extends ParallelCommandGroup {
 
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(
-                        pose.rotateAround(pose.getTranslation(), Rotation2d.k180deg),
-                        approachPose,
-                        pickupPose,
-                        pose),
+                        pose.rotateAround(pose.getTranslation(), Rotation2d.k180deg), approachPose, pickupPose),
                 PathConstants.APPROACH_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
-                new GoalEndState(0, pose.getRotation()));
+                new GoalEndState(0, pickupPose.getRotation().rotateBy(Rotation2d.k180deg)));
 
         path.preventFlipping = true;
 
         Command updateCoralDistanceCommand = Commands.run(() -> {
-            distanceToCoral = Meters.of(
-                    BoundaryProtections.nearestBoundaryPose(pose.getTranslation())
-                            .getTranslation()
-                            .getDistance(swerve.getPose().getTranslation()));
+            distanceToCoral = Meters.of(BoundaryProtections.nearestBoundaryPose(pose.getTranslation())
+                    .getTranslation()
+                    .getDistance(swerve.getPose().getTranslation()));
         });
 
-        return AutoBuilder.followPath(path).deadlineFor(updateCoralDistanceCommand);
+        return AutoBuilder.followPath(path)
+                .deadlineFor(updateCoralDistanceCommand)
+                .andThen(new AlignToPoseCommand(
+                        approachPose.rotateAround(approachPose.getTranslation(), Rotation2d.k180deg),
+                        AlignConstants.CORAL_PULL_PID_TRANSLATION,
+                        AlignConstants.CORAL_PULL_PID_ANGLE,
+                        swerve));
     }
 }

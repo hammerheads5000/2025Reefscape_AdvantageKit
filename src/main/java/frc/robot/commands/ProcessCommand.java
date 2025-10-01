@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -22,7 +23,7 @@ public class ProcessCommand extends SequentialCommandGroup {
     public ProcessCommand(Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
         AlignToPoseCommand alignCommand = new AlignToPoseCommand(
                 AutoBuilder.shouldFlip()
-                        ? AlignToReefCommands.flipPose(FieldConstants.PROCESSOR)
+                        ? FlippingUtil.flipFieldPose(FieldConstants.PROCESSOR)
                         : FieldConstants.PROCESSOR,
                 AlignConstants.PROCESS_PID_TRANSLATION,
                 AlignConstants.PROCESS_PID_ANGLE,

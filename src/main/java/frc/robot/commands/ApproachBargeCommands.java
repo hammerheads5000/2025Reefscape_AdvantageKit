@@ -9,6 +9,7 @@ import static frc.robot.Constants.INST;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -24,7 +25,7 @@ public class ApproachBargeCommands {
         Pose2d pose = FieldConstants.BARGE_POSES.get(pos);
 
         if (isRed) {
-            pose = AlignToReefCommands.flipPose(pose);
+            pose = FlippingUtil.flipFieldPose(pose);
         }
         return pose;
     }

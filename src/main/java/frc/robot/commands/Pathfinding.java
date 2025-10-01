@@ -90,13 +90,13 @@ public class Pathfinding {
     private static ArrayList<Pose2d> generateApproachPoses(Pose2d currentPose, int side) {
         int currentSide = getClosestReefSide(currentPose);
 
-        boolean CCW = getNextSide(currentSide, side) == (currentSide + 1) % 6;
+        boolean CW = getNextSide(currentSide, side) == (currentSide + 1) % 6;
         ArrayList<Pose2d> poses = new ArrayList<>();
         // move around reef until within 1 side of target side
         while (distanceBetweenSides(currentSide, side) > 1) {
             int nextSide = getNextSide(currentSide, side);
 
-            poses.add(CCW ? CCW_APPROACH_POSES[nextSide] : CW_APPROACH_POSES[nextSide]);
+            poses.add(CW ? CW_APPROACH_POSES[nextSide] : CCW_APPROACH_POSES[nextSide]);
             currentSide = nextSide;
         }
 
@@ -127,7 +127,7 @@ public class Pathfinding {
         poses.add(endPose);
 
         // turn velocity into translation to determine magnitude
-        //Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
+        // Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 
         // if robot is moving fast enough (and in teleop), smoothly transition into path
         // if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {

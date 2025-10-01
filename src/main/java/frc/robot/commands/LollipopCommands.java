@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,7 +23,7 @@ public class LollipopCommands {
     private static Command lollipopCommand(
             Pose2d lollipopPose, Swerve swerve, AlgaeManipulator algaeManipulator, Elevator elevator) {
         if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-            lollipopPose = AlignToReefCommands.flipPose(lollipopPose);
+            lollipopPose = FlippingUtil.flipFieldPose(lollipopPose);
         }
         lollipopPose = new Pose2d(
                 lollipopPose.getTranslation(),
@@ -64,7 +65,7 @@ public class LollipopCommands {
         Pose2d closest = FieldConstants.LOLLIPOP_POSES[0];
         final boolean flip = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
         Translation2d robotTranslation = flip
-                ? AlignToReefCommands.flipPose(swerve.getPose()).getTranslation()
+                ? FlippingUtil.flipFieldPose(swerve.getPose()).getTranslation()
                 : swerve.getPose().getTranslation();
         for (Pose2d lollipopPose : FieldConstants.LOLLIPOP_POSES) {
             if (robotTranslation.getDistance(lollipopPose.getTranslation())

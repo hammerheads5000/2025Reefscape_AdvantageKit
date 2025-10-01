@@ -17,7 +17,9 @@ import static frc.robot.Constants.VisionConstants.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +29,11 @@ import org.photonvision.PhotonCamera;
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
     protected final PhotonCamera camera;
-    protected final Transform3d robotToCamera;
+
+    protected Transform3d robotToCamera;
+    LoggedTunableNumber robotToCamRoll;
+    LoggedTunableNumber robotToCamPitch;
+    LoggedTunableNumber robotToCamYaw;
 
     /**
      * Creates a new VisionIOPhotonVision.
@@ -38,11 +44,21 @@ public class VisionIOPhotonVision implements VisionIO {
     public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
         camera = new PhotonCamera(name);
         this.robotToCamera = robotToCamera;
+        robotToCamRoll = new LoggedTunableNumber(
+                "Robot to " + name + " Roll", robotToCamera.getRotation().getX());
+        robotToCamPitch = new LoggedTunableNumber(
+                "Robot to " + name + " Pitch", robotToCamera.getRotation().getY());
+        robotToCamYaw = new LoggedTunableNumber(
+                "Robot to " + name + " Yaw", robotToCamera.getRotation().getZ());
     }
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         inputs.connected = camera.isConnected();
+
+        robotToCamera = new Transform3d(
+                robotToCamera.getTranslation(),
+                new Rotation3d(robotToCamRoll.get(), robotToCamPitch.get(), robotToCamYaw.get()));
 
         // Read new camera observations
         Set<Short> tagIds = new HashSet<>();

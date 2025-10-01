@@ -355,6 +355,10 @@ public class Constants {
                 .withProfile(3.5, 6)
                 .withTolerance(Inches.of(4).in(Meters));
 
+        public static final ControlConstants CORAL_PULL_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
+                .withProfile(3.5, 6)
+                .withTolerance(Inches.of(8).in(Meters));
+
         public static final ControlConstants PROCESS_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withTolerance(Inches.of(4).in(Meters));
 
@@ -378,6 +382,9 @@ public class Constants {
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
         public static final ControlConstants ALGAE_PULL_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(6);
+
+        public static final ControlConstants CORAL_PULL_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(10);
 
         public static final ControlConstants PROCESS_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(4);
@@ -767,17 +774,19 @@ public class Constants {
         // yaw)
         public static final Transform3d FRONT_LEFT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(29.0 / 2 - 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(0), Degrees.of(-23), Degrees.of(-34)));
+                new Rotation3d(Degrees.of(-1.7), Degrees.of(-24), Degrees.of(-30.65)));
 
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(0), Degrees.of(-26), Degrees.of(28)));
+                new Rotation3d(Degrees.of(1.7), Degrees.of(-24), Degrees.of(30.65)));
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
-                new Translation3d(Inches.of(0.88), Inches.of(10.25), Inches.of(34.08)),
+                new Translation3d(Inches.of(0.39), Inches.of(9.98), Inches.of(34.31)),
                 new Rotation3d(
-                        Degrees.of(10), Degrees.of(-22), Degrees.of(172.6))); // used to be 172.6 Degrees.of(169)));
+                        Degrees.of(0 - 4.11),
+                        Degrees.of(-22.14),
+                        Degrees.of(169.2))); // used to be 172.6 Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);

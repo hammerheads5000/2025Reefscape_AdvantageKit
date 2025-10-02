@@ -102,6 +102,7 @@ public class RobotContainer {
     private final TeleopSwerve teleopSwerveCommand;
 
     private final Command rumbleCommand;
+    private final Command intakeAndReefCommand;
     private final Command reefCommand;
     private final Command algaeCommand;
     private final Command bargeCommand;
@@ -133,12 +134,13 @@ public class RobotContainer {
     private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
     private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
-    private final Trigger reefTrigger = driveController.a();
+    private final Trigger intakeAndReefTrigger = driveController.a();
+    private final Trigger reefTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
     private final Trigger autoClimbTrigger = driveController.start();
     private final Trigger unclimbTrigger = driveController.back();
     private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2).debounce(0.5, DebounceType.kRising);
-    private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger;
+    private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger; // adds algae pickup to coral auto sequence
 
     private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
     private final Trigger algaeScoreTrigger = driveController.b().and(algaeButtonLayerTrigger);
@@ -308,7 +310,7 @@ public class RobotContainer {
                         () -> driveController.setRumble(RumbleType.kBothRumble, 0))
                 .withName("Rumble");
 
-        reefCommand = Commands.defer(
+        intakeAndReefCommand = Commands.defer(
                         () -> new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection)
                                 .andThen(new FullAutoCommand(
                                         NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
@@ -321,6 +323,20 @@ public class RobotContainer {
                                         vision)),
                         Set.of(swerve, elevator))
                 //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
+                .withName("Intake + Reef Auto");
+
+        reefCommand = Commands.defer(
+                        () -> new FullAutoCommand(
+                                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
+                                        swerve,
+                                        elevator,
+                                        endEffector,
+                                        algaeManipulator,
+                                        intake,
+                                        coralDetection,
+                                        vision),
+                        Set.of(swerve, elevator))
+                //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
 
         algaeCommand = Commands.defer(
@@ -331,7 +347,7 @@ public class RobotContainer {
 
         bargeCommand = Commands.defer(
                         () -> new ScoreInBargeCommand(
-                                NTConstants.ALGAE_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
+                                NTConstants.ALGAE_SCORE_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
                         Set.of(swerve, elevator))
                 .withName("Barge Auto");
 
@@ -376,7 +392,7 @@ public class RobotContainer {
         autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection);
         // #endregion
 
-        SmartDashboard.putData("Reef Auto", reefCommand);
+        SmartDashboard.putData("Reef Auto", intakeAndReefCommand);
         SmartDashboard.putData("Algae Auto", algaeCommand);
         SmartDashboard.putData("Barge Auto", bargeCommand);
         SmartDashboard.putData("Nearest Lollipop", lollipopCommand);
@@ -404,10 +420,11 @@ public class RobotContainer {
         toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
+        intakeAndReefTrigger.whileTrue(intakeAndReefCommand);
         reefTrigger.whileTrue(reefCommand);
         algaeTrigger.whileTrue(algaeCommand);
         algaeScoreTrigger.whileTrue(Commands.either(processCommand, bargeCommand,
-                () -> NTConstants.ALGAE_TELEOP_AUTO_ENTRY.get().equals("P")));
+                () -> NTConstants.ALGAE_SCORE_ENTRY.get().equals("P")));
         sweepTrigger.whileTrue(sweepCommand);
         lollipopTrigger.whileTrue(lollipopCommand);
 
@@ -434,10 +451,10 @@ public class RobotContainer {
                     new InstantCommand(() -> setTeleopAutoDescriptorLevel(level)).ignoringDisable(true));
         }
 
-        barge1Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("1")));
-        barge2Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("2")));
-        barge3Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("3")));
-        processPosTrigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("P")));
+        barge1Trigger.onTrue(Commands.run(() -> setAlgaeScoreDescriptor("1")));
+        barge2Trigger.onTrue(Commands.run(() -> setAlgaeScoreDescriptor("2")));
+        barge3Trigger.onTrue(Commands.run(() -> setAlgaeScoreDescriptor("3")));
+        processPosTrigger.onTrue(Commands.run(() -> setAlgaeScoreDescriptor("P")));
 
         coralDetection.hasTarget.whileTrue(rumbleCommand);
     }
@@ -463,17 +480,17 @@ public class RobotContainer {
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set(descriptor.substring(0, 1) + level);
     }
 
-    private void setTeleopAutoDescriptorAlgae(String pos) {
-        NTConstants.ALGAE_TELEOP_AUTO_ENTRY.set(pos);
+    private void setAlgaeScoreDescriptor(String pos) {
+        NTConstants.ALGAE_SCORE_ENTRY.set(pos);
     }
 
-    private void setAlgaeAutoDescriptor(boolean doAlgae) {
+    private void setAlgaePickupDescriptor(boolean doAlgae) {
         String descriptor = NTConstants.REEF_TELEOP_AUTO_ENTRY.get();
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set(descriptor.substring(0, 2) + (doAlgae ? "A" : ""));
     }
 
     private Command setAlgaeCommand() {
-        return Commands.startEnd(() -> setAlgaeAutoDescriptor(true), () -> setAlgaeAutoDescriptor(false))
+        return Commands.startEnd(() -> setAlgaePickupDescriptor(true), () -> setAlgaePickupDescriptor(false))
                 .withName("Toggle Algae");
     }
     // #endregion

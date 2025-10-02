@@ -978,7 +978,7 @@ public class Constants {
                 new LoggedNetworkString("/Tuning/Auto Descriptor", "");
         public static final LoggedNetworkString REEF_TELEOP_AUTO_ENTRY =
                 new LoggedNetworkString("/Tuning/Reef Descriptor", "A4");
-        public static final LoggedNetworkString ALGAE_TELEOP_AUTO_ENTRY =
+        public static final LoggedNetworkString ALGAE_SCORE_ENTRY =
                 new LoggedNetworkString("/Tuning/Algae Descriptor", "1");
     }
 

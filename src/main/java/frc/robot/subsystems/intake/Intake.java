@@ -38,7 +38,9 @@ public class Intake extends SubsystemBase {
 
     private Timer jamTimer = new Timer();
 
-    private Trigger jammedTrigger = new Trigger(this::isJammed);
+    private Trigger stalledTrigger = new Trigger(this::isStalled).debounce(0.1);
+    @AutoLogOutput
+    private Trigger jammedTrigger = new Trigger(this::isJammed).or(stalledTrigger);
 
     private Angle goal = IntakeConstants.STOW_POS;
 
@@ -93,6 +95,13 @@ public class Intake extends SubsystemBase {
 
     private boolean rawCoralDetected() {
         return inputs.alignLidar || inputs.coralDetected;
+    }
+
+    private boolean isStalled() {
+        return (inputs.intakeVelocity.lte(IntakeConstants.MAX_STALL_VELOCITY)
+                && inputs.alignCurrent.gte(IntakeConstants.MIN_STALL_CURRENT))
+                || (inputs.alignVelocity.lte(IntakeConstants.MAX_STALL_VELOCITY)
+                && inputs.intakeCurrent.gte(IntakeConstants.MIN_STALL_CURRENT));
     }
 
     private boolean isJammed() {

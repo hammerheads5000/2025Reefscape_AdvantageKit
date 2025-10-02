@@ -676,6 +676,8 @@ public class Constants {
         public static final Time UNJAM_TIME = Seconds.of(0.15);
         // time from coral detected in aligner to stop before end effector
         public static final Time ALIGNER_INTAKE_TIME = Seconds.of(0.05);
+        public static final AngularVelocity MAX_STALL_VELOCITY = RotationsPerSecond.of(4);
+        public static final Current MIN_STALL_CURRENT = Amps.of(5);
 
         public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(20);
 

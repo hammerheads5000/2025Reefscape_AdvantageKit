@@ -23,8 +23,10 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.Dimensions;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.coraldetection.CoralDetection;
@@ -48,40 +50,57 @@ public class AutoCoralCommand extends ParallelCommandGroup {
     private PIDController rotationController = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController(); // in radians
 
     private Distance distanceToCoral = Meters.of(100); // default very far away
+    private final boolean ignoreWall;
 
     public AutoCoralCommand(
             Swerve swerve, Intake intake, EndEffector endEffector, Elevator elevator, CoralDetection coralDetection) {
+        this(swerve, intake, endEffector, elevator, coralDetection, true);
+    }
+
+    public AutoCoralCommand(
+            Swerve swerve,
+            Intake intake,
+            EndEffector endEffector,
+            Elevator elevator,
+            CoralDetection coralDetection,
+            boolean goForWall) {
         this.swerve = swerve;
         this.intake = intake;
         this.endEffector = endEffector;
         this.elevator = elevator;
         this.coralDetection = coralDetection;
+        this.ignoreWall = goForWall;
 
         rotationController.enableContinuousInput(0, 2 * Math.PI);
 
-        addCommands(
-                Commands.sequence( // zero the elevator at the start, but don't wait for it
-                        this.elevator.goToIntakePosCommand(false),
-                        this.elevator.zeroEncoderCommand(),
-                        this.elevator.goToIntakePosCommand(true)),
-                Commands.sequence(
-                        Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
-                        this.intake.startIntakeCommand()),
-                Commands.sequence(
+        addCommands(Commands.sequence(
                         this.intake.deployCommand(true),
                         Commands.defer(this::driveTowardsCoral, Set.of(swerve))
                                 .withTimeout(IntakeConstants.CORAL_TIMEOUT)
                                 .repeatedly() // will keep restarting after timeout until coral detected in intake
                                 .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
-                        this.intake.startSlowIntakeCommand(),
+                        Commands.either(
+                                this.intake.startSlowIntakeCommand(),
+                                new ScheduleCommand(Commands.waitSeconds(0.1).andThen(this.intake.stopIntake())),
+                                () -> elevator.getHeight()
+                                        .isNear(ElevatorConstants.INTAKE_HEIGHT, ElevatorConstants.TOLERANCE)),
                         this.endEffector.startIntakeCommand(),
                         Commands.waitSeconds(0.05),
-                        Commands.runOnce(() -> this.swerve.stop())));
+                        Commands.runOnce(() -> this.swerve.stop()))
+                .deadlineFor(
+                        Commands.sequence( // zero the elevator at the start, but don't wait for it
+                                this.elevator.goToIntakePosCommand(true),
+                                Commands.waitUntil(elevator::atGoal),
+                                this.elevator.zeroEncoderCommand(),
+                                this.elevator.goToIntakePosCommand(true)),
+                        Commands.sequence(
+                                Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
+                                this.intake.startIntakeCommand())));
     }
 
     private Command driveTowardsCoral() {
         // If the coral is next to a wall, use AlignToPoseCommand to not slam into wall
-        Translation2d coral = coralDetection.getClosestCoral();
+        Translation2d coral = coralDetection.getClosestCoral(ignoreWall);
         Pose2d nearestBoundaryPose;
         if (coral != null
                 && (nearestBoundaryPose = BoundaryProtections.nearestBoundaryPose(coral))
@@ -92,7 +111,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
         }
         return Commands.run(
                 () -> {
-                    Translation2d closestCoral = coralDetection.getClosestCoral();
+                    Translation2d closestCoral = coralDetection.getClosestCoral(ignoreWall);
                     if (closestCoral == null) {
                         // Translation2d vel = accelerationLimiter.calculate(new Translation2d());
                         swerve.driveFieldCentric(
@@ -130,20 +149,15 @@ public class AutoCoralCommand extends ParallelCommandGroup {
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(
                         pose.rotateAround(pose.getTranslation(), Rotation2d.k180deg), approachPose, pickupPose),
-                PathConstants.APPROACH_CONSTRAINTS,
+                PathConstants.CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
                 new GoalEndState(0, pickupPose.getRotation().rotateBy(Rotation2d.k180deg)));
 
         path.preventFlipping = true;
 
-        Command updateCoralDistanceCommand = Commands.run(() -> {
-            distanceToCoral = Meters.of(BoundaryProtections.nearestBoundaryPose(pose.getTranslation())
-                    .getTranslation()
-                    .getDistance(swerve.getPose().getTranslation()));
-        });
+        distanceToCoral = Meters.zero(); // run intake immediately
 
         return AutoBuilder.followPath(path)
-                .deadlineFor(updateCoralDistanceCommand)
                 .andThen(new AlignToPoseCommand(
                         approachPose.rotateAround(approachPose.getTranslation(), Rotation2d.k180deg),
                         AlignConstants.CORAL_PULL_PID_TRANSLATION,

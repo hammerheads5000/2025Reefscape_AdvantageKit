@@ -667,11 +667,15 @@ public class Constants {
 
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
 
-        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(2);
+        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
 
         public static final Time CORAL_TIMEOUT = Seconds.of(4);
         public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.4);
+        public static final Time JAM_TIME = Seconds.of(1);
+        public static final Time UNJAM_TIME = Seconds.of(0.15);
+        // time from coral detected in aligner to stop before end effector
+        public static final Time ALIGNER_INTAKE_TIME = Seconds.of(0.05);
 
         public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(20);
 
@@ -744,9 +748,9 @@ public class Constants {
         public static final MagnetSensorConfigs ENCODER_CONFIGS =
                 new MagnetSensorConfigs().withMagnetOffset(0.230224609375).withAbsoluteSensorDiscontinuityPoint(0.5);
 
-        public static final Voltage CLIMB_SPEED = Volts.of(4);
-        public static final Voltage SLOW_CLIMB_SPEED = Volts.of(3);
-        public static final Voltage REVERSE_SPEED = Volts.of(-6);
+        public static final Voltage CLIMB_SPEED = Volts.of(9);
+        public static final Voltage SLOW_CLIMB_SPEED = Volts.of(4);
+        public static final Voltage REVERSE_SPEED = Volts.of(-8);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
@@ -820,9 +824,9 @@ public class Constants {
                 new Pose2d(Meters.of(1.16), Meters.of(1.02), Rotation2d.fromDegrees(-125));
 
         public static final Pose2d LEFT_CORAL_SEARCH_POSE =
-                new Pose2d(Meters.of(2), Meters.of(6), Rotation2d.fromDegrees(-55));
+                new Pose2d(Meters.of(3.32), Meters.of(5.6), Rotation2d.fromDegrees(-35));
         public static final Pose2d RIGHT_CORAL_SEARCH_POSE =
-                new Pose2d(Meters.of(2), Meters.of(2), Rotation2d.fromDegrees(55));
+                new Pose2d(Meters.of(3.32), Meters.of(2.5), Rotation2d.fromDegrees(35));
 
         public static final Pose2d PROCESSOR = new Pose2d(
                 VisionConstants.APRIL_TAGS.getTagPose(16).get().toPose2d().getMeasureX(),
@@ -934,20 +938,20 @@ public class Constants {
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.5);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(4.0),
+                MetersPerSecond.of(5.0),
                 MetersPerSecondPerSecond.of(4.5),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.0),
-                MetersPerSecondPerSecond.of(2.0),
+                MetersPerSecond.of(3.1),
+                MetersPerSecondPerSecond.of(3.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(1.0),
-                MetersPerSecondPerSecond.of(1.0),
+                MetersPerSecond.of(2.0),
+                MetersPerSecondPerSecond.of(2.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

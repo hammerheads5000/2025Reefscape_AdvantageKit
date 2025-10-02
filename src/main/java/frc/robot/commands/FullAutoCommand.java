@@ -42,10 +42,10 @@ public class FullAutoCommand extends SequentialCommandGroup {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
                 .until(coralDetection.hasTarget);
 
-        if (Constants.SIM_MODE == Mode.SIM) {
+        if (Constants.CURRENT_MODE == Mode.SIM) {
             return command.andThen(endEffector.startIntakeCommand());
         }
-        return command;
+        return command.andThen(new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, false));
     }
 
     private Command getElevatorPosCommand(char level) {
@@ -183,6 +183,9 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
+                                Commands.waitUntil(elevator::atGoal).unless(endEffector.coralDetectedTrigger),
+                                intake.startSlowIntakeCommand().unless(endEffector.coralDetectedTrigger),
+                                endEffector.startIntakeCommand().unless(endEffector.coralDetectedTrigger),
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),

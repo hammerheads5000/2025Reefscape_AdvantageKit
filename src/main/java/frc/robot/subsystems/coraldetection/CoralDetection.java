@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.coraldetection;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -21,7 +23,9 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.util.BoundaryProtections;
 import java.util.List;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -38,7 +42,8 @@ public class CoralDetection extends SubsystemBase {
 
     private List<Translation2d> coralList = List.of();
 
-    public Trigger hasTarget = new Trigger(() -> inputs.corals.length > 0).debounce(0.1);
+    @AutoLogOutput
+    public Trigger hasTarget = new Trigger(() -> inputs.corals.length > 0);
 
     /** Creates a new CoralDetection. */
     public CoralDetection(CoralDetectionIO io, Supplier<Pose2d> poseSupplier) {
@@ -92,10 +97,19 @@ public class CoralDetection extends SubsystemBase {
 
     @AutoLogOutput
     public Translation2d getClosestCoral() {
+        return getClosestCoral(false);
+    }
+
+    public Translation2d getClosestCoral(boolean ignoreWall) {
         Translation2d closest = null;
         Translation2d robotPos = poseSupplier.get().getTranslation();
         for (var coral : coralList) {
-            if (closest == null || coral.getDistance(robotPos) < closest.getDistance(robotPos)) {
+            if (closest == null
+                    || coral.getDistance(robotPos) < closest.getDistance(robotPos)
+                            && BoundaryProtections.nearestBoundaryPose(coral)
+                                            .getTranslation()
+                                            .getDistance(coral)
+                                    <= IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
                 closest = coral;
             }
         }

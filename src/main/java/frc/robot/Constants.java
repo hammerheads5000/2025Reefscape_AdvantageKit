@@ -496,7 +496,7 @@ public class Constants {
         public static final Distance MIN_HEIGHT = Inches.of(10);
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(29.8);
-        public static final Distance L2_HEIGHT = Inches.of(37.5);
+        public static final Distance L2_HEIGHT = Inches.of(38.5);
         public static final Distance L3_HEIGHT = Inches.of(53.8);
         public static final Distance L4_HEIGHT = Inches.of(77.5);
         public static final Distance INTAKE_HEIGHT = Inches.of(10.5);
@@ -504,8 +504,8 @@ public class Constants {
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
 
-        public static final Distance LOW_ALGAE_HEIGHT = Inches.of(29);
-        public static final Distance HIGH_ALGAE_HEIGHT = Inches.of(43.5);
+        public static final Distance LOW_ALGAE_HEIGHT = Meters.of(0.69);
+        public static final Distance HIGH_ALGAE_HEIGHT = Meters.of(1.1420);
         public static final Distance BARGE_HEIGHT = Inches.of(82.4);
         public static final Distance LOLLIPOP_HEIGHT = Inches.of(9.3);
         public static final Distance PROCESS_HEIGHT = Inches.of(9.3);
@@ -540,6 +540,7 @@ public class Constants {
         public static final int LIDAR_ID = 9; // DIO
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(45);
         public static final Time CORAL_SHOOT_TIME = Seconds.of(0.3);
+        public static final Time L1_SHOOT_TIME = Seconds.of(0.5);
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4.5);
@@ -642,7 +643,7 @@ public class Constants {
                 .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.245849609375)
+                .withMagnetOffset(0.4111328125)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         // S1 = align, S2 = beam break
@@ -750,9 +751,9 @@ public class Constants {
         public static final MagnetSensorConfigs ENCODER_CONFIGS =
                 new MagnetSensorConfigs().withMagnetOffset(0.230224609375).withAbsoluteSensorDiscontinuityPoint(0.5);
 
-        public static final Voltage CLIMB_SPEED = Volts.of(9);
+        public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage SLOW_CLIMB_SPEED = Volts.of(4);
-        public static final Voltage REVERSE_SPEED = Volts.of(-8);
+        public static final Voltage REVERSE_SPEED = Volts.of(-12);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
@@ -760,6 +761,13 @@ public class Constants {
         public static final MotorOutputConfigs GRAB_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
+
+        public static final AngularVelocity MAX_STALL_VELOCITY = RotationsPerSecond.of(1);
+        public static final Voltage MIN_STALL_VOLTS = Volts.of(1);
+        public static final AngularVelocity SWERVE_TURN_SPEED = DegreesPerSecond.of(120);
+        private static final Angle SWERVE_TURN_AMOUNT = Degrees.of(45);
+        public static final Time SWERVE_TURN_TIME =
+                Seconds.of(SWERVE_TURN_AMOUNT.divideRatio(SWERVE_TURN_SPEED).in(Seconds));
     }
 
     public static class VisionConstants {
@@ -790,9 +798,7 @@ public class Constants {
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(0.39), Inches.of(9.98), Inches.of(34.31)),
                 new Rotation3d(
-                        Degrees.of(0 - 4.11),
-                        Degrees.of(-22.14),
-                        Degrees.of(169.2))); // used to be 172.6 Degrees.of(169)));
+                        Degrees.of(0), Degrees.of(22.5), Degrees.of(-170))); // used to be 172.6 Degrees.of(169)));
 
         public static final int REEF_VISION_CANDI_ID = 2; // fd bus
         public static final Angle VERTICAL_FOV = Degrees.of(46);

@@ -115,7 +115,7 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Left Trough");
         }
         return runCommand(EndEffectorConstants.SLOW_TROUGH_SPEED, EndEffectorConstants.FAST_TROUGH_SPEED)
-                .until(coralDetectedTrigger.negate())
+                .withTimeout(EndEffectorConstants.L1_SHOOT_TIME)
                 .withName("End Effector Left Trough");
     }
 
@@ -124,7 +124,7 @@ public class EndEffector extends SubsystemBase {
             return this.runOnce(() -> simHasCoral = false).withName("End Effector Trough Right");
         }
         return runCommand(EndEffectorConstants.FAST_TROUGH_SPEED, EndEffectorConstants.SLOW_TROUGH_SPEED)
-                .until(coralDetectedTrigger.negate())
+                .withTimeout(EndEffectorConstants.L1_SHOOT_TIME)
                 .withName("End Effector Right Trough");
     }
 

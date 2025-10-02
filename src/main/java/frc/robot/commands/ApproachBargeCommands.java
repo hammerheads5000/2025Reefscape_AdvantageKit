@@ -42,13 +42,10 @@ public class ApproachBargeCommands {
 
     /** Publishes barge poses to NetworkTables */
     public static void testBargePoses() {
-        Pose2d[] bluePoses = new Pose2d[] {
-            getBargePose('1', false), getBargePose('2', false), getBargePose('3', false)
-        };
+        Pose2d[] bluePoses =
+                new Pose2d[] {getBargePose('1', false), getBargePose('2', false), getBargePose('3', false)};
 
-        Pose2d[] redPoses = new Pose2d[] {
-            getBargePose('1', true), getBargePose('2', true), getBargePose('3', true)
-        };
+        Pose2d[] redPoses = new Pose2d[] {getBargePose('1', true), getBargePose('2', true), getBargePose('3', true)};
 
         INST.getStructArrayTopic("Barge Poses/Blue Barge Poses", Pose2d.struct)
                 .publish()

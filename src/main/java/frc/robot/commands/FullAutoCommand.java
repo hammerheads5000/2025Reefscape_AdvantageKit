@@ -4,9 +4,13 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,8 +31,6 @@ import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.ControlConstants;
-
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -51,13 +53,27 @@ public class FullAutoCommand extends SequentialCommandGroup {
         if (Constants.CURRENT_MODE == Mode.SIM) {
             return command.andThen(endEffector.startIntakeCommand());
         }
-        AutoCoralCommand autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, false);
-        AlignAndFacePoseCommand facePoseCommand = new AlignAndFacePoseCommand(
-                new Pose2d(), 
-                pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE,
-                new ControlConstants(), // ignore translation at all
-                AlignConstants.CORAL_PICKUP_PID_ANGLE,
-                swerve);
+        AutoCoralCommand autoCoralCommand =
+                new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, false);
+
+        final double kP =
+                AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController().getP();
+
+        Command facePoseCommand = swerve.runEnd(
+                () -> {
+                    Pose2d pose = swerve.getPose();
+                    Rotation2d target = Pathfinding.pointPoseTowards(
+                                    pose,
+                                    pos == 1
+                                            ? FieldConstants.LEFT_CORAL_SEARCH_POSE
+                                            : FieldConstants.RIGHT_CORAL_SEARCH_POSE)
+                            .getRotation();
+                    target = target.rotateBy(Rotation2d.k180deg);
+                    double errorDeg = target.minus(pose.getRotation()).getDegrees();
+                    swerve.driveFieldCentric(
+                            MetersPerSecond.zero(), MetersPerSecond.zero(), DegreesPerSecond.of(kP * errorDeg));
+                },
+                swerve::stop);
 
         finishedAutoCoral = false;
 
@@ -66,14 +82,16 @@ public class FullAutoCommand extends SequentialCommandGroup {
         // wait until it does see a coral not on a wall
         // repeat until the autoCoralCommand actually finishes (starts intaking coral)
         // (this is what finishedAutoCoral tracks)
-        return command.andThen(
-                Commands.repeatingSequence(
-                        autoCoralCommand.until(() -> !intake.coralDetectedTrigger.getAsBoolean()
-                                && coralDetection.getClosestCoral(true) == null).finallyDo(interrupted -> {
+        return command.andThen(Commands.repeatingSequence(
+                        autoCoralCommand
+                                .until(() -> !intake.coralDetectedTrigger.getAsBoolean()
+                                        && (!coralDetection.hasTarget.getAsBoolean()
+                                                || coralDetection.getClosestCoral(true) == null))
+                                .finallyDo(interrupted -> {
                                     finishedAutoCoral = !interrupted;
                                 }),
                         facePoseCommand.until(() -> coralDetection.getClosestCoral(true) != null))
-                        .until(() -> finishedAutoCoral));
+                .until(() -> finishedAutoCoral));
     }
 
     private Command getElevatorPosCommand(char level) {

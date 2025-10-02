@@ -54,6 +54,8 @@ public class CoralDetection extends SubsystemBase {
         this.poseSupplier = poseSupplier;
         this.CAMERA_ROTATION_MAT = calculateRotationMat();
 
+        Logger.recordOutput("Rot Mat", CAMERA_ROTATION_MAT.getData());
+
         this.disconnectedAlert = new Alert("Coral Camera disconnected", AlertType.kWarning);
     }
 
@@ -76,18 +78,29 @@ public class CoralDetection extends SubsystemBase {
         double pitch = VisionConstants.CORAL_CAM_POS.getRotation().getY();
         double yaw = VisionConstants.CORAL_CAM_POS.getRotation().getZ();
 
-        return MatBuilder.fill(
-                Nat.N3(),
-                Nat.N3(),
-                Math.cos(pitch) * Math.cos(roll),
-                Math.sin(yaw) * Math.sin(pitch) * Math.cos(roll) - Math.cos(yaw) * Math.sin(roll),
-                Math.cos(yaw) * Math.sin(pitch) * Math.cos(roll) + Math.sin(yaw) * Math.sin(roll),
-                Math.cos(pitch) * Math.sin(roll),
-                Math.sin(yaw) * Math.sin(pitch) * Math.sin(roll) + Math.cos(yaw) * Math.cos(roll),
-                Math.cos(yaw) * Math.sin(pitch) * Math.sin(roll) - Math.sin(yaw) * Math.cos(roll),
-                -Math.sin(pitch),
-                Math.sin(yaw) * Math.cos(pitch),
-                Math.cos(yaw) * Math.cos(pitch));
+        final Matrix<N3, N3> rollMat = MatBuilder.fill(
+                Nat.N3(), Nat.N3(), 1, 0, 0, 0, Math.cos(roll), -Math.sin(roll), 0, Math.sin(roll), Math.cos(roll));
+
+        final Matrix<N3, N3> pitchMat = MatBuilder.fill(
+                Nat.N3(), Nat.N3(), Math.cos(pitch), 0, Math.sin(pitch), 0, 1, 0, -Math.sin(pitch), 0, Math.cos(pitch));
+
+        final Matrix<N3, N3> yawMat = MatBuilder.fill(
+                Nat.N3(), Nat.N3(), Math.cos(yaw), -Math.sin(yaw), 0, Math.sin(yaw), Math.cos(yaw), 0, 0, 0, 1);
+
+        return yawMat.times(pitchMat).times(rollMat);
+
+        // return MatBuilder.fill(
+        //         Nat.N3(),
+        //         Nat.N3(),
+        //         Math.cos(pitch) * Math.cos(roll),
+        //         Math.sin(yaw) * Math.sin(pitch) * Math.cos(roll) - Math.cos(yaw) * Math.sin(roll),
+        //         Math.cos(yaw) * Math.sin(pitch) * Math.cos(roll) + Math.sin(yaw) * Math.sin(roll),
+        //         Math.cos(pitch) * Math.sin(roll),
+        //         Math.sin(yaw) * Math.sin(pitch) * Math.sin(roll) + Math.cos(yaw) * Math.cos(roll),
+        //         Math.cos(yaw) * Math.sin(pitch) * Math.sin(roll) - Math.sin(yaw) * Math.cos(roll),
+        //         -Math.sin(pitch),
+        //         Math.sin(yaw) * Math.cos(pitch),
+        //         Math.cos(yaw) * Math.cos(pitch));
     }
 
     private void logCorals() {
@@ -108,10 +121,11 @@ public class CoralDetection extends SubsystemBase {
         for (var coral : coralList) {
             if (closest == null
                     || coral.getDistance(robotPos) < closest.getDistance(robotPos)
-                            && BoundaryProtections.nearestBoundaryPose(coral)
-                                            .getTranslation()
-                                            .getDistance(coral)
-                                    <= IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
+                            && (!ignoreWall
+                                    || BoundaryProtections.nearestBoundaryPose(coral)
+                                                    .getTranslation()
+                                                    .getDistance(coral)
+                                            > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))) {
                 closest = coral;
             }
         }
@@ -137,7 +151,7 @@ public class CoralDetection extends SubsystemBase {
 
     // transforms a coral position in (yaw, pitch) to a 2D position in robot space (x, y)
     private Translation2d projectCoralPosition(Translation2d coral) {
-        double yaw = Math.toRadians(coral.getX());
+        double yaw = -Math.toRadians(coral.getX());
         double pitch = Math.toRadians(coral.getY());
 
         Vector<N3> rayDirectionFromCam =
@@ -149,7 +163,7 @@ public class CoralDetection extends SubsystemBase {
         Matrix<N3, N1> rayDirectionFromBot = CAMERA_ROTATION_MAT.times(rayDirectionFromCam);
 
         // Line: camPos + t*rayDirection = [x, y, 2.25 in]
-        double t = (Inches.of(2.25).in(Meters)-camPos.getZ()) / rayDirectionFromBot.get(2, 0);
+        double t = (Inches.of(2.25).in(Meters) - camPos.getZ()) / rayDirectionFromBot.get(2, 0);
         double x = camPos.getX() + t * rayDirectionFromBot.get(0, 0);
         double y = camPos.getY() + t * rayDirectionFromBot.get(1, 0);
 

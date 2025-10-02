@@ -28,6 +28,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToReefCommands;
 import frc.robot.commands.ApproachBargeCommands;
 import frc.robot.commands.AutoCoralCommand;
+import frc.robot.commands.ClimbSequence;
 import frc.robot.commands.FullAutoCommand;
 import frc.robot.commands.LollipopCommands;
 import frc.robot.commands.ProcessCommand;
@@ -116,6 +117,8 @@ public class RobotContainer {
     private final Command lollipopCommand;
 
     private final AutoCoralCommand autoCoralCommand;
+
+    private final ClimbSequence climbSequence;
     // #endregion
 
     // #region Triggers
@@ -138,6 +141,7 @@ public class RobotContainer {
     private final Trigger reefTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
     private final Trigger autoClimbTrigger = driveController.start();
+    private final Trigger climbSequenceTrigger = buttonBoardOther.button(1);
     private final Trigger unclimbTrigger = driveController.back();
     private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2).debounce(0.5, DebounceType.kRising);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger; // adds algae pickup to coral auto sequence
@@ -312,31 +316,33 @@ public class RobotContainer {
 
         intakeAndReefCommand = Commands.defer(
                         () -> new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection)
-                                .andThen(new FullAutoCommand(
-                                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
-                                        swerve,
-                                        elevator,
-                                        endEffector,
-                                        algaeManipulator,
-                                        intake,
-                                        coralDetection,
-                                        vision)),
+                                .andThen(Commands.defer(
+                                        () -> new FullAutoCommand(
+                                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
+                                                swerve,
+                                                elevator,
+                                                endEffector,
+                                                algaeManipulator,
+                                                intake,
+                                                coralDetection,
+                                                vision),
+                                        Set.of(swerve, elevator))),
                         Set.of(swerve, elevator))
-                //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
+                // .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Intake + Reef Auto");
 
         reefCommand = Commands.defer(
                         () -> new FullAutoCommand(
-                                        NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
-                                        swerve,
-                                        elevator,
-                                        endEffector,
-                                        algaeManipulator,
-                                        intake,
-                                        coralDetection,
-                                        vision),
+                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get(),
+                                swerve,
+                                elevator,
+                                endEffector,
+                                algaeManipulator,
+                                intake,
+                                coralDetection,
+                                vision),
                         Set.of(swerve, elevator))
-                //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
+                // .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
 
         algaeCommand = Commands.defer(
@@ -390,6 +396,8 @@ public class RobotContainer {
         aboveAdjustHeightTrigger.onFalse(endEffector.unAdjustCoralCommand());
 
         autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection);
+
+        climbSequence = new ClimbSequence(swerve, climber);
         // #endregion
 
         SmartDashboard.putData("Reef Auto", intakeAndReefCommand);
@@ -397,6 +405,13 @@ public class RobotContainer {
         SmartDashboard.putData("Barge Auto", bargeCommand);
         SmartDashboard.putData("Nearest Lollipop", lollipopCommand);
         SmartDashboard.putData("Process", processCommand);
+
+        SmartDashboard.putData(
+                "Coral Search",
+                Commands.defer(
+                        () -> new FullAutoCommand(
+                                "S1", swerve, elevator, endEffector, algaeManipulator, intake, coralDetection, vision),
+                        Set.of(swerve, elevator)));
 
         configureBindings();
     }
@@ -423,8 +438,9 @@ public class RobotContainer {
         intakeAndReefTrigger.whileTrue(intakeAndReefCommand);
         reefTrigger.whileTrue(reefCommand);
         algaeTrigger.whileTrue(algaeCommand);
-        algaeScoreTrigger.whileTrue(Commands.either(processCommand, bargeCommand,
-                () -> NTConstants.ALGAE_SCORE_ENTRY.get().equals("P")));
+        algaeScoreTrigger.whileTrue(Commands.either(processCommand, bargeCommand, () -> NTConstants.ALGAE_SCORE_ENTRY
+                .get()
+                .equals("P")));
         sweepTrigger.whileTrue(sweepCommand);
         lollipopTrigger.whileTrue(lollipopCommand);
 
@@ -434,8 +450,9 @@ public class RobotContainer {
         algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 
         autoClimbTrigger.whileTrue(climber.autoClimbCommand());
+        climbSequenceTrigger.whileTrue(climbSequence);
         unclimbTrigger.whileTrue(climber.reverseCommand());
-        climbGrabPosTrigger.whileTrue(climber.goToGrabPosCommand());
+        climbGrabPosTrigger.onTrue(climber.goToGrabPosCommand());
 
         for (int i = 0; i < reefTriggers.length; i++) {
             reefTriggers[i] = buttonBoardReef.button(i + 1);
@@ -497,13 +514,14 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new FullAutoCommand(
-                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(),
-                swerve,
-                elevator,
-                endEffector,
-                algaeManipulator,
-                intake,
-                coralDetection,
-                vision);
+                        NTConstants.AUTO_DESCRIPTOR_ENTRY.get(),
+                        swerve,
+                        elevator,
+                        endEffector,
+                        algaeManipulator,
+                        intake,
+                        coralDetection,
+                        vision)
+                .beforeStarting(intake.deployCommand(true));
     }
 }

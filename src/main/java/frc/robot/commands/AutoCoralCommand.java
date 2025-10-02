@@ -54,7 +54,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
 
     public AutoCoralCommand(
             Swerve swerve, Intake intake, EndEffector endEffector, Elevator elevator, CoralDetection coralDetection) {
-        this(swerve, intake, endEffector, elevator, coralDetection, true);
+        this(swerve, intake, endEffector, elevator, coralDetection, false);
     }
 
     public AutoCoralCommand(
@@ -63,13 +63,13 @@ public class AutoCoralCommand extends ParallelCommandGroup {
             EndEffector endEffector,
             Elevator elevator,
             CoralDetection coralDetection,
-            boolean goForWall) {
+            boolean ignoreWall) {
         this.swerve = swerve;
         this.intake = intake;
         this.endEffector = endEffector;
         this.elevator = elevator;
         this.coralDetection = coralDetection;
-        this.ignoreWall = goForWall;
+        this.ignoreWall = ignoreWall;
 
         rotationController.enableContinuousInput(0, 2 * Math.PI);
 

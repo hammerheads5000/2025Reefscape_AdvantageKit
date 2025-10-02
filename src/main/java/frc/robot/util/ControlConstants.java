@@ -12,7 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public class ControlConstants {
     // PID gains
     double kP, kI, kD = 0;
-    double tolerance;
+    double tolerance = 0;
     double velTolerance = Double.POSITIVE_INFINITY;
     double iZone = Double.POSITIVE_INFINITY;
     double iMin = Double.NEGATIVE_INFINITY;

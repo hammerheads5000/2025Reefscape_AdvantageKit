@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.coraldetection;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.MatBuilder;
@@ -146,8 +147,8 @@ public class CoralDetection extends SubsystemBase {
         // Robot oriented
         Matrix<N3, N1> rayDirectionFromBot = CAMERA_ROTATION_MAT.times(rayDirectionFromCam);
 
-        // Line: camPos + t*rayDirection = [x, y, 0]
-        double t = -camPos.getZ() / rayDirectionFromBot.get(2, 0);
+        // Line: camPos + t*rayDirection = [x, y, 2.25 in]
+        double t = (Inches.of(2.25).in(Meters)-camPos.getZ()) / rayDirectionFromBot.get(2, 0);
         double x = camPos.getX() + t * rayDirectionFromBot.get(0, 0);
         double y = camPos.getY() + t * rayDirectionFromBot.get(1, 0);
 

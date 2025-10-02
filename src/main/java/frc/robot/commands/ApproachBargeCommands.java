@@ -33,7 +33,7 @@ public class ApproachBargeCommands {
     /**
      * Get given barge pose, flipped based on alliance
      *
-     * @param pos F,G,H,I for barge positions from right to left
+     * @param pos 1,2,3 for barge positions from left to right
      * @return Barge pose
      */
     public static Pose2d getBargePose(char pos) {
@@ -43,11 +43,11 @@ public class ApproachBargeCommands {
     /** Publishes barge poses to NetworkTables */
     public static void testBargePoses() {
         Pose2d[] bluePoses = new Pose2d[] {
-            getBargePose('F', false), getBargePose('G', false), getBargePose('H', false), getBargePose('I', false)
+            getBargePose('1', false), getBargePose('2', false), getBargePose('3', false)
         };
 
         Pose2d[] redPoses = new Pose2d[] {
-            getBargePose('F', true), getBargePose('G', true), getBargePose('H', true), getBargePose('I', true)
+            getBargePose('1', true), getBargePose('2', true), getBargePose('3', true)
         };
 
         INST.getStructArrayTopic("Barge Poses/Blue Barge Poses", Pose2d.struct)
@@ -61,7 +61,7 @@ public class ApproachBargeCommands {
     /**
      * Generate PathPlannerPath to the desired barge pos, moving around the reef if necessary
      *
-     * @param pos F,G,H,I for barge positions from right to left
+     * @param pos 1,2,3 for barge positions from left to right
      * @param swerve
      * @return AutoBuilder follow path command
      */

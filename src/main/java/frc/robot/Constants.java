@@ -872,10 +872,9 @@ public class Constants {
         public static final Distance BARGE_X = Meters.of(7.5);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
-                'I', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
-                'H', new Pose2d(BARGE_X, Meters.of(6.7), BARGE_SHOOT_ROTATION),
-                'G', new Pose2d(BARGE_X, Meters.of(5.2), BARGE_SHOOT_ROTATION.unaryMinus()),
-                'F', new Pose2d(BARGE_X, Meters.of(4.3), BARGE_SHOOT_ROTATION.unaryMinus()));
+                '3', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
+                '2', new Pose2d(BARGE_X, Meters.of(5.9), BARGE_SHOOT_ROTATION),
+                '1', new Pose2d(BARGE_X, Meters.of(4.3), BARGE_SHOOT_ROTATION.unaryMinus()));
 
         private static final Distance LOLLIPOP_X = Inches.of(48);
         public static final Pose2d[] LOLLIPOP_POSES = {
@@ -979,8 +978,8 @@ public class Constants {
                 new LoggedNetworkString("/Tuning/Auto Descriptor", "");
         public static final LoggedNetworkString REEF_TELEOP_AUTO_ENTRY =
                 new LoggedNetworkString("/Tuning/Reef Descriptor", "A4");
-        public static final LoggedNetworkString SEARCH_POS_TELEOP_AUTO_ENTRY =
-                new LoggedNetworkString("/Tuning/Coral Search Descriptor", "S0");
+        public static final LoggedNetworkString ALGAE_TELEOP_AUTO_ENTRY =
+                new LoggedNetworkString("/Tuning/Algae Descriptor", "1");
     }
 
     private Constants() {}

@@ -20,9 +20,9 @@ public class ScoreInBargeCommand extends SequentialCommandGroup {
      * @param pos F,G,H,I for barge positions from right to left
      */
     public ScoreInBargeCommand(char pos, Swerve swerve, Elevator elevator, AlgaeManipulator algaeManipulator) {
-        if (!Set.of('F', 'G', 'H', 'I').contains(pos)) {
-            pos = 'I';
-            System.err.println("Invalid barge position, defaulting to I");
+        if (!Set.of('1', '2', '3', 'P').contains(pos)) {
+            pos = '1';
+            System.err.println("Invalid barge position, defaulting to 1");
         }
         addCommands(
                 ApproachBargeCommands.pathfindCommand(pos, swerve),

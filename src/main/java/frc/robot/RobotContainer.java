@@ -7,6 +7,7 @@ package frc.robot;
 // #region Imports
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -102,7 +103,6 @@ public class RobotContainer {
 
     private final Command rumbleCommand;
     private final Command reefCommand;
-    private final Command coralSearchCommand;
     private final Command algaeCommand;
     private final Command bargeCommand;
     private final Command sweepCommand;
@@ -134,15 +134,14 @@ public class RobotContainer {
     private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger reefTrigger = driveController.a();
-    private final Trigger coralSearchTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
     private final Trigger autoClimbTrigger = driveController.start();
     private final Trigger unclimbTrigger = driveController.back();
-    private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2);
+    private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2).debounce(0.5, DebounceType.kRising);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger;
 
     private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
-    private final Trigger bargeTrigger = driveController.b().and(algaeButtonLayerTrigger);
+    private final Trigger algaeScoreTrigger = driveController.b().and(algaeButtonLayerTrigger);
     private final Trigger lollipopTrigger = driveController.x().and(algaeButtonLayerTrigger);
     private final Trigger algaeManualIntakeTrigger =
             driveController.rightBumper().and(algaeButtonLayerTrigger);
@@ -162,14 +161,6 @@ public class RobotContainer {
             Map.entry(1, 'K'),
             Map.entry(3, 'L'));
 
-    private final Map<Integer, String> BUTTON_TO_SEARCH_POS = Map.ofEntries(
-            Map.entry(3, "S1"),
-            Map.entry(4, "S1"),
-            Map.entry(5, "S1"),
-            Map.entry(6, "S0"),
-            Map.entry(7, "S0"),
-            Map.entry(8, "S0"));
-
     private final Trigger[] reefTriggers = new Trigger[12];
     private final Trigger[] levelTriggers = new Trigger[] {
         buttonBoardOther.button(9),
@@ -178,7 +169,10 @@ public class RobotContainer {
         buttonBoardOther.button(12)
     };
 
-    private final Trigger[] coralSearchTriggers = new Trigger[6];
+    private final Trigger barge1Trigger = buttonBoardOther.button(3);
+    private final Trigger barge2Trigger = buttonBoardOther.button(4);
+    private final Trigger barge3Trigger = buttonBoardOther.button(5);
+    private final Trigger processPosTrigger = buttonBoardOther.button(8);
     // #endregion
 
     // #region Alerts
@@ -206,7 +200,6 @@ public class RobotContainer {
 
         NTConstants.AUTO_DESCRIPTOR_ENTRY.set("");
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set("A4");
-        NTConstants.SEARCH_POS_TELEOP_AUTO_ENTRY.set("S0");
 
         // #region Instantiate Subsystems
         switch (Constants.CURRENT_MODE) {
@@ -330,19 +323,6 @@ public class RobotContainer {
                 //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
 
-        coralSearchCommand = Commands.defer(
-                        () -> new FullAutoCommand(
-                                NTConstants.SEARCH_POS_TELEOP_AUTO_ENTRY.get(),
-                                swerve,
-                                elevator,
-                                endEffector,
-                                algaeManipulator,
-                                intake,
-                                coralDetection,
-                                vision),
-                        Set.of(swerve, elevator))
-                .withName("Coral Search Auto");
-
         algaeCommand = Commands.defer(
                         () -> new RemoveAlgaeCommand(
                                 NTConstants.REEF_TELEOP_AUTO_ENTRY.get(), swerve, elevator, algaeManipulator),
@@ -351,7 +331,7 @@ public class RobotContainer {
 
         bargeCommand = Commands.defer(
                         () -> new ScoreInBargeCommand(
-                                NTConstants.REEF_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
+                                NTConstants.ALGAE_TELEOP_AUTO_ENTRY.get().charAt(0), swerve, elevator, algaeManipulator),
                         Set.of(swerve, elevator))
                 .withName("Barge Auto");
 
@@ -396,7 +376,6 @@ public class RobotContainer {
         autoCoralCommand = new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection);
         // #endregion
 
-        SmartDashboard.putData("Coral Search Auto", coralSearchCommand);
         SmartDashboard.putData("Reef Auto", reefCommand);
         SmartDashboard.putData("Algae Auto", algaeCommand);
         SmartDashboard.putData("Barge Auto", bargeCommand);
@@ -426,9 +405,9 @@ public class RobotContainer {
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
         reefTrigger.whileTrue(reefCommand);
-        coralSearchTrigger.whileTrue(coralSearchCommand);
         algaeTrigger.whileTrue(algaeCommand);
-        bargeTrigger.whileTrue(bargeCommand);
+        algaeScoreTrigger.whileTrue(Commands.either(processCommand, bargeCommand,
+                () -> NTConstants.ALGAE_TELEOP_AUTO_ENTRY.get().equals("P")));
         sweepTrigger.whileTrue(sweepCommand);
         lollipopTrigger.whileTrue(lollipopCommand);
 
@@ -455,13 +434,10 @@ public class RobotContainer {
                     new InstantCommand(() -> setTeleopAutoDescriptorLevel(level)).ignoringDisable(true));
         }
 
-        for (int i = 0; i < coralSearchTriggers.length; i++) {
-            final int button = i + 3;
-            coralSearchTriggers[i] = buttonBoardOther.button(button);
-            coralSearchTriggers[i].onTrue(
-                    new InstantCommand(() -> setTeleopAutoDescriptorSearch(BUTTON_TO_SEARCH_POS.get(button)))
-                            .ignoringDisable(true));
-        }
+        barge1Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("1")));
+        barge2Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("2")));
+        barge3Trigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("3")));
+        processPosTrigger.onTrue(Commands.run(() -> setTeleopAutoDescriptorAlgae("P")));
 
         coralDetection.hasTarget.whileTrue(rumbleCommand);
     }
@@ -487,8 +463,8 @@ public class RobotContainer {
         NTConstants.REEF_TELEOP_AUTO_ENTRY.set(descriptor.substring(0, 1) + level);
     }
 
-    private void setTeleopAutoDescriptorSearch(String pos) {
-        NTConstants.SEARCH_POS_TELEOP_AUTO_ENTRY.set(pos);
+    private void setTeleopAutoDescriptorAlgae(String pos) {
+        NTConstants.ALGAE_TELEOP_AUTO_ENTRY.set(pos);
     }
 
     private void setAlgaeAutoDescriptor(boolean doAlgae) {

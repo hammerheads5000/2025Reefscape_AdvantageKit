@@ -327,7 +327,7 @@ public class RobotContainer {
                                         coralDetection,
                                         vision)),
                         Set.of(swerve, elevator))
-                .andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
+                //.andThen(rumbleCommand.asProxy().withTimeout(ControllerConstants.SCORE_RUMBLE_TIME))
                 .withName("Reef Auto");
 
         coralSearchCommand = Commands.defer(
@@ -463,7 +463,7 @@ public class RobotContainer {
                             .ignoringDisable(true));
         }
 
-        // intake.coralDetectedTrigger.whileTrue(rumbleCommand);
+        coralDetection.hasTarget.whileTrue(rumbleCommand);
     }
 
     public void updateAlerts() {

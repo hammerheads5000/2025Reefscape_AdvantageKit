@@ -12,6 +12,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -44,7 +45,7 @@ public class CoralDetection extends SubsystemBase {
     private List<Translation2d> coralList = List.of();
 
     @AutoLogOutput
-    public Trigger hasTarget = new Trigger(() -> inputs.corals.length > 0);
+    public Trigger hasTarget = new Trigger(() -> inputs.corals.length > 0).debounce(0.5, DebounceType.kFalling);
 
     /** Creates a new CoralDetection. */
     public CoralDetection(CoralDetectionIO io, Supplier<Pose2d> poseSupplier) {

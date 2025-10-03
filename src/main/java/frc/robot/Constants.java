@@ -371,7 +371,7 @@ public class Constants {
 
         public static final ControlConstants CORAL_PICKUP_PID_TRANSLATION = new ControlConstants(
                         SCORING_PID_TRANSLATION)
-                .withProfile(3, 2)
+                .withProfile(3, 6)
                 .withTolerance(Inches.of(4).in(Meters));
 
         // output: deg/s, measure: deg
@@ -905,7 +905,7 @@ public class Constants {
         public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(50);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
-        public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(3);
+        public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(5);
         public static final Distance FLIP_DISTANCE = Inches.of(80);
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
         public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(20);

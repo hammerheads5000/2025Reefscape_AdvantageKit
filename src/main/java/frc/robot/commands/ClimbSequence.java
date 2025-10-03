@@ -17,7 +17,7 @@ public class ClimbSequence extends SequentialCommandGroup {
         addCommands(
                 swerve.runOnce(() -> swerve.driveFieldCentric(
                         MetersPerSecond.zero(), MetersPerSecond.zero(), ClimberConstants.SWERVE_TURN_SPEED)),
-                Commands.waitTime(ClimberConstants.SWERVE_TURN_TIME),
+                Commands.waitTime(ClimberConstants.SWERVE_TURN_TIME), // turn robot CCW so cage doesn't hit elevator
                 swerve.runOnce(swerve::stop),
                 climber.autoClimbCommand());
     }

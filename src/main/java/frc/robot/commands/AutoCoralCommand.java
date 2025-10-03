@@ -74,19 +74,19 @@ public class AutoCoralCommand extends ParallelCommandGroup {
         rotationController.enableContinuousInput(0, 2 * Math.PI);
 
         addCommands(Commands.sequence(
-                        this.intake.deployCommand(true),
-                        Commands.defer(this::driveTowardsCoral, Set.of(swerve))
-                                .withTimeout(IntakeConstants.CORAL_TIMEOUT)
-                                .repeatedly() // will keep restarting after timeout until coral detected in intake
-                                .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
-                        Commands.either(
-                                this.intake.startSlowIntakeCommand(),
-                                new ScheduleCommand(Commands.waitSeconds(0.1).andThen(this.intake.stopIntake())),
-                                () -> elevator.getHeight()
-                                        .isNear(ElevatorConstants.INTAKE_HEIGHT, ElevatorConstants.TOLERANCE)),
-                        this.endEffector.startIntakeCommand(),
-                        Commands.waitSeconds(0.05),
-                        Commands.runOnce(() -> this.swerve.stop()))
+                this.intake.deployCommand(true),
+                Commands.defer(this::driveTowardsCoral, Set.of(swerve))
+                        .withTimeout(IntakeConstants.CORAL_TIMEOUT)
+                        .repeatedly() // will keep restarting after timeout until coral detected in intake
+                        .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
+                Commands.either( // depending on elevator being at intake or not
+                        this.intake.startSlowIntakeCommand(),
+                        new ScheduleCommand(Commands.waitSeconds(0.1).andThen(this.intake.stopIntake())),
+                        () -> elevator.getHeight()
+                                .isNear(ElevatorConstants.INTAKE_HEIGHT, ElevatorConstants.TOLERANCE)),
+                this.endEffector.startIntakeCommand(),
+                Commands.waitSeconds(0.05),
+                Commands.runOnce(() -> this.swerve.stop()))
                 .deadlineFor(
                         Commands.sequence( // zero the elevator at the start, but don't wait for it
                                 this.elevator.goToIntakePosCommand(true),
@@ -104,9 +104,8 @@ public class AutoCoralCommand extends ParallelCommandGroup {
         Pose2d nearestBoundaryPose;
         if (coral != null
                 && (nearestBoundaryPose = BoundaryProtections.nearestBoundaryPose(coral))
-                                .getTranslation()
-                                .getDistance(coral)
-                        < IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
+                        .getTranslation()
+                        .getDistance(coral) < IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters)) {
             return pathfindToCoralCommand(coral, nearestBoundaryPose);
         }
         return Commands.run(
@@ -119,6 +118,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                         return;
                     }
 
+                    // moving towards coral
                     Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
                     distanceToCoral = Meters.of(vel.getNorm());
                     vel = vel.div(vel.getNorm());
@@ -129,6 +129,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                             swerve.getPose().getRotation().getRadians(),
                             vel.getAngle().plus(Rotation2d.k180deg).getRadians()));
 
+                    // don't run into wall (hopefully)
                     vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
 
                     swerve.driveFieldCentric(
@@ -137,6 +138,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                 swerve);
     }
 
+    /** use PathPlanner to create path to pickup coral on a wall */
     private Command pathfindToCoralCommand(Translation2d coralPose, Pose2d nearestBoundaryPose) {
         Pose2d pose = swerve.getPose();
         double endRobotDistToWall = Dimensions.ROBOT_SIZE.in(Meters) / 2 + IntakeConstants.INTAKE_EXTENSION.in(Meters);

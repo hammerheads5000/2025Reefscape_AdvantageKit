@@ -43,6 +43,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
     boolean finishedAutoCoral = false;
 
+    /** move to coral search position and look for coral, then intake */
     private Command getCoralSearchCommand(int pos) {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
                 .until(() -> coralDetection.getClosestCoral(true) != null);
@@ -58,7 +59,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
             searchPose = FlippingUtil.flipFieldPose(searchPose);
         }
 
-        Command facePoseCommand = new AlignToPoseCommand(
+        // ran when bot loses coral it was going for
+        Command alignCommand = new AlignToPoseCommand(
                 searchPose, AlignConstants.CORAL_PICKUP_PID_TRANSLATION, AlignConstants.CORAL_PICKUP_PID_ANGLE, swerve);
 
         finishedAutoCoral = false;
@@ -75,7 +77,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                         })
                                         .until(() -> !intake.coralDetectedTrigger.getAsBoolean()
                                                 && (coralDetection.getClosestCoral(true) == null)),
-                                facePoseCommand.until(() -> coralDetection.getClosestCoral(true) != null))
+                                alignCommand.until(() -> coralDetection.getClosestCoral(true) != null))
                         .until(() -> finishedAutoCoral))
                 .beforeStarting(() -> {
                     finishedAutoCoral = false;
@@ -124,6 +126,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
         return getElevatorTrackCommand(level, distanceToReef);
     }
 
+    @Deprecated
     private Command getReefCommand(int side, double relativePos, char level, boolean algae) {
         Command commandToAdd;
         Command elevatorPosCommand;

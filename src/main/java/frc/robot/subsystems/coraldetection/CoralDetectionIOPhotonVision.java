@@ -48,7 +48,7 @@ public class CoralDetectionIOPhotonVision implements CoralDetectionIO {
         }
 
         for (PhotonTrackedTarget target : result.getTargets()) {
-            if (target.getDetectedObjectClassID() == 1) {
+            if (target.getDetectedObjectClassID() == 1) { // ignore algae
                 observations.add(new Translation2d(target.getYaw(), target.getPitch()));
             }
         }

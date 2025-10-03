@@ -7,6 +7,8 @@ public interface CoralDetectionIO {
     @AutoLog
     public static class CoralDetectionIOInputs {
         public boolean connected = false;
+
+        // list of coral angles: (yaw, pitch) in degrees
         public Translation2d[] corals = new Translation2d[0];
     }
 

@@ -16,6 +16,7 @@ public class CoralDetectionIOSim implements CoralDetectionIO {
     private LoggedTunableNumber simulatedCoralY = new LoggedTunableNumber("CoralDetection/SimulatedCoralY", 2.0);
     private LoggedTunableNumber simulatedCoralTheta =
             new LoggedTunableNumber("CoralDetection/SimulatedCoralTheta", 0.0);
+    private LoggedTunableNumber simulateCoral = new LoggedTunableNumber("CoralDetection/Simulate Coral (0,1)", 1);
 
     public CoralDetectionIOSim() {}
 
@@ -26,10 +27,13 @@ public class CoralDetectionIOSim implements CoralDetectionIO {
         Translation2d[] corals2d = {new Translation2d(simulatedCoralX.get(), simulatedCoralY.get())};
         inputs.corals = corals2d;
 
-        Pose3d[] corals3d = {
-            new Pose3d(corals2d[0].getX(), corals2d[0].getY(), 0.05, new Rotation3d(0, 0, simulatedCoralTheta.get()))
-        };
-
+        Pose3d[] corals3d = new Pose3d[0];
+        if (simulateCoral.get() == 1) {
+            Pose3d[] _corals3d = {
+                new Pose3d(corals2d[0].getX(), corals2d[0].getY(), 0.05, new Rotation3d(0, 0, simulatedCoralTheta.get()))
+            };
+            corals3d = _corals3d;
+        }
         Logger.recordOutput("CoralDetection/Corals3d", corals3d);
     }
 }

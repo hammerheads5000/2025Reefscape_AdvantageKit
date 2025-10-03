@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+/** Manages coral seen by coral camera, and computes positions */
 public class CoralDetection extends SubsystemBase {
     private CoralDetectionIO io;
     private CoralDetectionIOInputsAutoLogged inputs;
@@ -71,6 +72,7 @@ public class CoralDetection extends SubsystemBase {
         logCorals();
     }
 
+    /** Precalculate rotation matrix of camera to be stored */
     private Matrix<N3, N3> calculateRotationMat() {
         double roll = VisionConstants.CORAL_CAM_POS.getRotation().getX();
         double pitch = VisionConstants.CORAL_CAM_POS.getRotation().getY();
@@ -86,21 +88,9 @@ public class CoralDetection extends SubsystemBase {
                 Nat.N3(), Nat.N3(), Math.cos(yaw), -Math.sin(yaw), 0, Math.sin(yaw), Math.cos(yaw), 0, 0, 0, 1);
 
         return yawMat.times(pitchMat).times(rollMat);
-
-        // return MatBuilder.fill(
-        //         Nat.N3(),
-        //         Nat.N3(),
-        //         Math.cos(pitch) * Math.cos(roll),
-        //         Math.sin(yaw) * Math.sin(pitch) * Math.cos(roll) - Math.cos(yaw) * Math.sin(roll),
-        //         Math.cos(yaw) * Math.sin(pitch) * Math.cos(roll) + Math.sin(yaw) * Math.sin(roll),
-        //         Math.cos(pitch) * Math.sin(roll),
-        //         Math.sin(yaw) * Math.sin(pitch) * Math.sin(roll) + Math.cos(yaw) * Math.cos(roll),
-        //         Math.cos(yaw) * Math.sin(pitch) * Math.sin(roll) - Math.sin(yaw) * Math.cos(roll),
-        //         -Math.sin(pitch),
-        //         Math.sin(yaw) * Math.cos(pitch),
-        //         Math.cos(yaw) * Math.cos(pitch));
     }
 
+    /** output corals to list of Pose3d's for visualization */
     private void logCorals() {
         Pose3d[] poses = coralList.stream()
                 .map(translation -> new Pose3d(new Translation3d(translation), new Rotation3d()))
@@ -114,16 +104,16 @@ public class CoralDetection extends SubsystemBase {
         return getClosestCoral(false);
     }
 
+    /** Returns closest coral to robot. Ignores coral close to walls if ignoreWall is true */
     public Translation2d getClosestCoral(boolean ignoreWall) {
         Translation2d closest = null;
         Translation2d robotPos = poseSupplier.get().getTranslation();
         for (var coral : coralList) {
             // if we care, make sure coral isn't on wall, and closest is null or farther than coral
             if ((!ignoreWall
-                            || BoundaryProtections.nearestBoundaryPose(coral)
-                                            .getTranslation()
-                                            .getDistance(coral)
-                                    > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))
+                    || BoundaryProtections.nearestBoundaryPose(coral)
+                            .getTranslation()
+                            .getDistance(coral) > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))
                     && (closest == null || coral.getDistance(robotPos) < closest.getDistance(robotPos))) {
                 closest = coral;
             }
@@ -131,6 +121,7 @@ public class CoralDetection extends SubsystemBase {
         return closest;
     }
 
+    /** processes inputs to get list of coral positions on field */
     private void updateCoralList() {
         Translation2d[] corals = inputs.corals;
         if (corals.length == 0) {
@@ -149,7 +140,7 @@ public class CoralDetection extends SubsystemBase {
                 .toList();
     }
 
-    // transforms a coral position in (yaw, pitch) to a 2D position in robot space (x, y)
+    /** transforms a coral position in (yaw, pitch) to a 2D position in robot space (x, y) */
     private Translation2d projectCoralPosition(Translation2d coral) {
         double yaw = -Math.toRadians(coral.getX());
         double pitch = Math.toRadians(coral.getY());
@@ -170,6 +161,7 @@ public class CoralDetection extends SubsystemBase {
         return new Translation2d(x, y);
     }
 
+    /** transforms coral position in robot space to field space */
     private Translation2d robotToFieldRelative(Translation2d pos) {
         Pose2d robotPose = poseSupplier.get();
         return robotPose.getTranslation().plus(pos.rotateBy(robotPose.getRotation()));

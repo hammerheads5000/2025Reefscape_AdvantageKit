@@ -452,7 +452,7 @@ public class RobotContainer {
         algaeAndCoralToggle.whileTrue(setAlgaeCommand());
 
         autoClimbTrigger.whileTrue(climber.autoClimbCommand());
-        climbSequenceTrigger.whileTrue(climbSequence);
+        climbSequenceTrigger.onTrue(climbSequence);
         unclimbTrigger.whileTrue(climber.reverseCommand());
         climbGrabPosTrigger.onTrue(climber.goToGrabPosCommand());
 

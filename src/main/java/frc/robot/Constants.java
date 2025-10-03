@@ -476,7 +476,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.345947265625)
+                .withMagnetOffset(-0.998046875)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -613,16 +613,6 @@ public class Constants {
                 .withKG(0.3)
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-        public static final Slot1Configs EMERGENCY_PID = new Slot1Configs()
-                .withKP(3)
-                .withKI(0.1)
-                .withKD(1)
-                .withKS(0.1)
-                .withKV(8)
-                .withKA(0)
-                .withKG(0.3)
-                .withGravityType(GravityTypeValue.Arm_Cosine)
-                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
                 .withMotionMagicExpo_kA(Volts.of(15).per(RotationsPerSecondPerSecond));
@@ -636,7 +626,6 @@ public class Constants {
                 .withCurrentLimits(DEPLOY_CURRENT_LIMITS_CONFIGS)
                 .withFeedback(DEPLOY_FEEDBACK_CONFIGS)
                 .withSlot0(DEPLOY_PID)
-                .withSlot1(EMERGENCY_PID)
                 .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
                 .withClosedLoopGeneral(DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS);
 

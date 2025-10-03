@@ -47,4 +47,6 @@ public interface IntakeIO {
     default void setAlignSpeed(Voltage speed) {}
 
     default void stopDeploy() {}
+
+    default void emergencyStow(Angle angle) {}
 }

@@ -135,15 +135,16 @@ public class RobotContainer {
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
+    private final Trigger intakeEmergencyStowTrigger = buttonBoardOther.button(1);
     private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger intakeAndReefTrigger = driveController.a();
     private final Trigger reefTrigger = driveController.b().and(algaeButtonLayerTrigger.negate());
     private final Trigger sweepTrigger = driveController.x().and(algaeButtonLayerTrigger.negate());
     private final Trigger autoClimbTrigger = driveController.start();
-    private final Trigger climbSequenceTrigger = buttonBoardOther.button(1);
+    private final Trigger climbSequenceTrigger = buttonBoardOther.button(7);
     private final Trigger unclimbTrigger = driveController.back();
-    private final Trigger climbGrabPosTrigger = buttonBoardOther.button(2).debounce(0.5, DebounceType.kRising);
+    private final Trigger climbGrabPosTrigger = buttonBoardOther.button(6).debounce(0.5, DebounceType.kRising);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger; // adds algae pickup to coral auto sequence
 
     private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
@@ -433,6 +434,7 @@ public class RobotContainer {
                 .alongWith(intake.ejectCommand()));
 
         toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
+        intakeEmergencyStowTrigger.onTrue(intake.emergencyStow());
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
         intakeAndReefTrigger.whileTrue(intakeAndReefCommand);

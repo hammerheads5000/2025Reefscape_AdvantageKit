@@ -30,7 +30,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     private final CANdi lidarCANdi;
 
-    private final MotionMagicExpoVoltage deployRequest = new MotionMagicExpoVoltage(0);
+    private final MotionMagicExpoVoltage deployRequest = new MotionMagicExpoVoltage(0).withSlot(0);
     private final VoltageOut intakeRequest = new VoltageOut(0);
     private final VoltageOut alignRequest = new VoltageOut(0);
     private final NeutralOut stopRequest = new NeutralOut();
@@ -95,5 +95,10 @@ public class IntakeIOTalonFX implements IntakeIO {
     @Override
     public void stopDeploy() {
         deployMotor.setControl(stopRequest);
+    }
+
+    @Override
+    public void emergencyStow(Angle goal) {
+        deployMotor.setControl(deployRequest.withPosition(goal).withSlot(1));
     }
 }

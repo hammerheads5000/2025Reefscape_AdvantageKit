@@ -142,6 +142,10 @@ public class Intake extends SubsystemBase {
         }
     }
 
+    public Command emergencyStow() {
+        return this.runOnce(() -> io.emergencyStow(IntakeConstants.STOW_POS));
+    }
+
     public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
                     setIntakeSpeed(IntakeConstants.INTAKE_SPEED);

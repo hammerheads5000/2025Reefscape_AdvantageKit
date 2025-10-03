@@ -20,6 +20,7 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -613,6 +614,8 @@ public class Constants {
                 .withKG(0.3)
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+        public static final Slot1Configs EMERGENCY_PID = Slot1Configs.from(SlotConfigs.from(DEPLOY_PID.withKS(5)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)));
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
                 .withMotionMagicExpo_kA(Volts.of(15).per(RotationsPerSecondPerSecond));
@@ -626,6 +629,7 @@ public class Constants {
                 .withCurrentLimits(DEPLOY_CURRENT_LIMITS_CONFIGS)
                 .withFeedback(DEPLOY_FEEDBACK_CONFIGS)
                 .withSlot0(DEPLOY_PID)
+                .withSlot1(EMERGENCY_PID)
                 .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
                 .withClosedLoopGeneral(DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS);
 
@@ -660,7 +664,6 @@ public class Constants {
 
         public static final Angle DEPLOY_POS = Degrees.of(0);
         public static final Angle STOW_POS = Degrees.of(70);
-        public static final Angle STOW_FAST_POS = Degrees.of(40);
         // public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(40);

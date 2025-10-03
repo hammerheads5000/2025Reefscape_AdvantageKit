@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
@@ -60,10 +59,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
         }
 
         Command facePoseCommand = new AlignToPoseCommand(
-                searchPose,
-                AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
-                AlignConstants.CORAL_PICKUP_PID_ANGLE,
-                swerve);
+                searchPose, AlignConstants.CORAL_PICKUP_PID_TRANSLATION, AlignConstants.CORAL_PICKUP_PID_ANGLE, swerve);
 
         finishedAutoCoral = false;
 

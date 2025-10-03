@@ -140,7 +140,7 @@ public class CoralDetection extends SubsystemBase {
         }
         if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
             // In sim, the corals are already in field-relative coordinates
-            coralList = List.of(corals);
+            coralList = List.of(corals).stream().filter(this::coralInBounds).toList();
             return;
         }
         coralList = List.of(corals).stream()

@@ -680,7 +680,8 @@ public class Constants {
         public static final AngularVelocity MAX_STALL_VELOCITY = RotationsPerSecond.of(4);
         public static final Current MIN_STALL_CURRENT = Amps.of(5);
 
-        public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(20);
+        public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(12);
+        public static final Distance MAX_CORAL_DISTANCE = Feet.of(20);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()
@@ -900,8 +901,8 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(20);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(30);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(30);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(50);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(3);

@@ -4,13 +4,8 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,32 +43,22 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
     private Command getCoralSearchCommand(int pos) {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
-                .until(coralDetection.hasTarget);
+                .until(() -> coralDetection.getClosestCoral(true) != null);
 
         if (Constants.CURRENT_MODE == Mode.SIM) {
             return command.andThen(endEffector.startIntakeCommand());
         }
         AutoCoralCommand autoCoralCommand =
-                new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, false);
+                new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, true);
 
         final double kP =
                 AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController().getP();
 
-        Command facePoseCommand = swerve.runEnd(
-                () -> {
-                    Pose2d pose = swerve.getPose();
-                    Rotation2d target = Pathfinding.pointPoseTowards(
-                                    pose,
-                                    pos == 1
-                                            ? FieldConstants.LEFT_CORAL_SEARCH_POSE
-                                            : FieldConstants.RIGHT_CORAL_SEARCH_POSE)
-                            .getRotation();
-                    target = target.rotateBy(Rotation2d.k180deg);
-                    double errorDeg = target.minus(pose.getRotation()).getDegrees();
-                    swerve.driveFieldCentric(
-                            MetersPerSecond.zero(), MetersPerSecond.zero(), DegreesPerSecond.of(kP * errorDeg));
-                },
-                swerve::stop);
+        Command facePoseCommand = new AlignToPoseCommand(
+                pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE,
+                AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
+                AlignConstants.CORAL_PICKUP_PID_ANGLE,
+                swerve);
 
         finishedAutoCoral = false;
 
@@ -83,15 +68,17 @@ public class FullAutoCommand extends SequentialCommandGroup {
         // repeat until the autoCoralCommand actually finishes (starts intaking coral)
         // (this is what finishedAutoCoral tracks)
         return command.andThen(Commands.repeatingSequence(
-                        autoCoralCommand
-                                .until(() -> !intake.coralDetectedTrigger.getAsBoolean()
-                                        && (!coralDetection.hasTarget.getAsBoolean()
-                                                || coralDetection.getClosestCoral(true) == null))
-                                .finallyDo(interrupted -> {
-                                    finishedAutoCoral = !interrupted;
-                                }),
-                        facePoseCommand.until(() -> coralDetection.getClosestCoral(true) != null))
-                .until(() -> finishedAutoCoral));
+                                autoCoralCommand
+                                        .finallyDo(interrupted -> {
+                                            finishedAutoCoral = !interrupted;
+                                        })
+                                        .until(() -> !intake.coralDetectedTrigger.getAsBoolean()
+                                                && (coralDetection.getClosestCoral(true) == null)),
+                                facePoseCommand.until(() -> coralDetection.getClosestCoral(true) != null))
+                        .until(() -> finishedAutoCoral))
+                .beforeStarting(() -> {
+                    finishedAutoCoral = false;
+                });
     }
 
     private Command getElevatorPosCommand(char level) {

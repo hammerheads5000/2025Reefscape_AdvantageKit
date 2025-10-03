@@ -108,6 +108,7 @@ public class CoralDetection extends SubsystemBase {
                 .map(translation -> new Pose3d(new Translation3d(translation), new Rotation3d()))
                 .toArray(Pose3d[]::new);
         Logger.recordOutput("CoralDetection/CoralPoses", poses);
+        Logger.recordOutput("CoralDetection/ClosestNon-WallCoral", getClosestCoral(true));
     }
 
     @AutoLogOutput
@@ -119,13 +120,13 @@ public class CoralDetection extends SubsystemBase {
         Translation2d closest = null;
         Translation2d robotPos = poseSupplier.get().getTranslation();
         for (var coral : coralList) {
-            if (closest == null
-                    || coral.getDistance(robotPos) < closest.getDistance(robotPos)
-                            && (!ignoreWall
-                                    || BoundaryProtections.nearestBoundaryPose(coral)
-                                                    .getTranslation()
-                                                    .getDistance(coral)
-                                            > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))) {
+            // if we care, make sure coral isn't on wall, and closest is null or farther than coral
+            if ((!ignoreWall
+                            || BoundaryProtections.nearestBoundaryPose(coral)
+                                            .getTranslation()
+                                            .getDistance(coral)
+                                    > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))
+                    && (closest == null || coral.getDistance(robotPos) < closest.getDistance(robotPos))) {
                 closest = coral;
             }
         }
@@ -144,6 +145,7 @@ public class CoralDetection extends SubsystemBase {
         }
         coralList = List.of(corals).stream()
                 .map(this::projectCoralPosition)
+                .filter(this::coralInRange)
                 .map(this::robotToFieldRelative)
                 // .filter(this::coralInBounds)
                 .toList();
@@ -173,6 +175,10 @@ public class CoralDetection extends SubsystemBase {
     private Translation2d robotToFieldRelative(Translation2d pos) {
         Pose2d robotPose = poseSupplier.get();
         return robotPose.getTranslation().plus(pos.rotateBy(robotPose.getRotation()));
+    }
+
+    private boolean coralInRange(Translation2d pos) {
+        return pos.getNorm() <= IntakeConstants.MAX_CORAL_DISTANCE.in(Meters);
     }
 
     private boolean coralInBounds(Translation2d pos) {

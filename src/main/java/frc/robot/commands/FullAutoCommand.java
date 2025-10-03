@@ -5,7 +5,10 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,11 +54,13 @@ public class FullAutoCommand extends SequentialCommandGroup {
         AutoCoralCommand autoCoralCommand =
                 new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, true);
 
-        final double kP =
-                AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController().getP();
+        Pose2d searchPose = pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE;
+        if (AutoBuilder.shouldFlip()) {
+            searchPose = FlippingUtil.flipFieldPose(searchPose);
+        }
 
         Command facePoseCommand = new AlignToPoseCommand(
-                pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE,
+                searchPose,
                 AlignConstants.CORAL_PICKUP_PID_TRANSLATION,
                 AlignConstants.CORAL_PICKUP_PID_ANGLE,
                 swerve);

@@ -111,9 +111,10 @@ public class CoralDetection extends SubsystemBase {
         for (var coral : coralList) {
             // if we care, make sure coral isn't on wall, and closest is null or farther than coral
             if ((!ignoreWall
-                    || BoundaryProtections.nearestBoundaryPose(coral)
-                            .getTranslation()
-                            .getDistance(coral) > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))
+                            || BoundaryProtections.nearestBoundaryPose(coral)
+                                            .getTranslation()
+                                            .getDistance(coral)
+                                    > IntakeConstants.CORAL_ON_WALL_THRESHOLD.in(Meters))
                     && (closest == null || coral.getDistance(robotPos) < closest.getDistance(robotPos))) {
                 closest = coral;
             }

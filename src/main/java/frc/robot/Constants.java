@@ -20,7 +20,6 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -614,8 +613,16 @@ public class Constants {
                 .withKG(0.3)
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-        public static final Slot1Configs EMERGENCY_PID = Slot1Configs.from(SlotConfigs.from(DEPLOY_PID.withKS(5)
-                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)));
+        public static final Slot1Configs EMERGENCY_PID = new Slot1Configs()
+                .withKP(3)
+                .withKI(0.1)
+                .withKD(1)
+                .withKS(0.1)
+                .withKV(8)
+                .withKA(0)
+                .withKG(0.3)
+                .withGravityType(GravityTypeValue.Arm_Cosine)
+                .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
                 .withMotionMagicExpo_kA(Volts.of(15).per(RotationsPerSecondPerSecond));

@@ -78,7 +78,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     @Override
     public void setGoal(Angle angle) {
-        deployMotor.setControl(deployRequest.withPosition(angle));
+        deployMotor.setControl(deployRequest.withPosition(angle).withSlot(0));
     }
 
     @Override

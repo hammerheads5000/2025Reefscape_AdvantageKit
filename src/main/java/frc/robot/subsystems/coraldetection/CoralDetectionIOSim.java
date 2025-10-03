@@ -30,7 +30,8 @@ public class CoralDetectionIOSim implements CoralDetectionIO {
         Pose3d[] corals3d = new Pose3d[0];
         if (simulateCoral.get() == 1) {
             Pose3d[] _corals3d = {
-                new Pose3d(corals2d[0].getX(), corals2d[0].getY(), 0.05, new Rotation3d(0, 0, simulatedCoralTheta.get()))
+                new Pose3d(
+                        corals2d[0].getX(), corals2d[0].getY(), 0.05, new Rotation3d(0, 0, simulatedCoralTheta.get()))
             };
             corals3d = _corals3d;
         }

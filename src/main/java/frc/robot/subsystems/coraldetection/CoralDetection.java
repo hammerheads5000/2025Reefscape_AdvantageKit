@@ -54,8 +54,6 @@ public class CoralDetection extends SubsystemBase {
         this.poseSupplier = poseSupplier;
         this.CAMERA_ROTATION_MAT = calculateRotationMat();
 
-        Logger.recordOutput("Rot Mat", CAMERA_ROTATION_MAT.getData());
-
         this.disconnectedAlert = new Alert("Coral Camera disconnected", AlertType.kWarning);
     }
 

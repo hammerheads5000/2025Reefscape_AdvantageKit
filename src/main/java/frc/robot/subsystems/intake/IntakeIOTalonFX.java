@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
@@ -79,7 +78,6 @@ public class IntakeIOTalonFX implements IntakeIO {
 
     @Override
     public void setGoal(Angle angle) {
-        Logger.recordOutput("Intake/Goal(deg)", angle.in(Degrees));
         deployMotor.setControl(deployRequest.withPosition(angle));
     }
 

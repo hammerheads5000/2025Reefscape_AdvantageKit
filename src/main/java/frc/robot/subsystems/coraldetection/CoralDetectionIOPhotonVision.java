@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -40,7 +39,6 @@ public class CoralDetectionIOPhotonVision implements CoralDetectionIO {
         }
 
         inputs.corals = observations.toArray(Translation2d[]::new);
-        Logger.recordOutput("CoralDetection/Corals", inputs.corals);
     }
 
     private List<Translation2d> processResult(PhotonPipelineResult result) {

@@ -43,6 +43,7 @@ public class Intake extends SubsystemBase {
     @AutoLogOutput
     private Trigger jammedTrigger = new Trigger(this::isJammed).or(stalledTrigger);
 
+    @AutoLogOutput
     private Angle goal = IntakeConstants.STOW_POS;
 
     IntakeVisualizer visualizer;
@@ -189,10 +190,6 @@ public class Intake extends SubsystemBase {
                             setAlignSpeed(Volts.zero());
                         })
                 .withName("Eject Command");
-    }
-
-    private Command stopDeploy() {
-        return Commands.runOnce(() -> io.stopDeploy());
     }
 
     public Command stopIntake() {

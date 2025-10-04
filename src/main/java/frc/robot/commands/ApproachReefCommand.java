@@ -19,7 +19,7 @@ public class ApproachReefCommand extends SequentialCommandGroup {
     private final AlignAndFacePoseCommand alignToReefCommand;
     /** Creates a new ApproachReefCommand. */
     public ApproachReefCommand(int side, double relativePos, Swerve swerve, Elevator elevator, Vision vision) {
-        alignToReefCommand = AlignToReefCommands.advancedAlignToReef(side, relativePos, swerve, vision, elevator);
+        alignToReefCommand = AlignToReefCommands.alignToReefFacingBranch(side, relativePos, swerve);
 
         // don't generate path if too short
         if (alignToReefCommand

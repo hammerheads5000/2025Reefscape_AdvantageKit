@@ -498,7 +498,7 @@ public class Constants {
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(29.8);
         public static final Distance L2_HEIGHT = Inches.of(38.5);
-        public static final Distance L3_HEIGHT = Inches.of(53.8);
+        public static final Distance L3_HEIGHT = Inches.of(53.3);
         public static final Distance L4_HEIGHT = Inches.of(78.75);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.5);
 

@@ -344,7 +344,7 @@ public class Constants {
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
                 .withPID(1.5, 0.5, 0.0)
                 .withFeedforward(1, 0)
-                .withTolerance(Inches.of(2).in(Meters), 0.1)
+                .withTolerance(Inches.of(1.5).in(Meters), 0.1)
                 .withProfile(2, 2);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
@@ -959,7 +959,7 @@ public class Constants {
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(2.0),
+                MetersPerSecond.of(1.5),
                 MetersPerSecondPerSecond.of(2.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));

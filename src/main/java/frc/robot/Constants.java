@@ -546,7 +546,7 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4.5);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(1.8);
+        public static final Voltage SCORE_SPEED = Volts.of(1.5);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
         public static final Voltage ADJUST_SPEED = Volts.of(1);
@@ -896,7 +896,7 @@ public class Constants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
         public static final Distance DISTANCE_TO_REEF =
-                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(2.5));
+                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(1.5));
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
@@ -910,7 +910,7 @@ public class Constants {
         public static final Distance FLIP_DISTANCE = Inches.of(80);
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
         public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(20);
-        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(30);
+        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(20);
         public static final Distance BACKUP_FROM_WALL_DISTANCE = Inches.of(30);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving

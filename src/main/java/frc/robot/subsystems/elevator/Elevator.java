@@ -41,7 +41,7 @@ public class Elevator extends SubsystemBase {
     private Distance goal = ElevatorConstants.INTAKE_HEIGHT;
     private final Debouncer atGoalDebouncer = new Debouncer(ElevatorConstants.AT_GOAL_DEBOUNCE_TIME.in(Seconds));
     private final Trigger stallTrigger =
-            new Trigger(() -> inputs.outputCurrent.abs(Amps) >= ElevatorConstants.STALL_CURRENT.in(Amps)).debounce(0.1);
+            new Trigger(() -> inputs.outputCurrent.lte(ElevatorConstants.STALL_CURRENT.unaryMinus())).debounce(0.1);
 
     private final Alert leadDisconnectedAlert;
     private final Alert followDisconnectedAlert;

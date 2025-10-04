@@ -476,7 +476,8 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.998046875)
+                .withMagnetOffset(0.20751953125)
+                .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         public static final Time AT_GOAL_DEBOUNCE_TIME = Seconds.of(0.05);
@@ -493,7 +494,7 @@ public class Constants {
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
 
         // Setpoints (from floor)
-        public static final Distance MIN_HEIGHT = Inches.of(10);
+        public static final Distance MIN_HEIGHT = Inches.of(9);
         public static final Distance MAX_HEIGHT = Inches.of(81.19);
         public static final Distance L1_HEIGHT = Inches.of(29.8);
         public static final Distance L2_HEIGHT = Inches.of(38.5);

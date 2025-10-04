@@ -165,7 +165,7 @@ public class Elevator extends SubsystemBase {
      * the aboslute position within a rotation that represents 0
      */
     public Command resetEncoderCommand() {
-        return this.runOnce(io::resetEncoder).withName("Reset Encoder");
+        return this.runOnce(io::resetEncoder).ignoringDisable(true).withName("Reset Encoder");
     }
 
     public Command zeroEncoderCommand() {

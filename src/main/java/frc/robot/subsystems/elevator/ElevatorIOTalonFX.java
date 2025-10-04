@@ -115,9 +115,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         }
     }
 
+    // to within a rotation with discontinuity of 0.5
     @Override
     public void resetEncoder() {
-        encoder.setPosition(encoder.getAbsolutePosition().getValue().in(Rotations) % 1);
+        encoder.setPosition(((encoder.getAbsolutePosition().getValue().in(Rotations) + 0.5) % 1) - 0.5);
     }
 
     @Override

@@ -145,6 +145,7 @@ public class RobotContainer {
     private final Trigger climbSequenceTrigger = buttonBoardOther.button(7);
     private final Trigger unclimbTrigger = driveController.back();
     private final Trigger climbGrabPosTrigger = buttonBoardOther.button(6).debounce(0.5, DebounceType.kRising);
+    private final Trigger climbHalfwayTrigger = buttonBoardOther.button(2);
     private final Trigger algaeAndCoralToggle = algaeButtonLayerTrigger; // adds algae pickup to coral auto sequence
 
     private final Trigger algaeTrigger = driveController.y().and(algaeButtonLayerTrigger);
@@ -455,6 +456,7 @@ public class RobotContainer {
         climbSequenceTrigger.onTrue(climbSequence);
         unclimbTrigger.whileTrue(climber.reverseCommand());
         climbGrabPosTrigger.onTrue(climber.goToGrabPosCommand());
+        climbHalfwayTrigger.whileTrue(climber.halfwayCommand());
 
         for (int i = 0; i < reefTriggers.length; i++) {
             reefTriggers[i] = buttonBoardReef.button(i + 1);

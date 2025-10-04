@@ -739,6 +739,7 @@ public class Constants {
                 .withRotorToSensorRatio(GEAR_RATIO);
 
         public static final Angle GRAB_ANGLE = Rotations.of(-0.02);
+        public static final Angle HALFWAY_ANGLE = Rotations.of(0.15);
         public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.31);
         public static final Angle RESET_ANGLE = Rotations.of(0.315);
         public static final Angle SLOW_ANGLE = Rotations.of(0.28);

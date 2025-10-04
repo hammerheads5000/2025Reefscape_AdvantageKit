@@ -83,6 +83,14 @@ public class Climber extends SubsystemBase {
                 .withName("Auto Climb");
     }
 
+    public Command halfwayCommand() {
+        return Commands.either(
+                        reverseCommand().until(() -> inputs.pos.lte(ClimberConstants.HALFWAY_ANGLE)),
+                        climbCommand().until(() -> inputs.pos.gte(ClimberConstants.HALFWAY_ANGLE)),
+                        () -> inputs.pos.gt(ClimberConstants.HALFWAY_ANGLE))
+                .withName("Climb Halfway");
+    }
+
     public Command resetCommand() {
         return climbCommand()
                 .until(() -> inputs.pos.gte(ClimberConstants.RESET_ANGLE))

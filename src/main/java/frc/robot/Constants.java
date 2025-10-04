@@ -900,8 +900,8 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
         // approaching
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(30);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(50);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(20);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(40);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(6);

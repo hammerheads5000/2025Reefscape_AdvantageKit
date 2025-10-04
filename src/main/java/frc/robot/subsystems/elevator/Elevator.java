@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -83,7 +82,7 @@ public class Elevator extends SubsystemBase {
         measuredVisualizer = new ElevatorVisualizer("Measured", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
         setpointVisualizer = new ElevatorVisualizer("Setpoint", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
 
-        stallTrigger.onTrue(Commands.runOnce(io::zeroEncoder));
+        stallTrigger.onTrue(Commands.runOnce(io::zeroEncoder).andThen(setStageCommand()));
 
         SmartDashboard.putData("L1", goToL1Command(true));
         SmartDashboard.putData("L2", goToL2Command(true));

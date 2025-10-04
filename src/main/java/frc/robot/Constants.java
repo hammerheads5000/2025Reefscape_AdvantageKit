@@ -808,7 +808,7 @@ public class Constants {
         public static final Distance MAX_DISTANCE = Millimeters.of(1000);
         public static final Distance MIN_HEIGHT_FOR_ACCURACY = Inches.of(70); // of elevator
         public static final Distance MAX_DISTANCE_TO_BRANCH =
-                Inches.of(12); // max distance from detected branch to ideal branch pos
+                Inches.of(3); // max distance from detected branch to ideal branch pos
         public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
     }
 

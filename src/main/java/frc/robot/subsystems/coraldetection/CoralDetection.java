@@ -130,14 +130,17 @@ public class CoralDetection extends SubsystemBase {
         }
         if (Constants.CURRENT_MODE == Constants.SIM_MODE) {
             // In sim, the corals are already in field-relative coordinates
-            coralList = List.of(corals).stream().filter(this::coralInBounds).toList();
+            coralList = List.of(corals).stream()
+                    .filter(this::coralInRange)
+                    .filter(this::coralInBounds)
+                    .toList();
             return;
         }
         coralList = List.of(corals).stream()
                 .map(this::projectCoralPosition)
-                .filter(this::coralInRange)
                 .map(this::robotToFieldRelative)
-                // .filter(this::coralInBounds)
+                .filter(this::coralInRange)
+                .filter(this::coralInBounds)
                 .toList();
     }
 
@@ -169,7 +172,7 @@ public class CoralDetection extends SubsystemBase {
     }
 
     private boolean coralInRange(Translation2d pos) {
-        return pos.getNorm() <= IntakeConstants.MAX_CORAL_DISTANCE.in(Meters);
+        return pos.getDistance(poseSupplier.get().getTranslation()) <= IntakeConstants.MAX_CORAL_DISTANCE.in(Meters);
     }
 
     private boolean coralInBounds(Translation2d pos) {

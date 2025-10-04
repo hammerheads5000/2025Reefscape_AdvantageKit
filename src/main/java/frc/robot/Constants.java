@@ -680,7 +680,7 @@ public class Constants {
         public static final Current MIN_STALL_CURRENT = Amps.of(5);
 
         public static final Distance CORAL_ON_WALL_THRESHOLD = Inches.of(12);
-        public static final Distance MAX_CORAL_DISTANCE = Feet.of(20);
+        public static final Distance MAX_CORAL_DISTANCE = Feet.of(15);
 
         // radians -> volts
         public static final ControlConstants DEPLOY_PID_SIM = new ControlConstants()

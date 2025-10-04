@@ -24,7 +24,7 @@ public class EndEffector extends SubsystemBase {
     private final EndEffectorIOInputsAutoLogged inputs = new EndEffectorIOInputsAutoLogged();
 
     private Trigger isSim = new Trigger(() -> Constants.CURRENT_MODE == Constants.SIM_MODE);
-    private boolean simHasCoral = true;
+    private boolean simHasCoral = false;
 
     @AutoLogOutput
     public Trigger coralDetectedTrigger =
@@ -72,7 +72,7 @@ public class EndEffector extends SubsystemBase {
     public Command startIntakeCommand() {
         if (isSim.getAsBoolean()) {
             return this.runOnce(() -> {
-                        simHasCoral = true;
+                        //simHasCoral = true;
                         intaking = false;
                     })
                     .withName("End Effector Intake Start");
@@ -92,7 +92,7 @@ public class EndEffector extends SubsystemBase {
 
     public Command intakeCommand() {
         if (isSim.getAsBoolean()) {
-            return this.runOnce(() -> simHasCoral = true).withName("End Effector Intake");
+            return this.runOnce(() -> simHasCoral = /*true*/false).withName("End Effector Intake");
         }
         return Commands.startEnd(() -> setSpeed(EndEffectorConstants.INTAKE_SPEED), io::stop)
                 .beforeStarting(() -> intaking = true)

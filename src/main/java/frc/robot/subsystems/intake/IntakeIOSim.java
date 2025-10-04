@@ -42,6 +42,7 @@ public class IntakeIOSim implements IntakeIO {
         inputs.setpointVel = deployVelocity;
 
         inputs.alignLidar = false;
+        inputs.coralDetected = false;
     }
 
     @Override

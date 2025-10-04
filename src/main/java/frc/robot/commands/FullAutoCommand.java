@@ -48,9 +48,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
                 .until(() -> coralDetection.getClosestCoral(true) != null);
 
-        if (Constants.CURRENT_MODE == Mode.SIM) {
-            return command.andThen(endEffector.startIntakeCommand());
-        }
         AutoCoralCommand autoCoralCommand =
                 new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, true);
 

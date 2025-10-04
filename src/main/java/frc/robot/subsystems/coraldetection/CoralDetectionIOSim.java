@@ -24,17 +24,17 @@ public class CoralDetectionIOSim implements CoralDetectionIO {
     public void updateInputs(CoralDetectionIOInputs inputs) {
         inputs.connected = true;
 
-        Translation2d[] corals2d = {new Translation2d(simulatedCoralX.get(), simulatedCoralY.get())};
-        inputs.corals = corals2d;
-
+        Translation2d[] corals2d = new Translation2d[0];
         Pose3d[] corals3d = new Pose3d[0];
         if (simulateCoral.get() == 1) {
-            Pose3d[] _corals3d = {
+            corals2d = new Translation2d[]{new Translation2d(simulatedCoralX.get(), simulatedCoralY.get())};
+
+            corals3d = new Pose3d[]{
                 new Pose3d(
                         corals2d[0].getX(), corals2d[0].getY(), 0.05, new Rotation3d(0, 0, simulatedCoralTheta.get()))
             };
-            corals3d = _corals3d;
         }
+        inputs.corals = corals2d;
         Logger.recordOutput("CoralDetection/Corals3d", corals3d);
     }
 }

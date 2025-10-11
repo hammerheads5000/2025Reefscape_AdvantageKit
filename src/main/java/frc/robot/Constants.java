@@ -177,10 +177,10 @@ public class Constants {
         public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.44); // maybe needs tuning
 
         // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
-        private static final double COUPLE_RATIO = 3.5714285714285716;
+        private static final double COUPLE_RATIO = 4.58;
 
-        private static final double DRIVE_GEAR_RATIO = 6.746031746031747;
-        private static final double STEER_GEAR_RATIO = 21.428571428571427;
+        private static final double DRIVE_GEAR_RATIO = 7.03; // 7.03:1
+        private static final double STEER_GEAR_RATIO = 287.0 / 11; // 287:11
         private static final Distance WHEEL_RADIUS = Inches.of(1.875);
 
         public static final int PIGEON_ID = 1;
@@ -226,10 +226,10 @@ public class Constants {
             private static final int DRIVE_ID = 1;
             private static final int STEER_ID = 5;
             private static final int ENCODER_ID = 1;
-            private static final Angle ENCODER_OFFSET = Rotations.of(0.268798828125);
-            private static final boolean STEER_INVERTED = true;
+            private static final Angle ENCODER_OFFSET = Rotations.of(-0.4365234375);
+            private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -251,10 +251,10 @@ public class Constants {
             private static final int DRIVE_ID = 2;
             private static final int STEER_ID = 6;
             private static final int ENCODER_ID = 2;
-            private static final Angle ENCODER_OFFSET = Rotations.of(-0.0693359375);
-            private static final boolean STEER_INVERTED = true;
+            private static final Angle ENCODER_OFFSET = Rotations.of(0.115478515625);
+            private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -276,10 +276,10 @@ public class Constants {
             private static final int DRIVE_ID = 4;
             private static final int STEER_ID = 8;
             private static final int ENCODER_ID = 4;
-            private static final Angle ENCODER_OFFSET = Rotations.of(0.361083984375);
-            private static final boolean STEER_INVERTED = true;
+            private static final Angle ENCODER_OFFSET = Rotations.of(-0.11083984375);
+            private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -301,10 +301,10 @@ public class Constants {
             private static final int DRIVE_ID = 3;
             private static final int STEER_ID = 7;
             private static final int ENCODER_ID = 3;
-            private static final Angle ENCODER_OFFSET = Rotations.of(-0.25830078125);
-            private static final boolean STEER_INVERTED = true;
+            private static final Angle ENCODER_OFFSET = Rotations.of(0.28515625);
+            private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);

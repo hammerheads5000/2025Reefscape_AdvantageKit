@@ -104,7 +104,7 @@ public class Swerve extends SubsystemBase {
                         // brownout
                         null, // Use default timeout (10 s)
                         // Log state with SignalLogger class
-                        (state) -> Logger.recordOutput("Swerve/SysIdTranslation_State", state.toString())),
+                        (state) -> Logger.recordOutput("Swerve/SysIdRotation_State", state.toString())),
                 new SysIdRoutine.Mechanism((output) -> runCharacterization(output), null, this));
 
         SmartDashboard.putData("SysId Dynamic Forward", sysIdDynamic(Direction.kForward));

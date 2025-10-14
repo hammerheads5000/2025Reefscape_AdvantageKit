@@ -131,11 +131,11 @@ public class Constants {
                 Meters.of(Math.sqrt(2 * MODULE_DISTANCE.in(Meters) * MODULE_DISTANCE.in(Meters)));
 
         private static final Slot0Configs STEER_GAINS = new Slot0Configs()
-                .withKP(100)
-                .withKI(5)
-                .withKD(0.5)
+                .withKP(20)
+                .withKI(1)
+                .withKD(0.1)
                 .withKS(0.1)
-                .withKV(2.66)
+                .withKV(2.37)
                 .withKA(0.0)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
@@ -143,9 +143,9 @@ public class Constants {
                 .withKP(1.3)
                 .withKI(0.01)
                 .withKD(0.0)
-                .withKS(0.13) // 0.11828, 0.16033, 0.12378
-                .withKV(0.127) // 0.12867, 0.12604, 0.12584, 0.12882
-                .withKA(0.02); // 0.016755, 0.041694, 0.0088714, 0.019146
+                .withKS(0.879) // 0.11367, 0.1301, 0.15349, 0.16187 -> 0.140
+                .withKV(0.854) // 0.13879, 0.13555, 0.13894, 0.13109 -> 0.136
+                .withKA(0.05); // 0.016363, 0.016268, 0.0085342, 0.011084 -> 0.013
 
         private static final ClosedLoopOutputType STEER_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
         private static final ClosedLoopOutputType DRIVE_CLOSED_LOOP_OUTPUT = ClosedLoopOutputType.Voltage;
@@ -167,7 +167,9 @@ public class Constants {
                 .withCurrentLimits(new CurrentLimitsConfigs()
                         .withStatorCurrentLimit(Amps.of(60))
                         .withStatorCurrentLimitEnable(true))
-                .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
+                .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+                .withMotionMagic(
+                        new MotionMagicConfigs().withMotionMagicExpo_kA(0.5).withMotionMagicExpo_kV(2.0));
 
         private static final CANcoderConfiguration ENCODER_CONFIGS = new CANcoderConfiguration();
 
@@ -181,7 +183,7 @@ public class Constants {
 
         private static final double DRIVE_GEAR_RATIO = 7.03; // 7.03:1
         private static final double STEER_GEAR_RATIO = 287.0 / 11; // 287:11
-        private static final Distance WHEEL_RADIUS = Inches.of(1.875);
+        private static final Distance WHEEL_RADIUS = Inches.of(1.985);
 
         public static final int PIGEON_ID = 1;
 
@@ -229,7 +231,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(-0.4365234375);
             private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -254,7 +256,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(0.115478515625);
             private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);
@@ -279,7 +281,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(-0.11083984375);
             private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = true;
+            private static final boolean DRIVE_INVERTED = false;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(2);
@@ -304,7 +306,7 @@ public class Constants {
             private static final Angle ENCODER_OFFSET = Rotations.of(0.28515625);
             private static final boolean STEER_INVERTED = false;
             private static final boolean ENCODER_INVERTED = false;
-            private static final boolean DRIVE_INVERTED = false;
+            private static final boolean DRIVE_INVERTED = true;
 
             public static final Distance X_POS = MODULE_DISTANCE.div(-2);
             public static final Distance Y_POS = MODULE_DISTANCE.div(-2);

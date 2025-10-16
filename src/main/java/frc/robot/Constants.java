@@ -478,7 +478,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.20751953125)
+                .withMagnetOffset(0.213134765625)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
@@ -607,21 +607,18 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(20 * 50 / 24.0); // 20:1 gearbox and 50:24 gears
         public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
-                .withKP(3)
-                .withKI(0.1)
-                .withKD(1)
+                .withKP(10)
+                .withKI(10)
+                .withKD(0.1)
                 .withKS(0.1)
-                .withKV(8)
-                .withKA(0)
-                .withKG(0.3)
+                .withKV(5.5)
+                .withKA(0.0)
+                .withKG(0.35)
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(15).per(RotationsPerSecondPerSecond));
-        public static final MotionMagicConfigs STOW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(6).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(6).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(3).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(4).per(RotationsPerSecondPerSecond));
         public static final ClosedLoopGeneralConfigs DEPLOY_CLOSED_LOOP_GENERAL_CONFIGS =
                 new ClosedLoopGeneralConfigs().withContinuousWrap(true);
         public static final TalonFXConfiguration DEPLOY_MOTOR_CONFIGS = new TalonFXConfiguration()
@@ -646,7 +643,7 @@ public class Constants {
                 .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.4111328125)
+                .withMagnetOffset(0.38)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
         // S1 = align, S2 = beam break
@@ -661,8 +658,8 @@ public class Constants {
         public static final Voltage RETRACT_SPEED = Volts.of(-12);
         public static final Voltage ALIGN_SPEED = Volts.of(2.4);
 
-        public static final Angle DEPLOY_POS = Degrees.of(0);
-        public static final Angle STOW_POS = Degrees.of(70);
+        public static final Angle DEPLOY_POS = Degrees.of(-7);
+        public static final Angle STOW_POS = Degrees.of(60);
         // public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(40);
@@ -792,11 +789,11 @@ public class Constants {
         // yaw)
         public static final Transform3d FRONT_LEFT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(29.0 / 2 - 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(-1.7), Degrees.of(-24), Degrees.of(-30.65)));
+                new Rotation3d(Degrees.of(0), Degrees.of(-21), Degrees.of(-20)));
 
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
                 new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
-                new Rotation3d(Degrees.of(1.7), Degrees.of(-24), Degrees.of(30.65)));
+                new Rotation3d(Degrees.of(0), Degrees.of(-21), Degrees.of(20)));
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
         public static final Transform3d CORAL_CAM_POS = new Transform3d(
@@ -912,7 +909,7 @@ public class Constants {
         public static final Distance FLIP_DISTANCE = Inches.of(80);
         public static final Distance LOLLIPOP_INTAKE_DISTANCE = Inches.of(40);
         public static final Distance CORAL_APPROACH_DISTANCE = Inches.of(20);
-        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(20);
+        public static final Distance SWITCH_TO_REEFVISION_DISTANCE = Inches.of(10);
         public static final Distance BACKUP_FROM_WALL_DISTANCE = Inches.of(30);
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving

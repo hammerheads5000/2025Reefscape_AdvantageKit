@@ -54,6 +54,7 @@ public class Intake extends SubsystemBase {
 
         alignerHasPiece.onTrue(Commands.runOnce(jamTimer::restart));
         jammedTrigger.onTrue(unjamCommand());
+        deployedTrigger.onTrue(deployNeutralCommand());
 
         SmartDashboard.putData("Intake Deploy", deployCommand(true));
         SmartDashboard.putData("Intake Stow", stowCommand(true));
@@ -88,7 +89,8 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean isDeployed() {
-        return inputs.position.isNear(IntakeConstants.DEPLOY_POS, IntakeConstants.DEPLOY_TOLERANCE);
+        return goal.isNear(IntakeConstants.DEPLOY_POS, IntakeConstants.DEPLOY_TOLERANCE)
+                && inputs.position.isNear(IntakeConstants.DEPLOY_POS, IntakeConstants.DEPLOY_TOLERANCE);
     }
 
     public boolean isStowed() {
@@ -132,6 +134,10 @@ public class Intake extends SubsystemBase {
         } else {
             return this.runOnce(() -> setGoal(IntakeConstants.DEPLOY_POS)).andThen(Commands.waitUntil(deployedTrigger));
         }
+    }
+
+    public Command deployNeutralCommand() {
+        return Commands.runOnce(io::stopDeploy);
     }
 
     public Command stowCommand(boolean instant) {

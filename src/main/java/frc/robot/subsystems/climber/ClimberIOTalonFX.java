@@ -26,7 +26,7 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     private final CANcoder climbEncoder;
 
-    private final VoltageOut voltageRequest = new VoltageOut(0);
+    private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(false);
     private final NeutralOut neutralRequest = new NeutralOut();
 
     public ClimberIOTalonFX() {

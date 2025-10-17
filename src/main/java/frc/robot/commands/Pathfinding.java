@@ -124,7 +124,7 @@ public class Pathfinding {
         approachEndPose = approachEndPose.transformBy(shiftApproachTransform);
 
         poses.add(approachEndPose);
-        poses.add(endPose);
+        // poses.add(endPose);
 
         // turn velocity into translation to determine magnitude
         // Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);

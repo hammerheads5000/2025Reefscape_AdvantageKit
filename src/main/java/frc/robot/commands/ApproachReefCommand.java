@@ -9,7 +9,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.vision.Vision;
@@ -22,12 +21,12 @@ public class ApproachReefCommand extends SequentialCommandGroup {
         alignToReefCommand = AlignToReefCommands.alignToReefFacingBranch(side, relativePos, swerve);
 
         // don't generate path if too short
-        if (alignToReefCommand
-                .withinDistanceToTarget(PathConstants.MIN_PATH_DISTANCE)
-                .getAsBoolean()) {
-            addCommands(alignToReefCommand);
-            return;
-        }
+        // if (alignToReefCommand
+        //         .withinDistanceToTarget(PathConstants.MIN_PATH_DISTANCE)
+        //         .getAsBoolean()) {
+        //     addCommands(alignToReefCommand);
+        //     return;
+        // }
 
         Command followPathCommand = AutoBuilder.followPath(
                 Pathfinding.generateReefPath(swerve.getPose(), side, relativePos, swerve.getFieldSpeeds()));

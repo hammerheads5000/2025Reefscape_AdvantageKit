@@ -152,7 +152,7 @@ public class AutoCoralCommand extends ParallelCommandGroup {
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(
                         pose.rotateAround(pose.getTranslation(), Rotation2d.k180deg), approachPose, pickupPose),
-                PathConstants.CONSTRAINTS,
+                PathConstants.FAST_CONSTRAINTS,
                 new IdealStartingState(0, Rotation2d.kZero),
                 new GoalEndState(0, pickupPose.getRotation().rotateBy(Rotation2d.k180deg)));
 

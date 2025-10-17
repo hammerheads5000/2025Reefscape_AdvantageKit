@@ -478,7 +478,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.213134765625)
+                .withMagnetOffset(-0.010986328125)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
@@ -501,7 +501,7 @@ public class Constants {
         public static final Distance L1_HEIGHT = Inches.of(29.8);
         public static final Distance L2_HEIGHT = Inches.of(38.5);
         public static final Distance L3_HEIGHT = Inches.of(53.3);
-        public static final Distance L4_HEIGHT = Inches.of(78.75);
+        public static final Distance L4_HEIGHT = Inches.of(77.5);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.5);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -894,8 +894,7 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance DISTANCE_TO_REEF =
-                Dimensions.ROBOT_SIZE.div(2).plus(Inches.of(1.5));
+        public static final Distance DISTANCE_TO_REEF = Dimensions.ROBOT_SIZE.div(2);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
         public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when

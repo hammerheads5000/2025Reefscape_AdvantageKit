@@ -95,7 +95,7 @@ public class RobotContainer {
     private final EndEffector endEffector;
     private final Climber climber;
     private final AlgaeManipulator algaeManipulator;
-    private final Intake intake;
+    public final Intake intake;
     private final CoralDetection coralDetection;
     // #endregion
 
@@ -518,14 +518,13 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return new FullAutoCommand(
-                        NTConstants.AUTO_DESCRIPTOR_ENTRY.get(),
-                        swerve,
-                        elevator,
-                        endEffector,
-                        algaeManipulator,
-                        intake,
-                        coralDetection,
-                        vision)
-                .beforeStarting(intake.deployCommand(true));
+                NTConstants.AUTO_DESCRIPTOR_ENTRY.get(),
+                swerve,
+                elevator,
+                endEffector,
+                algaeManipulator,
+                intake,
+                coralDetection,
+                vision);
     }
 }

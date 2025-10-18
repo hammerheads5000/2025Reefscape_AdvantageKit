@@ -7,6 +7,7 @@ package frc.robot.util;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public class ControlConstants {
@@ -116,5 +117,9 @@ public class ControlConstants {
 
     public ElevatorFeedforward getElevatorFeedforward() {
         return new ElevatorFeedforward(kS, kG, kV, kA);
+    }
+
+    public SimpleMotorFeedforward getSimpleFeedforward() {
+        return new SimpleMotorFeedforward(kS, kV, kA);
     }
 }

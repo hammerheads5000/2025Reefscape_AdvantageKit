@@ -6,8 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static frc.robot.Constants.FieldConstants.REEF_CENTER_BLUE;
-import static frc.robot.Constants.FieldConstants.REEF_CENTER_RED;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.ConstraintsZone;
@@ -142,15 +140,20 @@ public class Pathfinding {
 
         // point towards the center of the reef
         ArrayList<PointTowardsZone> pointTowardsZones = new ArrayList<>();
-        Translation2d reefCenter = AutoBuilder.shouldFlip() ? REEF_CENTER_RED : REEF_CENTER_BLUE;
-        pointTowardsZones.add(new PointTowardsZone("Point At Reef", reefCenter, 0, poses.size() - 2));
+        // Translation2d reefCenter = AutoBuilder.shouldFlip() ? REEF_CENTER_RED : REEF_CENTER_BLUE;
+        Translation2d branchPos =
+                AlignToReefCommands.getBranchPose(side, relativePos).getTranslation();
+        pointTowardsZones.add(new PointTowardsZone("Point At Branch", branchPos, 0, poses.size()));
 
         ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();
 
         // constraint zones to go fast for a proporiton of path, and slow down at the end
-        constraintsZones.add(new ConstraintsZone(0, PathConstants.FAST_PROPORTION, PathConstants.FAST_CONSTRAINTS));
+        if (poses.size() > 2) {
+            constraintsZones.add(
+                    new ConstraintsZone(0, PathConstants.FAST_PROPORTION.get(), PathConstants.FAST_CONSTRAINTS));
+        }
         constraintsZones.add(new ConstraintsZone(
-                poses.size() - 1 - PathConstants.APPROACH_PROPORTION,
+                poses.size() - 1 - PathConstants.APPROACH_PROPORTION.get(),
                 poses.size() - 1,
                 PathConstants.APPROACH_CONSTRAINTS));
 

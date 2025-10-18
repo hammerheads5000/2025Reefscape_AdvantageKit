@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,11 +32,13 @@ import org.littletonrobotics.junction.Logger;
  * controllers for translation and a standard PID controller for rotation.
  */
 public class AlignAndFacePoseCommand extends Command {
-    private final Pose2d targetPose;
+    public final Pose2d targetPose;
     private Supplier<Pose2d> poseToFaceSupplier;
     private Pose2d poseToFace;
     private final ProfiledPIDController pidControllerX;
     private final ProfiledPIDController pidControllerY;
+    private final SimpleMotorFeedforward feedforwardX;
+    private final SimpleMotorFeedforward feedforwardY;
     private final PIDController pidControllerAngle;
     private final Trigger alignedTrigger;
 
@@ -72,6 +75,9 @@ public class AlignAndFacePoseCommand extends Command {
         pidControllerX.setGoal(targetPose.getX());
         pidControllerY.setGoal(targetPose.getY());
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
+
+        feedforwardX = linearControlConstants.getSimpleFeedforward();
+        feedforwardY = linearControlConstants.getSimpleFeedforward();
 
         alignedTrigger = new Trigger(
                         () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
@@ -126,10 +132,12 @@ public class AlignAndFacePoseCommand extends Command {
                 .getRotation()
                 .getDegrees());
 
-        LinearVelocity xVel = MetersPerSecond.of(
-                pidControllerX.calculate(swerve.getPose().getX()) + pidControllerX.getSetpoint().velocity);
-        LinearVelocity yVel = MetersPerSecond.of(
-                pidControllerY.calculate(swerve.getPose().getY()) + pidControllerY.getSetpoint().velocity);
+        LinearVelocity xVel =
+                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX())
+                        + feedforwardX.calculate(pidControllerX.getSetpoint().velocity));
+        LinearVelocity yVel =
+                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY())
+                        + feedforwardY.calculate(pidControllerY.getSetpoint().velocity));
         AngularVelocity omega = DegreesPerSecond.of(
                 pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
 
@@ -151,6 +159,10 @@ public class AlignAndFacePoseCommand extends Command {
 
     public Trigger withinDistanceToTarget(Distance distance) {
         return new Trigger(() -> getDistanceToTarget().lt(distance));
+    }
+
+    public Trigger alignedAngle() {
+        return new Trigger(pidControllerAngle::atSetpoint);
     }
 
     private void processPoseToFace() {

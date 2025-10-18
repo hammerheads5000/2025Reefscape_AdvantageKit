@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,9 +31,11 @@ import org.littletonrobotics.junction.Logger;
  * controllers for translation and a standard PID controller for rotation.
  */
 public class AlignToPoseCommand extends Command {
-    private final Pose2d targetPose;
+    public final Pose2d targetPose;
     private final ProfiledPIDController pidControllerX;
     private final ProfiledPIDController pidControllerY;
+    private final SimpleMotorFeedforward feedforwardX;
+    private final SimpleMotorFeedforward feedforwardY;
     private final PIDController pidControllerAngle;
     private final Trigger alignedTrigger;
 
@@ -63,6 +66,9 @@ public class AlignToPoseCommand extends Command {
         pidControllerY.setGoal(targetPose.getY());
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
 
+        feedforwardX = linearControlConstants.getSimpleFeedforward();
+        feedforwardY = linearControlConstants.getSimpleFeedforward();
+
         alignedTrigger = new Trigger(
                         () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
                 .debounce(AlignConstants.ALIGN_TIME.in(Seconds), DebounceType.kRising);
@@ -90,10 +96,12 @@ public class AlignToPoseCommand extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        LinearVelocity xVel = MetersPerSecond.of(
-                pidControllerX.calculate(swerve.getPose().getX()) + pidControllerX.getSetpoint().velocity);
-        LinearVelocity yVel = MetersPerSecond.of(
-                pidControllerY.calculate(swerve.getPose().getY()) + pidControllerY.getSetpoint().velocity);
+        LinearVelocity xVel =
+                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX())
+                        + feedforwardX.calculate(pidControllerX.getSetpoint().velocity));
+        LinearVelocity yVel =
+                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY())
+                        + feedforwardY.calculate(pidControllerY.getSetpoint().velocity));
         AngularVelocity omega = DegreesPerSecond.of(
                 pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
 

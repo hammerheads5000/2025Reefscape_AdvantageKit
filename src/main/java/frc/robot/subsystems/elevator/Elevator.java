@@ -183,24 +183,24 @@ public class Elevator extends SubsystemBase {
 
     public Command goToL1Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L1_HEIGHT)
-                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME))
+                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .withName("Elevator L1" + (instant ? " (instant)" : ""));
     }
 
     public Command goToL2Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L2_HEIGHT)
-                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME))
+                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .withName("Elevator L2" + (instant ? " (instant)" : ""));
     }
 
     public Command goToL3Command(boolean instant) {
         return goToHeightCommand(instant, ElevatorConstants.L3_HEIGHT)
-                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME))
+                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .withName("Elevator L3" + (instant ? " (instant)" : ""));
     }
 
     public Command goToL4Command(boolean instant) {
-        return goToHeightCommand(instant, ElevatorConstants.L4_HEIGHT)
+        return goToHeightCommand(instant, Meters.of(ElevatorConstants.L4_HEIGHT.get()))
                 .withName("Elevator L4" + (instant ? " (instant)" : ""));
     }
 
@@ -254,7 +254,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command trackL4Command(Supplier<Distance> distanceToReef) {
-        return trackHeightCommand(distanceToReef, ElevatorConstants.L4_HEIGHT).withName("Track L4");
+        return trackHeightCommand(distanceToReef, Meters.of(ElevatorConstants.L4_HEIGHT.get()))
+                .withName("Track L4");
     }
 
     public Command elevatorUpCommand() {
@@ -326,10 +327,10 @@ public class Elevator extends SubsystemBase {
                 height = ElevatorConstants.L3_HEIGHT;
                 break;
             case '4':
-                height = ElevatorConstants.L4_HEIGHT;
+                height = Meters.of(ElevatorConstants.L4_HEIGHT.get());
                 break;
             default:
-                height = ElevatorConstants.L4_HEIGHT;
+                height = Meters.of(ElevatorConstants.L4_HEIGHT.get());
                 break;
         }
 

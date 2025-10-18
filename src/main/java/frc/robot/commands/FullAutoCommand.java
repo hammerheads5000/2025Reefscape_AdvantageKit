@@ -157,11 +157,16 @@ public class FullAutoCommand extends SequentialCommandGroup {
         commandToAdd = approachReefCommand
                 .alongWith(
                         Commands.sequence(
+                                Commands.waitUntil(elevator::atGoal).unless(endEffector.coralDetectedTrigger),
+                                intake.startSlowIntakeCommand().unless(endEffector.coralDetectedTrigger),
+                                endEffector.startIntakeCommand().unless(endEffector.coralDetectedTrigger),
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
                                 elevator.goToL2Command(true),
-                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
+                                Commands.waitUntil(approachReefCommand
+                                        .withinRangeTrigger(deployDistance)
+                                        .and(approachReefCommand.finishedPath())),
                                 elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
@@ -222,15 +227,18 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
                                 elevator.goToL2Command(true),
-                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
+                                Commands.waitUntil(approachReefCommand
+                                        .withinRangeTrigger(deployDistance)
+                                        .and(approachReefCommand.finishedPath())),
                                 elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .until(approachReefCommand
                         .withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE)
                         .and(elevator::atGoal)
+                        .and(approachReefCommand.alignedAngleTrigger())
                         .and(() -> !elevator.isGoal(ElevatorConstants.INTAKE_HEIGHT)))
-                .andThen(Commands.waitTime(PathConstants.ELEVATOR_SETTLE_TIME))
+                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {

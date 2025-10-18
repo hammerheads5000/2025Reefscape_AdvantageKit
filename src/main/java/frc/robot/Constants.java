@@ -70,6 +70,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.ControlConstants;
+import frc.robot.util.LoggedTunableNumber;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
@@ -100,7 +101,7 @@ public class Constants {
     public static final Voltage LOW_BATTERY_VOLTAGE = Volts.of(12.4);
 
     public static class Dimensions { // unfinished
-        public static final Distance BUMPER_THICKNESS = Inches.of(3.2);
+        public static final Distance BUMPER_THICKNESS = Inches.of(3);
         public static final Distance FRAME_SIZE = Inches.of(29);
         public static final Distance ROBOT_SIZE = FRAME_SIZE.plus(BUMPER_THICKNESS.times(2));
     }
@@ -344,10 +345,10 @@ public class Constants {
     public static class AlignConstants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
-                .withPID(1.5, 0.5, 0.0)
-                .withFeedforward(1, 0)
-                .withTolerance(Inches.of(1.5).in(Meters), 0.1)
-                .withProfile(2, 2);
+                .withPID(2, 0.2, 0.1)
+                .withFeedforward(0.7, 0.0)
+                .withTolerance(Inches.of(1.5).in(Meters), 0.05)
+                .withProfile(1.25, 0.75);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -409,7 +410,7 @@ public class Constants {
 
         // Motor Configs
         public static final double GEAR_RATIO = 76.0 / 18;
-        public static final Distance DRUM_RADIUS = Inches.of(1);
+        public static final Distance DRUM_RADIUS = Inches.of(1.125);
 
         public static final boolean OPPOSE_FOLLOWER = true;
 
@@ -490,18 +491,18 @@ public class Constants {
         public static final Voltage MANUAL_UP_SPEED = Volts.of(3.6);
         public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-2.4);
 
-        public static final Current STALL_CURRENT = Amps.of(60);
+        public static final Current STALL_CURRENT = Amps.of(50);
 
         // Sim constants
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
 
         // Setpoints (from floor)
         public static final Distance MIN_HEIGHT = Inches.of(9);
-        public static final Distance MAX_HEIGHT = Inches.of(81.19);
+        public static final Distance MAX_HEIGHT = Inches.of(80.19);
         public static final Distance L1_HEIGHT = Inches.of(29.8);
         public static final Distance L2_HEIGHT = Inches.of(38.5);
         public static final Distance L3_HEIGHT = Inches.of(53.3);
-        public static final Distance L4_HEIGHT = Inches.of(77.5);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 1.94);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.5);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -523,8 +524,10 @@ public class Constants {
 
         public static final Angle SHOOT_ANGLE = Degrees.of(30.73124803);
 
-        public static final Distance MAX_SHOOT_DISTANCE =
-                MAX_HEIGHT.minus(L4_HEIGHT).div(Math.tan(SHOOT_ANGLE.in(Radians)));
+        public static final Distance MAX_SHOOT_DISTANCE = MAX_HEIGHT
+                .minus(Meters.of(L4_HEIGHT.get()))
+                .div(Math.tan(SHOOT_ANGLE.in(Radians)))
+                .minus(Inches.of(1));
     }
 
     public static class EndEffectorConstants {
@@ -548,7 +551,7 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4.5);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(1.5);
+        public static final Voltage SCORE_SPEED = Volts.of(2);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
         public static final Voltage ADJUST_SPEED = Volts.of(1);
@@ -656,7 +659,7 @@ public class Constants {
         public static final Voltage EJECT_SPEED = Volts.of(-6);
         public static final Voltage DEPLOY_SPEED = Volts.of(12);
         public static final Voltage RETRACT_SPEED = Volts.of(-12);
-        public static final Voltage ALIGN_SPEED = Volts.of(2.4);
+        public static final Voltage ALIGN_SPEED = Volts.of(5);
 
         public static final Angle DEPLOY_POS = Degrees.of(-7);
         public static final Angle STOW_POS = Degrees.of(60);
@@ -788,11 +791,11 @@ public class Constants {
         // Transforms from robot to cameras, (x forward, y left, z up), (roll, pitch,
         // yaw)
         public static final Transform3d FRONT_LEFT_CAM_POS = new Transform3d(
-                new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(29.0 / 2 - 2.25), Inches.of(7.74638805)),
+                new Translation3d(Inches.of(11.354432), Inches.of(11.58699), Inches.of(7.498238)),
                 new Rotation3d(Degrees.of(0), Degrees.of(-21), Degrees.of(-20)));
 
         public static final Transform3d FRONT_RIGHT_CAM_POS = new Transform3d(
-                new Translation3d(Inches.of(29.0 / 2 - 6.487), Inches.of(-29.0 / 2 + 2.25), Inches.of(7.74638805)),
+                new Translation3d(Inches.of(11.354432), Inches.of(-11.58699), Inches.of(7.498238)),
                 new Rotation3d(Degrees.of(0), Degrees.of(-21), Degrees.of(20)));
 
         public static final String CORAL_CAM_NAME = "Coral Camera";
@@ -894,11 +897,13 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance DISTANCE_TO_REEF = Dimensions.ROBOT_SIZE.div(2);
+        public static final Distance OFFSET_FROM_REEF = Meters.of(0.12); // distance from bumper to reef when scoring
+        public static final Distance DISTANCE_TO_REEF =
+                Dimensions.ROBOT_SIZE.div(2).plus(OFFSET_FROM_REEF);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
 
-        public static final Distance APPROACH_DISTANCE = Inches.of(30); // *extra* distance to reef when
-        // approaching
+        public static final Distance APPROACH_DISTANCE =
+                Meters.of(0.5); // *extra* distance to reef when approaching (m)
         public static final Distance PULL_DISTANCE = Inches.of(8);
         public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(20);
         public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(40);
@@ -914,8 +919,8 @@ public class Constants {
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side
 
-        public static final Time INTAKE_WAIT_TIME = Seconds.of(0.75);
-        public static final Time ELEVATOR_SETTLE_TIME = Seconds.of(0.1); // for L1-L3
+        public static final LoggedTunableNumber ELEVATOR_SETTLE_TIME =
+                new LoggedTunableNumber("Elevator Settle Time", 0.3); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
         public static final Time BARGE_SETTLE_TIME = Seconds.of(0.2);
 
@@ -923,9 +928,11 @@ public class Constants {
 
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
-        public static final double APPROACH_PROPORTION = 1; // proportion of distance to final waypoint to use approach
+        public static final LoggedTunableNumber APPROACH_PROPORTION = new LoggedTunableNumber(
+                "Approach Proportion (0-1)", 1); // proportion of distance to final waypoint to use approach
         // constraints
-        public static final double FAST_PROPORTION = 0.5; // proportion of first waypoint to use fast constraints
+        public static final LoggedTunableNumber FAST_PROPORTION = new LoggedTunableNumber(
+                "Fast Proportion (0-1)", 0.5); // proportion of first waypoint to use fast constraints
 
         public static final Distance SWEEP_SIDE_DISTANCE = Inches.of(40);
         public static final Distance SWEEP_OFFSET = Inches.of(2);
@@ -940,25 +947,25 @@ public class Constants {
         // PathPlanner
 
         // output: m/s, measure: m
-        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(3, 0.1, 0.01);
+        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(3, 0.1, 0.1);
         // output: rad/s, measure: rad
-        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.5);
+        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.1);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(5.0),
-                MetersPerSecondPerSecond.of(4.5),
+                MetersPerSecondPerSecond.of(2.5),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(3.1),
-                MetersPerSecondPerSecond.of(3.0),
+                MetersPerSecondPerSecond.of(1.5),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(1.5),
-                MetersPerSecondPerSecond.of(2.0),
+                MetersPerSecondPerSecond.of(1.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

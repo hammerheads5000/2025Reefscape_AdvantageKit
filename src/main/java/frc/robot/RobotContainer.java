@@ -27,6 +27,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToReefCommands;
 import frc.robot.commands.ApproachBargeCommands;
+import frc.robot.commands.ApproachReefCommand;
 import frc.robot.commands.AutoCoralCommand;
 import frc.robot.commands.ClimbSequence;
 import frc.robot.commands.FullAutoCommand;
@@ -368,8 +369,8 @@ public class RobotContainer {
                         () -> new ProcessCommand(swerve, elevator, algaeManipulator), Set.of(swerve, elevator))
                 .withName("Process");
 
-        // ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve);
-        // SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
+        ApproachReefCommand approach = new ApproachReefCommand(0, 1, swerve, elevator, vision);
+        SmartDashboard.putData("Track L3", elevator.trackL3Command(approach::getDistanceToTarget)); // for debug
         // SmartDashboard.putData("Advanced Align", AlignToReefCommands.advancedAlignToReef(1, 1, swerve, vision));
         sweepCommand =
                 Commands.defer(() -> new SweepCommand(swerve), Set.of(swerve)).withName("Sweep");
@@ -427,9 +428,10 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger.whileTrue(endEffector
+        intakeTrigger.toggleOnTrue(endEffector
                 .runCommand(EndEffectorConstants.INTAKE_SPEED)
-                .alongWith(intake.intakeCommand().onlyIf(intake::isDeployed)));
+                .alongWith(intake.intakeCommand().onlyIf(intake::isDeployed))
+                .until(endEffector.coralDetectedTrigger));
         reverseIntakeTrigger.whileTrue(endEffector
                 .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
                 .alongWith(intake.ejectCommand()));

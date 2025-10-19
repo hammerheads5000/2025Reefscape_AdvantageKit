@@ -7,6 +7,7 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
@@ -42,8 +44,15 @@ public class ApproachReefCommand extends SequentialCommandGroup {
         //     return;
         // }
 
-        Command followPathCommand = AutoBuilder.followPath(
-                Pathfinding.generateReefPath(swerve.getPose(), side, relativePos, swerve.getFieldSpeeds()));
+        PathPlannerPath path =
+                Pathfinding.generateReefPath(swerve.getPose(), side, relativePos, swerve.getFieldSpeeds());
+        Pose2d approachPose = path.getPathPoses().get(path.getPathPoses().size() - 1);
+
+        // use to end path when aligned to approach pose; not actually run right now
+        AlignToPoseCommand approachAlignCommand = new AlignToPoseCommand(
+                approachPose, AlignConstants.CORAL_PULL_PID_TRANSLATION, AlignConstants.CORAL_PULL_PID_ANGLE, swerve);
+
+        Command followPathCommand = AutoBuilder.followPath(path);
 
         this.reefPos = alignToReefCommand
                 .targetPose
@@ -51,16 +60,18 @@ public class ApproachReefCommand extends SequentialCommandGroup {
                         new Translation2d(PathConstants.OFFSET_FROM_REEF, Meters.zero()), Rotation2d.kZero))
                 .getTranslation();
 
-        Logger.recordOutput("DSJflkje", new Pose2d(reefPos, Rotation2d.kZero));
-
         addCommands(
-                followPathCommand.handleInterrupt(() -> alignToReefCommand.end(true)),
+                followPathCommand
+                        .handleInterrupt(() -> alignToReefCommand.end(true))
+                        .until(approachAlignCommand::isFinished),
                 Commands.runOnce(() -> this.runningPath = false),
                 alignToReefCommand);
     }
 
-    @AutoLogOutput
     public Distance getDistanceToTarget() {
+        Logger.recordOutput(
+                "ApproachReef/DistanceToReef",
+                Meters.of(swerve.getPose().getTranslation().getDistance(reefPos)));
         return Meters.of(swerve.getPose().getTranslation().getDistance(reefPos));
     }
 
@@ -72,6 +83,7 @@ public class ApproachReefCommand extends SequentialCommandGroup {
         return alignToReefCommand.alignedAngle();
     }
 
+    @AutoLogOutput
     public Trigger finishedPath() {
         return new Trigger(() -> !this.runningPath);
     }

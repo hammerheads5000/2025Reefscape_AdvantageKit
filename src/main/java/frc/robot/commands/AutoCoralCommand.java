@@ -110,33 +110,37 @@ public class AutoCoralCommand extends ParallelCommandGroup {
             return pathfindToCoralCommand(coral, nearestBoundaryPose);
         }
         return Commands.run(
-                () -> {
-                    Translation2d closestCoral = coralDetection.getClosestCoral(ignoreWall);
-                    if (closestCoral == null) {
-                        // Translation2d vel = accelerationLimiter.calculate(new Translation2d());
-                        swerve.driveFieldCentric(
-                                MetersPerSecond.zero(), MetersPerSecond.zero(), RadiansPerSecond.zero());
-                        return;
-                    }
+                        () -> {
+                            Translation2d closestCoral = coralDetection.getClosestCoral(ignoreWall);
+                            if (closestCoral == null) {
+                                // Translation2d vel = accelerationLimiter.calculate(new Translation2d());
+                                swerve.driveFieldCentric(
+                                        MetersPerSecond.zero(), MetersPerSecond.zero(), RadiansPerSecond.zero());
+                                return;
+                            }
 
-                    // moving towards coral
-                    Translation2d vel = closestCoral.minus(swerve.getPose().getTranslation());
-                    distanceToCoral = Meters.of(vel.getNorm());
-                    vel = vel.div(vel.getNorm());
-                    vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
-                    vel = accelerationLimiter.calculate(vel);
+                            // moving towards coral
+                            Translation2d vel =
+                                    closestCoral.minus(swerve.getPose().getTranslation());
+                            distanceToCoral = Meters.of(vel.getNorm());
+                            vel = vel.div(vel.getNorm());
+                            vel = vel.times(IntakeConstants.PICKUP_SPEED.in(MetersPerSecond));
+                            vel = accelerationLimiter.calculate(vel);
 
-                    AngularVelocity omega = RadiansPerSecond.of(rotationController.calculate(
-                            swerve.getPose().getRotation().getRadians(),
-                            vel.getAngle().plus(Rotation2d.k180deg).getRadians()));
+                            AngularVelocity omega = RadiansPerSecond.of(rotationController.calculate(
+                                    swerve.getPose().getRotation().getRadians(),
+                                    vel.getAngle().plus(Rotation2d.k180deg).getRadians()));
 
-                    // don't run into wall (hopefully)
-                    vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
+                            // don't run into wall (hopefully)
+                            vel = BoundaryProtections.adjustVelocity(swerve.getPose(), vel);
 
-                    swerve.driveFieldCentric(
-                            vel.getMeasureX().per(Second), vel.getMeasureY().per(Second), omega);
-                },
-                swerve);
+                            swerve.driveFieldCentric(
+                                    vel.getMeasureX().per(Second),
+                                    vel.getMeasureY().per(Second),
+                                    omega);
+                        },
+                        swerve)
+                .until(() -> coralDetection.getClosestCoral() != coralDetection.getClosestCoral(true));
     }
 
     /** use PathPlanner to create path to pickup coral on a wall */

@@ -114,13 +114,13 @@ public class Constants {
         public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(3.2);
         public static final AngularVelocity DEFAULT_ROT_SPEED = RotationsPerSecond.of(1.25);
 
-        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(4.3);
+        public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(4.5);
         public static final AngularVelocity FAST_ROT_SPEED = RotationsPerSecond.of(4);
 
         public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1.5);
         public static final AngularVelocity SLOW_ROT_SPEED = RotationsPerSecond.of(0.5);
 
-        public static final LinearAcceleration MAX_TELEOP_ACCEL = MetersPerSecondPerSecond.of(10);
+        public static final LinearAcceleration MAX_TELEOP_ACCEL = MetersPerSecondPerSecond.of(15);
     }
 
     public static class SwerveConstants {
@@ -177,7 +177,7 @@ public class Constants {
         public static final Pigeon2Configuration PIGEON_CONFIGS =
                 new Pigeon2Configuration().withMountPose(new MountPoseConfigs().withMountPoseRoll(Degrees.of(180)));
 
-        public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.44); // maybe needs tuning
+        public static final LinearVelocity SPEED_AT_12V = MetersPerSecond.of(4.1); // maybe needs tuning
 
         // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
         private static final double COUPLE_RATIO = 4.58;
@@ -332,7 +332,7 @@ public class Constants {
             new Translation2d(SwerveConstants.BackRight.X_POS, SwerveConstants.BackRight.Y_POS),
         };
 
-        public static final Frequency ODOMETRY_UPDATE_FREQ = Hertz.of(0); // 0 Hz = default 250 Hz for CAN FD
+        public static final Frequency ODOMETRY_UPDATE_FREQ = Hertz.of(250); // 0 Hz = default 250 Hz for CAN FD
         public static final Matrix<N3, N1> ODOMETRY_STD_DEV = VecBuilder.fill(0.02, 0.02, 0.01);
 
         public static final DriveRequestType DRIVE_REQUEST_TYPE = DriveRequestType.Velocity;
@@ -498,11 +498,11 @@ public class Constants {
 
         // Setpoints (from floor)
         public static final Distance MIN_HEIGHT = Inches.of(9);
-        public static final Distance MAX_HEIGHT = Inches.of(80.19);
-        public static final Distance L1_HEIGHT = Inches.of(29.8);
+        public static final Distance MAX_HEIGHT = Meters.of(2.263);
+        public static final Distance L1_HEIGHT = Inches.of(30.5);
         public static final Distance L2_HEIGHT = Inches.of(38.5);
-        public static final Distance L3_HEIGHT = Inches.of(53.3);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 1.94);
+        public static final Distance L3_HEIGHT = Inches.of(54.5);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.16);
         public static final Distance INTAKE_HEIGHT = Inches.of(9.5);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
@@ -522,7 +522,7 @@ public class Constants {
                 4, HIGH_ALGAE_HEIGHT,
                 5, LOW_ALGAE_HEIGHT);
 
-        public static final Angle SHOOT_ANGLE = Degrees.of(30.73124803);
+        public static final Angle SHOOT_ANGLE = Degrees.of(36);
 
         public static final Distance MAX_SHOOT_DISTANCE = MAX_HEIGHT
                 .minus(Meters.of(L4_HEIGHT.get()))
@@ -897,7 +897,7 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance OFFSET_FROM_REEF = Meters.of(0.12); // distance from bumper to reef when scoring
+        public static final Distance OFFSET_FROM_REEF = Meters.of(0.04); // distance from bumper to reef when scoring
         public static final Distance DISTANCE_TO_REEF =
                 Dimensions.ROBOT_SIZE.div(2).plus(OFFSET_FROM_REEF);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
@@ -947,9 +947,9 @@ public class Constants {
         // PathPlanner
 
         // output: m/s, measure: m
-        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(3, 0.1, 0.1);
+        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
         // output: rad/s, measure: rad
-        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(3, 0.1, 0.1);
+        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(5.0),

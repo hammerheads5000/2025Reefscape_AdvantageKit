@@ -54,15 +54,17 @@ public class BoundaryProtections {
 
     // precompute reef vertices and edges
     static {
-        double pointBx = BLUE_REEF_X[5];
-        double pointBy = BLUE_REEF_Y[5];
         for (int i = 0; i < 6; i++) {
             double angle = Math.PI / 3 * i + Math.PI / 6; // start at 30 degrees
             BLUE_REEF_X[i] = FieldConstants.REEF_CENTER_BLUE.getX() + CIRCUMSCRIBED_REEF_RADIUS * Math.cos(angle);
             BLUE_REEF_Y[i] = FieldConstants.REEF_CENTER_BLUE.getY() + CIRCUMSCRIBED_REEF_RADIUS * Math.sin(angle);
             RED_REEF_X[i] = FieldConstants.REEF_CENTER_RED.getX() + CIRCUMSCRIBED_REEF_RADIUS * Math.cos(angle);
             RED_REEF_Y[i] = FieldConstants.REEF_CENTER_RED.getY() + CIRCUMSCRIBED_REEF_RADIUS * Math.sin(angle);
+        }
 
+        double pointBx = BLUE_REEF_X[5];
+        double pointBy = BLUE_REEF_Y[5];
+        for (int i = 0; i < 6; i++) {
             double pointAx = BLUE_REEF_X[i];
             double pointAy = BLUE_REEF_Y[i];
             double normSquared = (pointAx - pointBx) * (pointAx - pointBx) + (pointAy - pointBy) * (pointAy - pointBy);

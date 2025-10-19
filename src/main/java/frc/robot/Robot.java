@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,11 +50,21 @@ public class Robot extends LoggedRobot {
                 // Running on a real robot, log to a USB stick ("/U/logs")
                 Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
+
+                PathPlannerLogging.setLogTargetPoseCallback(
+                        pose -> Logger.recordOutput("PathPlanner/TargetPose", pose));
+                PathPlannerLogging.setLogActivePathCallback(
+                        poses -> Logger.recordOutput("PathPlanner/ActivePath", poses.toArray(Pose2d[]::new)));
                 break;
 
             case SIM:
                 // Running a physics simulator, log to NT
                 Logger.addDataReceiver(new NT4Publisher());
+
+                PathPlannerLogging.setLogTargetPoseCallback(
+                        pose -> Logger.recordOutput("PathPlanner/TargetPose", pose));
+                PathPlannerLogging.setLogActivePathCallback(
+                        poses -> Logger.recordOutput("PathPlanner/ActivePath", poses.toArray(Pose2d[]::new)));
                 break;
 
             case REPLAY:

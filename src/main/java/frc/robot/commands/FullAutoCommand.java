@@ -169,7 +169,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                  elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
-                .andThen(elevatorPosCommand)
                 .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));

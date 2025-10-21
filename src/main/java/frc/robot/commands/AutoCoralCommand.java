@@ -87,15 +87,9 @@ public class AutoCoralCommand extends ParallelCommandGroup {
                         this.endEffector.startIntakeCommand(),
                         Commands.waitSeconds(0.05),
                         Commands.runOnce(() -> this.swerve.stop()))
-                .deadlineFor(
-                        Commands.sequence( // zero the elevator at the start, but don't wait for it
-                                this.elevator.goToIntakePosCommand(true),
-                                Commands.waitUntil(elevator::atGoal),
-                                this.elevator.zeroEncoderCommand(),
-                                this.elevator.goToIntakePosCommand(true)),
-                        Commands.sequence(
-                                Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
-                                this.intake.startIntakeCommand())));
+                .deadlineFor(Commands.sequence(
+                        Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
+                        this.intake.startIntakeCommand())));
     }
 
     private Command driveTowardsCoral() {

@@ -163,13 +163,12 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
-                                elevator.goToL2Command(true),
-                                Commands.waitUntil(approachReefCommand
-                                        .withinRangeTrigger(deployDistance)
-                                        .and(approachReefCommand.finishedPath())),
-                                elevatorPosCommand),
+                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
+                                elevator.goToL2Command(true)),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
+                .andThen(elevatorPosCommand)
+                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
@@ -226,7 +225,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
                                 endEffector.stopCommand(),
-                                elevator.goToL2Command(true),
                                 Commands.waitUntil(approachReefCommand
                                         .withinRangeTrigger(deployDistance)
                                         .and(approachReefCommand.finishedPath())),
@@ -273,7 +271,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
             }
 
             return Commands.defer(
-                    () -> getTrackedReefCommand(side, relativePos, token.charAt(1), algae), Set.of(swerve, elevator));
+                    () -> getReefCommand(side, relativePos, token.charAt(1), algae), Set.of(swerve, elevator));
         }
     }
 

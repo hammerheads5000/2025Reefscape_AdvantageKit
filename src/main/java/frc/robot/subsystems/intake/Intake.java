@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     Trigger alignerHasPiece = new Trigger(() -> inputs.alignLidar).debounce(0.1);
 
     @AutoLogOutput
-    Trigger deployedTrigger = new Trigger(this::isDeployed).debounce(0.1);
+    Trigger deployedTrigger = new Trigger(this::isDeployed);
 
     @AutoLogOutput
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
@@ -54,7 +54,7 @@ public class Intake extends SubsystemBase {
 
         alignerHasPiece.onTrue(Commands.runOnce(jamTimer::restart));
         jammedTrigger.onTrue(unjamCommand());
-        deployedTrigger.onTrue(deployNeutralCommand());
+        deployedTrigger.whileTrue(deployNeutralCommand());
 
         SmartDashboard.putData("Intake Deploy", deployCommand(true));
         SmartDashboard.putData("Intake Stow", stowCommand(true));

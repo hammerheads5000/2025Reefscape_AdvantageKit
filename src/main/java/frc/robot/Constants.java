@@ -112,10 +112,10 @@ public class Constants {
         public static final Time SCORE_RUMBLE_TIME = Seconds.of(1);
 
         public static final LinearVelocity DEFAULT_DRIVE_SPEED = MetersPerSecond.of(3.2);
-        public static final AngularVelocity DEFAULT_ROT_SPEED = RotationsPerSecond.of(1.25);
+        public static final AngularVelocity DEFAULT_ROT_SPEED = RotationsPerSecond.of(0.75);
 
         public static final LinearVelocity FAST_DRIVE_SPEED = MetersPerSecond.of(4.5);
-        public static final AngularVelocity FAST_ROT_SPEED = RotationsPerSecond.of(4);
+        public static final AngularVelocity FAST_ROT_SPEED = RotationsPerSecond.of(2);
 
         public static final LinearVelocity SLOW_DRIVE_SPEED = MetersPerSecond.of(1.5);
         public static final AngularVelocity SLOW_ROT_SPEED = RotationsPerSecond.of(0.5);
@@ -345,10 +345,10 @@ public class Constants {
     public static class AlignConstants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
-                .withPID(2, 0.2, 0.1)
+                .withPID(1.25, 0.75, 0.05)
                 .withFeedforward(0.7, 0.0)
-                .withTolerance(Inches.of(1.5).in(Meters), 0.05)
-                .withProfile(1.25, 0.75);
+                .withTolerance(Inches.of(1.5).in(Meters), 0.1)
+                .withProfile(3.0, 2.5);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -377,9 +377,12 @@ public class Constants {
                 .withProfile(3, 6)
                 .withTolerance(Inches.of(4).in(Meters));
 
+        public static final ControlConstants APPROACH_PID_TRANSLATION =
+                new ControlConstants(SCORING_PID_TRANSLATION).withTolerance(0.3, 10);
+
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(1.5, 0.5, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(1.5, 0.75, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -399,6 +402,9 @@ public class Constants {
 
         public static final ControlConstants CORAL_PICKUP_PID_ANGLE = new ControlConstants().withPID(6, 2, 0.0);
 
+        public static final ControlConstants APPROACH_PID_ANGLE =
+                new ControlConstants(SCORING_PID_ANGLE).withTolerance(20, 180);
+
         public static final Time ALIGN_TIME = Seconds.of(0.1); // amount to wait to make sure aligned
     }
 
@@ -415,7 +421,7 @@ public class Constants {
         public static final boolean OPPOSE_FOLLOWER = true;
 
         public static final CurrentLimitsConfigs CURRENT_LIMITS_CONFIGS =
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(70));
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(100));
 
         public static final MotorOutputConfigs OUTPUT_CONFIGS = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
@@ -466,8 +472,8 @@ public class Constants {
                 .withGravityType(GravityTypeValue.Elevator_Static);
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-                .withMotionMagicExpo_kV(Volts.of(0.4).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.4).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kV(Volts.of(0.3).per(RotationsPerSecond))
+                .withMotionMagicExpo_kA(Volts.of(0.2).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -479,7 +485,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(-0.010986328125)
+                .withMagnetOffset(0.10107421875)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
@@ -501,9 +507,9 @@ public class Constants {
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
         public static final Distance L1_HEIGHT = Inches.of(30.5);
         public static final Distance L2_HEIGHT = Inches.of(38.5);
-        public static final Distance L3_HEIGHT = Inches.of(54.5);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.16);
-        public static final Distance INTAKE_HEIGHT = Inches.of(9.5);
+        public static final Distance L3_HEIGHT = Inches.of(56);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.23);
+        public static final Distance INTAKE_HEIGHT = Inches.of(9);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -551,7 +557,7 @@ public class Constants {
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(4.5);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3.6);
-        public static final Voltage SCORE_SPEED = Volts.of(2);
+        public static final Voltage SCORE_SPEED = Volts.of(2.0);
         public static final Voltage FAST_TROUGH_SPEED = Volts.of(3.6);
         public static final Voltage SLOW_TROUGH_SPEED = Volts.of(2);
         public static final Voltage ADJUST_SPEED = Volts.of(1);
@@ -597,7 +603,7 @@ public class Constants {
                 .withCurrentLimits(INTAKE_CURRENT_LIMITS_CONFIGS);
 
         public static final MotorOutputConfigs DEPLOY_MOTOR_OUTPUT_CONFIGS = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
         public static final CurrentLimitsConfigs DEPLOY_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(Amps.of(30))
@@ -646,8 +652,8 @@ public class Constants {
                 .withCurrentLimits(ALIGN_CURRENT_LIMITS_CONFIGS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.38)
-                .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
+                .withMagnetOffset(0.065)
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
 
         // S1 = align, S2 = beam break
         public static final DigitalInputsConfigs CANDI_CONFIGS = new DigitalInputsConfigs()
@@ -734,7 +740,7 @@ public class Constants {
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
 
-        public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 100;
+        public static final double GEAR_RATIO = (46.0 / 26) * (54.0 / 20) * 48 * (54.0 / 46);
 
         public static final FeedbackConfigs FEEDBACK_CONFIGS = new FeedbackConfigs()
                 .withFeedbackRemoteSensorID(CLIMB_ENCODER_ID)
@@ -743,9 +749,9 @@ public class Constants {
 
         public static final Angle GRAB_ANGLE = Rotations.of(-0.02);
         public static final Angle HALFWAY_ANGLE = Rotations.of(0.15);
-        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.31);
-        public static final Angle RESET_ANGLE = Rotations.of(0.315);
-        public static final Angle SLOW_ANGLE = Rotations.of(0.28);
+        public static final Angle MAX_CLIMB_ANGLE = Rotations.of(0.30);
+        public static final Angle RESET_ANGLE = Rotations.of(0.30);
+        public static final Angle SLOW_ANGLE = Rotations.of(0.26);
 
         public static final TalonFXConfiguration CLIMB_CONFIGS = new TalonFXConfiguration()
                 .withMotorOutput(OUTPUT_CONFIGS)
@@ -897,7 +903,7 @@ public class Constants {
     public static class PathConstants {
         public static final Distance SIDE_DISTANCE = Meters.of(3);
 
-        public static final Distance OFFSET_FROM_REEF = Meters.of(0.04); // distance from bumper to reef when scoring
+        public static final Distance OFFSET_FROM_REEF = Meters.of(0.10); // distance from bumper to reef when scoring
         public static final Distance DISTANCE_TO_REEF =
                 Dimensions.ROBOT_SIZE.div(2).plus(OFFSET_FROM_REEF);
         public static final Distance DISTANCE_TO_PROCESSOR = Inches.of(29.0 / 2).plus(Dimensions.BUMPER_THICKNESS);
@@ -918,9 +924,10 @@ public class Constants {
 
         public static final Distance TRAVERSE_DISTANCE = Inches.of(40); // *extra* distance to reef when moving
         // around to other side
+        public static final Distance APPROACH_TOLERANCE = Inches.of(15);
 
         public static final LoggedTunableNumber ELEVATOR_SETTLE_TIME =
-                new LoggedTunableNumber("Elevator Settle Time", 0.3); // for L1-L3
+                new LoggedTunableNumber("Elevator Settle Time", 0.2); // for L1-L3
         public static final Time AFTER_WAIT_TIME = Seconds.of(0.1);
         public static final Time BARGE_SETTLE_TIME = Seconds.of(0.2);
 
@@ -929,10 +936,10 @@ public class Constants {
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
         public static final LoggedTunableNumber APPROACH_PROPORTION = new LoggedTunableNumber(
-                "Approach Proportion (0-1)", 1); // proportion of distance to final waypoint to use approach
+                "Approach Proportion (0-1)", 1.0); // proportion of distance to final waypoint to use approach
         // constraints
         public static final LoggedTunableNumber FAST_PROPORTION = new LoggedTunableNumber(
-                "Fast Proportion (0-1)", 0.5); // proportion of first waypoint to use fast constraints
+                "Fast Proportion (0-1)", 0.8); // proportion of first waypoint to use fast constraints
 
         public static final Distance SWEEP_SIDE_DISTANCE = Inches.of(40);
         public static final Distance SWEEP_OFFSET = Inches.of(2);
@@ -947,27 +954,27 @@ public class Constants {
         // PathPlanner
 
         // output: m/s, measure: m
-        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
+        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(1.5, 0.1, 0.05);
         // output: rad/s, measure: rad
-        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
+        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(1.5, 0.1, 0.05);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(5.0),
-                MetersPerSecondPerSecond.of(2.5),
+                MetersPerSecondPerSecond.of(15.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(3.1),
-                MetersPerSecondPerSecond.of(1.5),
+                MetersPerSecond.of(4.0),
+                MetersPerSecondPerSecond.of(12.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints APPROACH_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(1.5),
-                MetersPerSecondPerSecond.of(1.0),
-                RotationsPerSecond.of(1.25),
-                RotationsPerSecondPerSecond.of(1.25));
+                MetersPerSecond.of(2),
+                MetersPerSecondPerSecond.of(2),
+                RotationsPerSecond.of(1.),
+                RotationsPerSecondPerSecond.of(1.));
 
         private static final Mass ROBOT_MASS = Pounds.of(130);
         private static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(10.13);

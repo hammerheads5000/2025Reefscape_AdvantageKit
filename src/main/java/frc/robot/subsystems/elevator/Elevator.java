@@ -82,7 +82,7 @@ public class Elevator extends SubsystemBase {
         measuredVisualizer = new ElevatorVisualizer("Measured", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
         setpointVisualizer = new ElevatorVisualizer("Setpoint", hasCoral, algaeDeployed, hasAlgae, poseSupplier);
 
-        stallTrigger.onTrue(Commands.runOnce(io::zeroEncoder).andThen(setStageCommand()));
+        // stallTrigger.onTrue(Commands.runOnce(io::zeroEncoder).andThen(setStageCommand()));
 
         SmartDashboard.putData("L1", goToL1Command(true));
         SmartDashboard.putData("L2", goToL2Command(true));
@@ -90,7 +90,7 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putData("L4", goToL4Command(true));
         SmartDashboard.putData("Intake", goToIntakePosCommand(true));
         SmartDashboard.putData("Reset Encoder", resetEncoderCommand());
-        SmartDashboard.putData("Zero Encoder", zeroEncoderCommand());
+        // SmartDashboard.putData("Zero Encoder", zeroEncoderCommand());
     }
 
     @Override
@@ -167,6 +167,7 @@ public class Elevator extends SubsystemBase {
         return this.runOnce(io::resetEncoder).ignoringDisable(true).withName("Reset Encoder");
     }
 
+    @Deprecated
     public Command zeroEncoderCommand() {
         return elevatorDownCommand()
                 .until(stallTrigger)

@@ -261,18 +261,10 @@ public class Pathfinding {
         int side = 2;
         ArrayList<Pose2d> poses = generateApproachPoses(currentPose, side);
         Pose2d endPose = ApproachBargeCommands.getBargePose(pos);
-        poses.add(
-                new Pose2d(endPose.getTranslation(), AutoBuilder.shouldFlip() ? Rotation2d.k180deg : Rotation2d.kZero));
+        poses.add(endPose);
 
-        Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
+        Pose2d startPose = pointPoseTowards(currentPose, poses.get(0));
 
-        Pose2d startPose;
-        if (DriverStation.isAutonomous() || vel.getNorm() < PathConstants.MIN_PATH_SPEED.in(MetersPerSecond)) {
-            startPose = pointPoseTowards(currentPose, poses.get(0));
-        } else {
-            Rotation2d startHeading = chassisSpeedsToHeading(startSpeeds);
-            startPose = new Pose2d(currentPose.getTranslation(), startHeading);
-        }
         poses.add(0, startPose);
 
         ArrayList<ConstraintsZone> constraintsZones = new ArrayList<>();

@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.NTConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.VisionConstants;
@@ -308,7 +309,7 @@ public class RobotContainer {
         // #endregion
 
         // #region Instantiate Commands
-        teleopSwerveCommand = new TeleopSwerve(swerve, driveController, intakeTrigger);
+        teleopSwerveCommand = new TeleopSwerve(swerve, driveController);
 
         rumbleCommand = Commands.startEnd(
                         () -> driveController.setRumble(RumbleType.kBothRumble, ControllerConstants.CONTROLLER_RUMBLE),
@@ -426,16 +427,17 @@ public class RobotContainer {
         elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
-        intakeTrigger.toggleOnTrue(endEffector
-                .runCommand(EndEffectorConstants.INTAKE_SPEED)
-                .alongWith(intake.intakeCommand().onlyIf(intake::isDeployed))
-                .until(endEffector.coralDetectedTrigger));
+        intakeTrigger.toggleOnTrue(intake.deployCommand(true)
+                .andThen(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
+                .alongWith(intake.intakeCommand())
+                .until(endEffector.coralDetectedTrigger)
+                .finallyDo(() -> intake.setGoal(IntakeConstants.STOW_POS)));
         reverseIntakeTrigger.whileTrue(endEffector
                 .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
                 .alongWith(intake.ejectCommand()));
 
         toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
-        intakeEmergencyStowTrigger.onTrue(intake.emergencyStow());
+        intakeEmergencyStowTrigger.onTrue(intake.stowCommand(true));
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
         intakeAndReefTrigger.whileTrue(intakeAndReefCommand);

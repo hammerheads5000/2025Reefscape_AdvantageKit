@@ -187,9 +187,7 @@ public class BoundaryProtections {
                 .unaryMinus();
 
         double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
-        if (!intaking) {
-            minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
-        }
+        minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
 
         double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
                 + offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());

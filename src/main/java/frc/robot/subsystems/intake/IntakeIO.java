@@ -48,5 +48,5 @@ public interface IntakeIO {
 
     default void stopDeploy() {}
 
-    default void emergencyStow(Angle angle) {}
+    default void setToCoast(boolean shouldCoast) {}
 }

@@ -25,6 +25,8 @@ public interface ClimberIO {
 
         public boolean encoderConnected = false;
         public Angle pos = Radians.zero();
+
+        public boolean cageDetected = false;
     }
 
     default void updateInputs(ClimberIOInputs inputs) {}

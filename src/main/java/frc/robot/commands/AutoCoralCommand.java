@@ -22,8 +22,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.ElevatorConstants;
@@ -39,7 +39,7 @@ import frc.robot.util.SlewRateLimiter2d;
 import java.util.Set;
 
 /** Ends right after coral detected, without stopping */
-public class AutoCoralCommand extends ParallelCommandGroup {
+public class AutoCoralCommand extends SequentialCommandGroup {
     private final Swerve swerve;
     private final Intake intake;
     private final EndEffector endEffector;
@@ -73,23 +73,21 @@ public class AutoCoralCommand extends ParallelCommandGroup {
 
         rotationController.enableContinuousInput(0, 2 * Math.PI);
 
-        addCommands(Commands.sequence(
-                        this.intake.deployCommand(true),
-                        Commands.defer(this::driveTowardsCoral, Set.of(swerve))
-                                .withTimeout(IntakeConstants.CORAL_TIMEOUT)
-                                .repeatedly() // will keep restarting after timeout until coral detected in intake
-                                .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
-                        Commands.either( // depending on elevator being at intake or not
-                                this.intake.startSlowIntakeCommand(),
-                                new ScheduleCommand(Commands.waitSeconds(0.1).andThen(this.intake.stopIntake())),
-                                () -> elevator.getHeight()
-                                        .isNear(ElevatorConstants.INTAKE_HEIGHT, ElevatorConstants.TOLERANCE)),
-                        this.endEffector.startIntakeCommand(),
-                        Commands.waitSeconds(0.05),
-                        Commands.runOnce(() -> this.swerve.stop()))
-                .deadlineFor(Commands.sequence(
-                        Commands.waitUntil(() -> distanceToCoral.lt(IntakeConstants.START_DISTANCE)),
-                        this.intake.startIntakeCommand())));
+        addCommands(
+                this.intake.deployCommand(true),
+                this.intake.startIntakeCommand(),
+                this.endEffector.startIntakeCommand(),
+                Commands.defer(this::driveTowardsCoral, Set.of(swerve))
+                        .withTimeout(IntakeConstants.CORAL_TIMEOUT)
+                        .repeatedly() // will keep restarting after timeout until coral detected in intake
+                        .until(intake.coralDetectedTrigger.or(endEffector.coralDetectedTrigger)),
+                Commands.either( // depending on elevator being at intake or not
+                        this.intake.startSlowIntakeCommand(),
+                        new ScheduleCommand(Commands.waitSeconds(0.1).andThen(this.intake.stopIntake())),
+                        () -> elevator.getHeight()
+                                .isNear(ElevatorConstants.INTAKE_HEIGHT, ElevatorConstants.TOLERANCE)),
+                Commands.waitSeconds(0.05),
+                Commands.runOnce(() -> this.swerve.stop()));
     }
 
     private Command driveTowardsCoral() {

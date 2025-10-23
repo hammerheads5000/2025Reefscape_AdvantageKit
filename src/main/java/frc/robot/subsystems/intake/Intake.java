@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
 
     @AutoLogOutput
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.1);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.15);
 
     private Timer jamTimer = new Timer();
 
@@ -148,10 +148,6 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    public Command emergencyStow() {
-        return this.runOnce(() -> io.emergencyStow(IntakeConstants.STOW_POS));
-    }
-
     public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
                     setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
@@ -207,5 +203,9 @@ public class Intake extends SubsystemBase {
             setIntakeSpeed(Volts.zero());
             setAlignSpeed(Volts.zero());
         });
+    }
+
+    public void setToCoast(boolean shouldCoast) {
+        io.setToCoast(shouldCoast);
     }
 }

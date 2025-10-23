@@ -346,7 +346,7 @@ public class Constants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
                 .withPID(1.25, 0.75, 0.05)
-                .withFeedforward(0.7, 0.0)
+                .withFeedforward(0.8, 0.0)
                 .withTolerance(Inches.of(1.5).in(Meters), 0.1)
                 .withProfile(3.0, 2.5);
 
@@ -382,7 +382,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(1.5, 0.75, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(2.5, 0.5, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -473,7 +473,7 @@ public class Constants {
 
         public static final MotionMagicConfigs MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
                 .withMotionMagicExpo_kV(Volts.of(0.3).per(RotationsPerSecond))
-                .withMotionMagicExpo_kA(Volts.of(0.2).per(RotationsPerSecondPerSecond));
+                .withMotionMagicExpo_kA(Volts.of(0.4).per(RotationsPerSecondPerSecond));
 
         public static final TalonFXConfiguration MOTOR_CONFIGS = new TalonFXConfiguration()
                 .withCurrentLimits(CURRENT_LIMITS_CONFIGS)
@@ -505,18 +505,18 @@ public class Constants {
         // Setpoints (from floor)
         public static final Distance MIN_HEIGHT = Inches.of(9);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
-        public static final Distance L1_HEIGHT = Inches.of(30.5);
-        public static final Distance L2_HEIGHT = Inches.of(38.5);
+        public static final Distance L1_HEIGHT = Inches.of(31.5);
+        public static final Distance L2_HEIGHT = Inches.of(39.5);
         public static final Distance L3_HEIGHT = Inches.of(56);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.23);
-        public static final Distance INTAKE_HEIGHT = Inches.of(9);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.26);
+        public static final Distance INTAKE_HEIGHT = Meters.of(0.245);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
 
         public static final Distance LOW_ALGAE_HEIGHT = Meters.of(0.69);
         public static final Distance HIGH_ALGAE_HEIGHT = Meters.of(1.1420);
-        public static final Distance BARGE_HEIGHT = Inches.of(82.4);
+        public static final Distance BARGE_HEIGHT = Meters.of(2.26);
         public static final Distance LOLLIPOP_HEIGHT = Inches.of(9.3);
         public static final Distance PROCESS_HEIGHT = Inches.of(9.3);
 
@@ -584,7 +584,7 @@ public class Constants {
         // public static final Distance DEPLOY_CLEARANCE = Inches.of(18);
         // public static final Distance SLOWDOWN_START_DISTANCE = Inches.of(36);
         // public static final Distance SLOWDOWN_STOP_DISTANCE = Inches.of(12);
-        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(16);
+        public static final Distance DISTANCE_TO_KEEP_FROM_WALL = Inches.of(-3);
         public static final Distance SLOWDOWN_DISTANCE = Inches.of(48);
         public static final Angle ANGLE_TO_FACE_WALL = Degrees.of(90); // limit vel if the bot is <=45 deg to wall
         public static final Distance START_DISTANCE = Inches.of(65);
@@ -606,9 +606,9 @@ public class Constants {
                 .withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Brake);
         public static final CurrentLimitsConfigs DEPLOY_CURRENT_LIMITS_CONFIGS = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(Amps.of(30))
-                .withSupplyCurrentLowerLimit(Amps.of(15))
-                .withSupplyCurrentLowerTime(Seconds.of(1))
+                .withSupplyCurrentLimit(Amps.of(60))
+                .withSupplyCurrentLowerLimit(Amps.of(30))
+                .withSupplyCurrentLowerTime(Seconds.of(0.5))
                 .withSupplyCurrentLimitEnable(true)
                 .withStatorCurrentLimitEnable(false);
         public static final FeedbackConfigs DEPLOY_FEEDBACK_CONFIGS = new FeedbackConfigs()
@@ -616,13 +616,13 @@ public class Constants {
                 .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
                 .withRotorToSensorRatio(20 * 50 / 24.0); // 20:1 gearbox and 50:24 gears
         public static final Slot0Configs DEPLOY_PID = new Slot0Configs()
-                .withKP(10)
-                .withKI(10)
-                .withKD(0.1)
+                .withKP(15)
+                .withKI(0)
+                .withKD(0)
                 .withKS(0.1)
-                .withKV(5.5)
+                .withKV(5)
                 .withKA(0.0)
-                .withKG(0.35)
+                .withKG(0.4)
                 .withGravityType(GravityTypeValue.Arm_Cosine)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
@@ -668,11 +668,11 @@ public class Constants {
         public static final Voltage ALIGN_SPEED = Volts.of(5);
 
         public static final Angle DEPLOY_POS = Degrees.of(-7);
-        public static final Angle STOW_POS = Degrees.of(60);
+        public static final Angle STOW_POS = Degrees.of(50);
         // public static final Angle SLOWING_THRESHOLD = Degrees.of(35);
 
-        public static final Angle DEPLOY_TOLERANCE = Degrees.of(40);
-        public static final Angle STOW_TOLERANCE = Degrees.of(10);
+        public static final Angle DEPLOY_TOLERANCE = Degrees.of(20);
+        public static final Angle STOW_TOLERANCE = Degrees.of(20);
 
         public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
 
@@ -778,6 +778,8 @@ public class Constants {
         private static final Angle SWERVE_TURN_AMOUNT = Degrees.of(45);
         public static final Time SWERVE_TURN_TIME =
                 Seconds.of(SWERVE_TURN_AMOUNT.divideRatio(SWERVE_TURN_SPEED).in(Seconds));
+
+        public static final int INDUCTION_SENSOR_ID = 0; // RoboRIO DIO
     }
 
     public static class VisionConstants {
@@ -818,6 +820,8 @@ public class Constants {
         public static final Distance MAX_DISTANCE_TO_BRANCH =
                 Inches.of(3); // max distance from detected branch to ideal branch pos
         public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
+
+        public static final Distance MAX_CORAL_X = Meters.of(3);
     }
 
     public static class FieldConstants {
@@ -885,7 +889,7 @@ public class Constants {
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
         private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-20);
-        public static final Distance BARGE_X = Meters.of(7.5);
+        public static final Distance BARGE_X = Meters.of(7.7);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 '3', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
@@ -954,9 +958,9 @@ public class Constants {
         // PathPlanner
 
         // output: m/s, measure: m
-        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(1.5, 0.1, 0.05);
+        public static final PIDConstants PP_TRANSLATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
         // output: rad/s, measure: rad
-        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(1.5, 0.1, 0.05);
+        public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(5.0),
@@ -966,7 +970,7 @@ public class Constants {
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
                 MetersPerSecond.of(4.0),
-                MetersPerSecondPerSecond.of(12.0),
+                MetersPerSecondPerSecond.of(6.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 

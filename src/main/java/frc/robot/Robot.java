@@ -94,6 +94,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         Elastic.selectTab("Disabled");
+        robotContainer.intake.setToCoast(false);
     }
 
     @Override
@@ -101,7 +102,10 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        robotContainer.intake.setGoal(IntakeConstants.DEPLOY_POS);
+        if (robotContainer.intake.isStowed()) {
+            robotContainer.intake.setGoal(IntakeConstants.DEPLOY_POS);
+        }
+        robotContainer.intake.setToCoast(true);
     }
 
     @Override

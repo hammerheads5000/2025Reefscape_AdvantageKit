@@ -22,7 +22,6 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -37,18 +36,17 @@ public class TeleopSwerve extends Command {
 
     private LinearVelocity maxDriveSpeed = ControllerConstants.DEFAULT_DRIVE_SPEED;
     private AngularVelocity maxRotSpeed = ControllerConstants.DEFAULT_ROT_SPEED;
-    private BooleanSupplier intaking;
 
     private LoggedNetworkBoolean wallAvoidOverride = new LoggedNetworkBoolean("Wall Avoid Override", false);
 
     /** Creates a new TeleopSwerve. */
-    public TeleopSwerve(Swerve swerve, CommandXboxController controller, BooleanSupplier intaking) {
+    public TeleopSwerve(Swerve swerve, CommandXboxController controller) {
         this.swerve = swerve;
         this.xSupplier = () -> -controller.getLeftY() * flipFactor;
         this.ySupplier = () -> -controller.getLeftX() * flipFactor;
         this.omegaSupplier = () -> -controller.getRightX();
         this.driveLimiter = new SlewRateLimiter2d(ControllerConstants.MAX_TELEOP_ACCEL.in(MetersPerSecondPerSecond));
-        this.intaking = intaking;
+
         addRequirements(swerve);
     }
 
@@ -83,7 +81,7 @@ public class TeleopSwerve extends Command {
         linearVelocity = driveLimiter.calculate(linearVelocity);
         if (!wallAvoidOverride.get()) {
             linearVelocity = BoundaryProtections.adjustVelocity(
-                    swerve.getPose(), linearVelocity, intaking.getAsBoolean()); // prevent running the intake into walls
+                    swerve.getPose(), linearVelocity); // prevent running the intake into walls
         }
         double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), ControllerConstants.CONTROLLER_DEADBAND);
         omega = Math.copySign(omega * omega, omega); // square for more precise rotation control

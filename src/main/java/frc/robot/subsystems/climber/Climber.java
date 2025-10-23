@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimberConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,8 +20,12 @@ public class Climber extends SubsystemBase {
 
     private final Debouncer atMaxHeight = new Debouncer(0.2, DebounceType.kFalling);
 
+    private final Trigger cageDetectedTrigger = new Trigger(() -> inputs.cageDetected).debounce(0.1);
+
     public Climber(ClimberIO io) {
         this.io = io;
+
+        cageDetectedTrigger.onTrue(autoClimbCommand());
 
         SmartDashboard.putData("Climb", climbCommand());
         SmartDashboard.putData("Auto Climb", autoClimbCommand());
@@ -68,7 +73,8 @@ public class Climber extends SubsystemBase {
 
     public Command goToGrabPosCommand() {
         return Commands.sequence(
-                        reverseCommand().until(() -> inputs.pos.lte(ClimberConstants.GRAB_ANGLE)),
+                        reverseCommand().until(() -> inputs.pos.lt(ClimberConstants.GRAB_ANGLE)),
+                        climbCommand().until(() -> inputs.pos.gte(ClimberConstants.GRAB_ANGLE)),
                         this.runOnce(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED)))
                 .withName("Go to Cage Grab Pos");
     }

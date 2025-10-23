@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 
@@ -28,6 +29,8 @@ public class ClimberIOTalonFX implements ClimberIO {
 
     private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(false);
     private final NeutralOut neutralRequest = new NeutralOut();
+
+    private final DigitalInput inductionSensor = new DigitalInput(ClimberConstants.INDUCTION_SENSOR_ID);
 
     public ClimberIOTalonFX() {
         climbMotor = new TalonFX(ClimberConstants.CLIMB_MOTOR_ID, Constants.CAN_FD_BUS);
@@ -52,6 +55,8 @@ public class ClimberIOTalonFX implements ClimberIO {
 
         inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
         inputs.pos = climbEncoder.getAbsolutePosition().getValue();
+
+        inputs.cageDetected = inductionSensor.get();
     }
 
     @Override

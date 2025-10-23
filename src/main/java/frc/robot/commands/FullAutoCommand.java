@@ -162,11 +162,12 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 endEffector.startIntakeCommand().unless(endEffector.coralDetectedTrigger),
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
+                                intake.stowCommand(true).onlyIf(() -> !DriverStation.isAutonomous()),
                                 endEffector.stopCommand(),
                                 Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevator.goToL2Command(true),
-                                 Commands.waitUntil(approachReefCommand.finishedPath()),
-                                 elevatorPosCommand),
+                                Commands.waitUntil(approachReefCommand.finishedPath()),
+                                elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
                 .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))

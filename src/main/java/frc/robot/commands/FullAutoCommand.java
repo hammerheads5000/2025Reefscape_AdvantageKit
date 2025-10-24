@@ -44,10 +44,10 @@ public class FullAutoCommand extends SequentialCommandGroup {
     /** move to coral search position and look for coral, then intake */
     private Command getCoralSearchCommand(int pos) {
         Command command = AutoBuilder.followPath(Pathfinding.generateCoralSearchPath(swerve.getPose(), pos))
-                .until(() -> coralDetection.getClosestCoral(true) != null);
+                .until(() -> coralDetection.getClosestCoral(false) != null);
 
         AutoCoralCommand autoCoralCommand =
-                new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, true);
+                new AutoCoralCommand(swerve, intake, endEffector, elevator, coralDetection, false);
 
         Pose2d searchPose = pos == 1 ? FieldConstants.LEFT_CORAL_SEARCH_POSE : FieldConstants.RIGHT_CORAL_SEARCH_POSE;
         if (AutoBuilder.shouldFlip()) {
@@ -71,8 +71,8 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                             finishedAutoCoral = !interrupted;
                                         })
                                         .until(() -> !intake.coralDetectedTrigger.getAsBoolean()
-                                                && (coralDetection.getClosestCoral(true) == null)),
-                                alignCommand.until(() -> coralDetection.getClosestCoral(true) != null))
+                                                && (coralDetection.getClosestCoral(false) == null)),
+                                alignCommand.until(() -> coralDetection.getClosestCoral(false) != null))
                         .until(() -> finishedAutoCoral))
                 .beforeStarting(() -> {
                     finishedAutoCoral = false;
@@ -162,15 +162,15 @@ public class FullAutoCommand extends SequentialCommandGroup {
                                 endEffector.startIntakeCommand().unless(endEffector.coralDetectedTrigger),
                                 Commands.waitUntil(endEffector.coralDetectedTrigger),
                                 intake.stopIntake(),
-                                intake.stowCommand(true).onlyIf(() -> !DriverStation.isAutonomous()),
+                                intake.stowCommand(true).onlyIf(() -> DriverStation.isTeleop()),
                                 endEffector.stopCommand(),
-                                Commands.waitUntil(approachReefCommand.withinRangeTrigger(deployDistance)),
                                 elevator.goToL2Command(true),
-                                Commands.waitUntil(approachReefCommand.finishedPath()),
+                                Commands.waitUntil(approachReefCommand
+                                        .finishedPath()
+                                        .and(approachReefCommand.withinRangeTrigger(deployDistance))),
                                 elevatorPosCommand),
                         Commands.waitUntil(approachReefCommand.withinRangeTrigger(PathConstants.FLIP_DISTANCE))
                                 .andThen(new ScheduleCommand(algaeManipulator.flipUpAndHoldCommand())))
-                .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .andThen(endEffectorCommand.asProxy())
                 .andThen(Commands.waitTime(PathConstants.AFTER_WAIT_TIME));
         if (algae) {
@@ -236,7 +236,6 @@ public class FullAutoCommand extends SequentialCommandGroup {
                 .until(approachReefCommand
                         .withinRangeTrigger(ElevatorConstants.MAX_SHOOT_DISTANCE)
                         .and(elevator::atGoal)
-                        .and(approachReefCommand.alignedAngleTrigger())
                         .and(() -> !elevator.isGoal(ElevatorConstants.INTAKE_HEIGHT)))
                 .andThen(Commands.waitSeconds(PathConstants.ELEVATOR_SETTLE_TIME.get()))
                 .andThen(endEffectorCommand.asProxy())

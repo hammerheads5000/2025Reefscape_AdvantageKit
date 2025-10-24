@@ -123,7 +123,7 @@ public class RobotContainer {
 
     // #region Triggers
     private final Trigger algaeButtonLayerTrigger = driveController.leftTrigger();
-    private final Trigger speedUpTrigger = driveController.rightTrigger();
+    // private final Trigger speedUpTrigger = driveController.rightTrigger();
     // private final Trigger slowDownTrigger = driveController.leftTrigger();
 
     private final Trigger elevatorUpTrigger = driveController.povUp();
@@ -131,7 +131,8 @@ public class RobotContainer {
     private final Trigger elevatorIntakeTrigger = driveController.povLeft();
     // private final Trigger elevatorTrigger = driveController.povRight();
 
-    private final Trigger intakeTrigger = driveController.rightBumper().and(algaeButtonLayerTrigger.negate());
+    private final Trigger intakeTrigger = driveController.rightTrigger().and(algaeButtonLayerTrigger.negate());
+    private final Trigger shootTrigger = driveController.rightBumper().and(algaeButtonLayerTrigger.negate());
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
@@ -419,7 +420,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        speedUpTrigger.whileTrue(teleopSwerveCommand.speedUpCommand());
+        // speedUpTrigger.whileTrue(teleopSwerveCommand.speedUpCommand());
         // slowDownTrigger.whileTrue(teleopSwerveCommand.slowDownCommand());
 
         elevatorUpTrigger.whileTrue(elevator.elevatorUpCommand());
@@ -432,6 +433,8 @@ public class RobotContainer {
                 .alongWith(intake.intakeCommand())
                 .until(endEffector.coralDetectedTrigger)
                 .finallyDo(() -> intake.setGoal(IntakeConstants.STOW_POS)));
+        shootTrigger.whileTrue(
+                intake.intakeCommand().alongWith(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)));
         reverseIntakeTrigger.whileTrue(endEffector
                 .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
                 .alongWith(intake.ejectCommand()));
@@ -457,7 +460,7 @@ public class RobotContainer {
         autoClimbTrigger.whileTrue(climber.autoClimbCommand());
         climbSequenceTrigger.onTrue(climber.autoClimbCommand());
         unclimbTrigger.whileTrue(climber.reverseCommand());
-        climbGrabPosTrigger.onTrue(climber.goToGrabPosCommand());
+        climbGrabPosTrigger.onTrue(climber.goToGrabPosCommand().beforeStarting(intake.deployCommand(true)));
         climbHalfwayTrigger.whileTrue(climber.halfwayCommand());
 
         for (int i = 0; i < reefTriggers.length; i++) {

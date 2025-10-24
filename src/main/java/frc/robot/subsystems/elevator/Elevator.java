@@ -135,9 +135,16 @@ public class Elevator extends SubsystemBase {
     }
 
     @AutoLogOutput
+    public boolean isStalledUp() {
+        return inputs.outputCurrent.gte(ElevatorConstants.STALL_CURRENT)
+                && inputs.velocity.lte(ElevatorConstants.MAX_STALL_VEL)
+                && inputs.position.gte(ElevatorConstants.STAGE1_HEIGHT);
+    }
+
+    @AutoLogOutput
     /** Whether position is within tolerance of goal */
     public boolean atGoal() {
-        return atGoalDebouncer.calculate(inputs.position.isNear(goal, Inches.of(tolerance.get())));
+        return atGoalDebouncer.calculate(inputs.position.isNear(goal, Inches.of(tolerance.get())) || isStalledUp());
     }
 
     /** Stops elevator in place and sets goal to current position */

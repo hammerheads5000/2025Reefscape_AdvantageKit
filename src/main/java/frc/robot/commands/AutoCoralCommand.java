@@ -138,7 +138,9 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     /** use PathPlanner to create path to pickup coral on a wall */
     private Command pathfindToCoralCommand(Translation2d coralPose, Pose2d nearestBoundaryPose) {
         Pose2d pose = swerve.getPose();
-        double endRobotDistToWall = Dimensions.ROBOT_SIZE.in(Meters) / 2 + IntakeConstants.INTAKE_EXTENSION.in(Meters);
+        double endRobotDistToWall = Dimensions.ROBOT_SIZE.in(Meters) / 2
+                + IntakeConstants.INTAKE_EXTENSION.in(Meters)
+                + IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
 
         Pose2d pickupPose = nearestBoundaryPose.transformBy(
                 new Transform2d(new Translation2d(endRobotDistToWall, 0), Rotation2d.k180deg));

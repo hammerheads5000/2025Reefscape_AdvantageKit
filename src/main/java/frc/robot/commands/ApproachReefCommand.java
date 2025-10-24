@@ -26,14 +26,14 @@ import org.littletonrobotics.junction.Logger;
 
 /** Follow generated path to reef if necessary, then align */
 public class ApproachReefCommand extends SequentialCommandGroup {
-    private final AlignAndFacePoseCommand alignToReefCommand;
+    private final AlignToPoseCommand alignToReefCommand;
     private final Translation2d reefPos;
     private Swerve swerve;
     private boolean runningPath = true;
     /** Creates a new ApproachReefCommand. */
     public ApproachReefCommand(int side, double relativePos, Swerve swerve, Elevator elevator, Vision vision) {
         this.swerve = swerve;
-        alignToReefCommand = AlignToReefCommands.alignToReefFacingBranch(side, relativePos, swerve);
+        alignToReefCommand = AlignToReefCommands.alignToReef(side, relativePos, swerve);
 
         // don't generate path if too short
         // if (alignToReefCommand
@@ -45,7 +45,8 @@ public class ApproachReefCommand extends SequentialCommandGroup {
 
         PathPlannerPath path =
                 Pathfinding.generateReefPath(swerve.getPose(), side, relativePos, swerve.getFieldSpeeds());
-        Pose2d approachPose = path.getPathPoses().get(path.getPathPoses().size() - 2);
+        Translation2d approachPos =
+                path.getWaypoints().get(path.getWaypoints().size() - 2).anchor();
 
         Command followPathCommand = AutoBuilder.followPath(path);
 
@@ -55,12 +56,19 @@ public class ApproachReefCommand extends SequentialCommandGroup {
                         new Translation2d(PathConstants.OFFSET_FROM_REEF, Meters.zero()), Rotation2d.kZero))
                 .getTranslation();
 
+        Logger.recordOutput("ApproachReef/FinishedPath", false);
+        Logger.recordOutput(
+                "ApproachReef/ApproachPose", new Pose2d(approachPos, alignToReefCommand.targetPose.getRotation()));
+
         addCommands(
                 followPathCommand
                         .handleInterrupt(() -> alignToReefCommand.end(true))
-                        .until(() -> swerve.getPose().getTranslation().getDistance(approachPose.getTranslation())
+                        .until(() -> swerve.getPose().getTranslation().getDistance(approachPos)
                                 <= PathConstants.APPROACH_TOLERANCE.in(Meters)),
-                Commands.runOnce(() -> this.runningPath = false),
+                Commands.runOnce(() -> {
+                    this.runningPath = false;
+                    Logger.recordOutput("ApproachReef/FinishedPath", true);
+                }),
                 alignToReefCommand);
     }
 
@@ -73,10 +81,6 @@ public class ApproachReefCommand extends SequentialCommandGroup {
 
     public Trigger withinRangeTrigger(Distance range) {
         return alignToReefCommand.withinDistanceToTarget(range);
-    }
-
-    public Trigger alignedAngleTrigger() {
-        return alignToReefCommand.alignedAngle();
     }
 
     @AutoLogOutput

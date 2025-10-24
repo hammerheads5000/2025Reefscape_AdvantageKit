@@ -345,10 +345,10 @@ public class Constants {
     public static class AlignConstants {
         // output: m/s, measure: m
         public static final ControlConstants SCORING_PID_TRANSLATION = new ControlConstants()
-                .withPID(1.25, 0.75, 0.05)
+                .withPID(8, 0.1, 0.05)
                 .withFeedforward(0.8, 0.0)
-                .withTolerance(Inches.of(1.5).in(Meters), 0.1)
-                .withProfile(3.0, 2.5);
+                .withTolerance(Inches.of(1.0).in(Meters), 0.05)
+                .withProfile(2.0, 1.5);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -382,7 +382,7 @@ public class Constants {
 
         // output: deg/s, measure: deg
         public static final ControlConstants SCORING_PID_ANGLE =
-                new ControlConstants().withPID(2.5, 0.5, 0.0).withTolerance(1.2);
+                new ControlConstants().withPID(3, 0.05, 0.0).withTolerance(1.2);
 
         public static final ControlConstants ALGAE_PICK_PID_ANGLE =
                 new ControlConstants(SCORING_PID_ANGLE).withTolerance(3);
@@ -485,7 +485,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.10107421875)
+                .withMagnetOffset(0.152587890625)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
@@ -498,18 +498,19 @@ public class Constants {
         public static final Voltage MANUAL_DOWN_SPEED = Volts.of(-2.4);
 
         public static final Current STALL_CURRENT = Amps.of(50);
+        public static final LinearVelocity MAX_STALL_VEL = MetersPerSecond.of(0.05);
 
         // Sim constants
         public static final Mass CARRIAGE_MASS = Pounds.of(10);
 
         // Setpoints (from floor)
-        public static final Distance MIN_HEIGHT = Inches.of(9);
+        public static final Distance MIN_HEIGHT = Meters.of(0.229);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
-        public static final Distance L1_HEIGHT = Inches.of(31.5);
-        public static final Distance L2_HEIGHT = Inches.of(39.5);
-        public static final Distance L3_HEIGHT = Inches.of(56);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.26);
-        public static final Distance INTAKE_HEIGHT = Meters.of(0.245);
+        public static final Distance L1_HEIGHT = Meters.of(0.83);
+        public static final Distance L2_HEIGHT = Meters.of(1.03);
+        public static final Distance L3_HEIGHT = Meters.of(1.45);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.24);
+        public static final Distance INTAKE_HEIGHT = Meters.of(0.27);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -763,7 +764,7 @@ public class Constants {
 
         public static final Voltage CLIMB_SPEED = Volts.of(12);
         public static final Voltage SLOW_CLIMB_SPEED = Volts.of(4);
-        public static final Voltage REVERSE_SPEED = Volts.of(-12);
+        public static final Voltage REVERSE_SPEED = Volts.of(-4);
 
         public static final int GRAB_MOTOR_ID = 15;
         public static final Voltage GRAB_SPEED = Volts.of(6);
@@ -784,8 +785,8 @@ public class Constants {
 
     public static class VisionConstants {
         // Standard deviation baselines for 1 meter distance to single tag
-        public static final double LINEAR_STD_DEV_BASELINE = 0.04; // Meters
-        public static final double ANGULAR_STD_DEV_BASELINE = 0.4; // Radians
+        public static final double LINEAR_STD_DEV_BASELINE = 0.08; // Meters
+        public static final double ANGULAR_STD_DEV_BASELINE = 1.0; // Radians
 
         public static final String FRONT_LEFT_CAM_NAME = "Arducam_OV9281_FL01";
         public static final String FRONT_RIGHT_CAM_NAME = "Arducam_OV9281_FR01";
@@ -821,7 +822,7 @@ public class Constants {
                 Inches.of(3); // max distance from detected branch to ideal branch pos
         public static final Translation2d TOF_CAM_POS = new Translation2d(Inches.of(10.5), Inches.zero());
 
-        public static final Distance MAX_CORAL_X = Meters.of(3);
+        public static final Distance MAX_CORAL_X = Meters.of(4.5);
     }
 
     public static class FieldConstants {
@@ -892,9 +893,9 @@ public class Constants {
         public static final Distance BARGE_X = Meters.of(7.7);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
-                '3', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
+                '1', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
                 '2', new Pose2d(BARGE_X, Meters.of(5.9), BARGE_SHOOT_ROTATION),
-                '1', new Pose2d(BARGE_X, Meters.of(4.3), BARGE_SHOOT_ROTATION.unaryMinus()));
+                '3', new Pose2d(BARGE_X, Meters.of(4.3), BARGE_SHOOT_ROTATION.unaryMinus()));
 
         private static final Distance LOLLIPOP_X = Inches.of(48);
         public static final Pose2d[] LOLLIPOP_POSES = {
@@ -915,8 +916,8 @@ public class Constants {
         public static final Distance APPROACH_DISTANCE =
                 Meters.of(0.5); // *extra* distance to reef when approaching (m)
         public static final Distance PULL_DISTANCE = Inches.of(8);
-        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(20);
-        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(40);
+        public static final Distance STAGE1_DEPLOY_DISTANCE = Inches.of(3);
+        public static final Distance STAGE2_DEPLOY_DISTANCE = Inches.of(20);
         public static final Distance STAGE3_DEPLOY_DISTANCE = Meters.of(100); // effectively infinite
         public static final Distance ALGAE_DEPLOY_DISTANCE = Inches.of(15);
         public static final Distance ALGAE_EXTRA_DISTANCE_IN = Inches.of(6);
@@ -940,7 +941,7 @@ public class Constants {
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
         public static final LoggedTunableNumber APPROACH_PROPORTION = new LoggedTunableNumber(
-                "Approach Proportion (0-1)", 1.0); // proportion of distance to final waypoint to use approach
+                "Approach Proportion (1-2)", 1.1); // proportion of distance to final waypoint to use approach
         // constraints
         public static final LoggedTunableNumber FAST_PROPORTION = new LoggedTunableNumber(
                 "Fast Proportion (0-1)", 0.8); // proportion of first waypoint to use fast constraints

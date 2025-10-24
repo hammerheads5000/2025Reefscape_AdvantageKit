@@ -56,7 +56,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.encoderConnected = encoderConnectedDebouncer.calculate(climbEncoder.isConnected());
         inputs.pos = climbEncoder.getAbsolutePosition().getValue();
 
-        inputs.cageDetected = inductionSensor.get();
+        inputs.cageDetected = !inductionSensor.get();
     }
 
     @Override

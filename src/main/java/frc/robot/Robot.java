@@ -102,9 +102,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        if (robotContainer.intake.isStowed()) {
-            robotContainer.intake.setGoal(IntakeConstants.DEPLOY_POS);
-        }
+        robotContainer.intake.setGoal(IntakeConstants.DEPLOY_POS);
         robotContainer.intake.setToCoast(true);
     }
 

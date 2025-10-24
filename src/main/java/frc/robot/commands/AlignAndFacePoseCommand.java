@@ -151,6 +151,18 @@ public class AlignAndFacePoseCommand extends Command {
                         Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
 
         Logger.recordOutput("Alignment/Distance to Target", getDistanceToTarget());
+
+        Logger.recordOutput("Alignment/Output/xP", pidControllerX.getPositionError() * pidControllerX.getP());
+        Logger.recordOutput("Alignment/Output/xI", pidControllerX.getVelocityError() * pidControllerX.getI());
+        Logger.recordOutput("Alignment/Output/xD", pidControllerX.getAccumulatedError() * pidControllerX.getD());
+
+        Logger.recordOutput("Alignment/Output/yP", pidControllerY.getPositionError() * pidControllerY.getP());
+        Logger.recordOutput("Alignment/Output/yI", pidControllerY.getVelocityError() * pidControllerY.getI());
+        Logger.recordOutput("Alignment/Output/yD", pidControllerY.getAccumulatedError() * pidControllerY.getD());
+
+        Logger.recordOutput("Alignment/Output/angleP", pidControllerAngle.getError() * pidControllerAngle.getP());
+        Logger.recordOutput(
+                "Alignment/Output/angleI", pidControllerAngle.getAccumulatedError() * pidControllerAngle.getI());
     }
 
     public Distance getDistanceToTarget() {

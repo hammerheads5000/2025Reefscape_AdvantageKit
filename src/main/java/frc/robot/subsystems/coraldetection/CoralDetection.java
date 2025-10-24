@@ -182,7 +182,7 @@ public class CoralDetection extends SubsystemBase {
                         && pos.getY() <= VisionConstants.APRIL_TAGS.getFieldWidth())
                 && (pos.getX() <= VisionConstants.MAX_CORAL_X.in(Meters)
                         || pos.getX()
-                                >= 2 * VisionConstants.APRIL_TAGS.getFieldLength()
+                                >= VisionConstants.APRIL_TAGS.getFieldLength()
                                         - VisionConstants.MAX_CORAL_X.in(Meters));
     }
 }

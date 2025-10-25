@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.PathConstants;
 import java.util.ArrayList;
@@ -65,12 +66,14 @@ public class Pathfinding {
     }
 
     // both follow reef side order (0 for facing drivers, increasing CW)
-    private static final Pose2d[] CCW_APPROACH_POSES = new Pose2d[6];
-    private static final Pose2d[] CW_APPROACH_POSES = new Pose2d[6];
+    private static final Pose2d[] CCW_APPROACH_POSES_BLUE = new Pose2d[6];
+    private static final Pose2d[] CW_APPROACH_POSES_BLUE = new Pose2d[6];
+    private static final Pose2d[] CCW_APPROACH_POSES_RED = new Pose2d[6];
+    private static final Pose2d[] CW_APPROACH_POSES_RED = new Pose2d[6];
 
     static {
         for (int side = 0; side < 6; side++) {
-            Pose2d sidePose = AlignToReefCommands.getReefPose(side, 0);
+            Pose2d sidePose = AlignToReefCommands.getReefPose(side, 0, false);
 
             // move side pose outwards by TRAVERSE_DISTANCE
             sidePose = sidePose.transformBy(new Transform2d(
@@ -79,22 +82,35 @@ public class Pathfinding {
             // give pose tangential rotation for smooth CCW path
             sidePose = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.kCW_90deg);
 
-            CCW_APPROACH_POSES[side] = sidePose;
-            CW_APPROACH_POSES[side] = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.k180deg);
+            CCW_APPROACH_POSES_BLUE[side] = sidePose;
+            CW_APPROACH_POSES_BLUE[side] = sidePose.rotateAround(sidePose.getTranslation(), Rotation2d.k180deg);
+
+            CCW_APPROACH_POSES_RED[side] = FlippingUtil.flipFieldPose(sidePose);
+            CW_APPROACH_POSES_RED[side] = FlippingUtil.flipFieldPose(CW_APPROACH_POSES_BLUE[side]);
         }
     }
 
     /** Generates a list of poses to approach the reef from the current pose to the target side */
     private static ArrayList<Pose2d> generateApproachPoses(Pose2d currentPose, int side) {
+        boolean isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+
+        return generateApproachPoses(currentPose, side, isRed);
+    }
+
+    /** Generates a list of poses to approach the reef from the current pose to the target side */
+    private static ArrayList<Pose2d> generateApproachPoses(Pose2d currentPose, int side, boolean isRed) {
         int currentSide = getClosestReefSide(currentPose);
 
-        boolean CW = getNextSide(currentSide, side) == (currentSide + 1) % 6;
+        final boolean CW = getNextSide(currentSide, side) == (currentSide + 1) % 6;
         ArrayList<Pose2d> poses = new ArrayList<>();
+        final Pose2d[] APPROACH_POSES = CW
+                ? (isRed ? CW_APPROACH_POSES_RED : CW_APPROACH_POSES_BLUE)
+                : (isRed ? CCW_APPROACH_POSES_RED : CCW_APPROACH_POSES_BLUE);
         // move around reef until within 1 side of target side
         while (distanceBetweenSides(currentSide, side) > 1) {
             int nextSide = getNextSide(currentSide, side);
 
-            poses.add(CW ? CW_APPROACH_POSES[nextSide] : CCW_APPROACH_POSES[nextSide]);
+            poses.add(APPROACH_POSES[nextSide]);
             currentSide = nextSide;
         }
 
@@ -208,7 +224,7 @@ public class Pathfinding {
         if (AutoBuilder.shouldFlip()) {
             endPose = FlippingUtil.flipFieldPose(endPose);
         }
-        poses.add(new Pose2d(endPose.getTranslation(), endPose.getRotation().plus(Rotation2d.k180deg)));
+        poses.add(new Pose2d(endPose.getTranslation(), endPose.getRotation().plus(Rotation2d.kCW_90deg)));
 
         Translation2d vel = new Translation2d(startSpeeds.vxMetersPerSecond, startSpeeds.vyMetersPerSecond);
 

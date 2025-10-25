@@ -348,7 +348,7 @@ public class Constants {
                 .withPID(8, 0.1, 0.05)
                 .withFeedforward(0.8, 0.0)
                 .withTolerance(Inches.of(1.0).in(Meters), 0.05)
-                .withProfile(2.0, 1.5);
+                .withProfile(2.0, 2.5);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -507,10 +507,10 @@ public class Constants {
         public static final Distance MIN_HEIGHT = Meters.of(0.229);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
         public static final Distance L1_HEIGHT = Meters.of(0.83);
-        public static final Distance L2_HEIGHT = Meters.of(1.03);
-        public static final Distance L3_HEIGHT = Meters.of(1.45);
+        public static final Distance L2_HEIGHT = Meters.of(1.1);
+        public static final Distance L3_HEIGHT = Meters.of(1.52);
         public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.24);
-        public static final Distance INTAKE_HEIGHT = Meters.of(0.27);
+        public static final Distance INTAKE_HEIGHT = Meters.of(0.26);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -675,13 +675,13 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(20);
         public static final Angle STOW_TOLERANCE = Degrees.of(20);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(47);
 
-        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
+        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(2);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
 
         public static final Time CORAL_TIMEOUT = Seconds.of(4);
-        public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.4);
+        public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.3);
         public static final Time JAM_TIME = Seconds.of(1);
         public static final Time UNJAM_TIME = Seconds.of(0.15);
         // time from coral detected in aligner to stop before end effector

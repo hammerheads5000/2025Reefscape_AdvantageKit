@@ -507,7 +507,7 @@ public class Constants {
         public static final Distance MIN_HEIGHT = Meters.of(0.229);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
         public static final Distance L1_HEIGHT = Meters.of(0.83);
-        public static final Distance L2_HEIGHT = Meters.of(1.1);
+        public static final Distance L2_HEIGHT = Meters.of(1.09);
         public static final Distance L3_HEIGHT = Meters.of(1.52);
         public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.24);
         public static final Distance INTAKE_HEIGHT = Meters.of(0.26);
@@ -941,10 +941,10 @@ public class Constants {
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
         public static final LoggedTunableNumber APPROACH_PROPORTION = new LoggedTunableNumber(
-                "Approach Proportion (1-2)", 1.1); // proportion of distance to final waypoint to use approach
+                "Approach Proportion (1-2)", 1.25); // proportion of distance to final waypoint to use approach
         // constraints
         public static final LoggedTunableNumber FAST_PROPORTION = new LoggedTunableNumber(
-                "Fast Proportion (0-1)", 0.8); // proportion of first waypoint to use fast constraints
+                "Fast Proportion (0-1)", 0.5); // proportion of first waypoint to use fast constraints
 
         public static final Distance SWEEP_SIDE_DISTANCE = Inches.of(40);
         public static final Distance SWEEP_OFFSET = Inches.of(2);

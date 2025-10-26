@@ -661,7 +661,7 @@ public class Constants {
                 .withS1CloseState(S1CloseStateValue.CloseWhenLow)
                 .withS2CloseState(S2CloseStateValue.CloseWhenNotLow);
 
-        public static final Voltage INTAKE_SPEED = Volts.of(8);
+        public static final Voltage INTAKE_SPEED = Volts.of(10);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3);
         public static final Voltage EJECT_SPEED = Volts.of(-6);
         public static final Voltage DEPLOY_SPEED = Volts.of(12);

@@ -675,7 +675,7 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(20);
         public static final Angle STOW_TOLERANCE = Degrees.of(20);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(47);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(41);
 
         public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(2);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);

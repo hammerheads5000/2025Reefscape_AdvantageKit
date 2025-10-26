@@ -485,7 +485,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.152587890625)
+                .withMagnetOffset(0.278076171875)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 

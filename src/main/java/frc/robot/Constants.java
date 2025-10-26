@@ -964,13 +964,13 @@ public class Constants {
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(5.0),
-                MetersPerSecondPerSecond.of(15.0),
+                MetersPerSecond.of(4.4),
+                MetersPerSecondPerSecond.of(10.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(4.0),
+                MetersPerSecond.of(3.5),
                 MetersPerSecondPerSecond.of(6.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));

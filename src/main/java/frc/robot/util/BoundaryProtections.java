@@ -15,7 +15,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.PathConstants;
 import frc.robot.Constants.VisionConstants;
-import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class BoundaryProtections {
@@ -214,7 +213,8 @@ public class BoundaryProtections {
 
         // Translation2d adjustedVel = desiredVel.minus(wallNormalOutwards.times(velTowardsWall * scaleFactor));
         // Logger.recordOutput("Boundaries/Desired Velocity", new Pose2d(pose.getTranslation(), desiredVel.getAngle()));
-        // Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(), adjustedVel.getAngle()));
+        // Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(),
+        // adjustedVel.getAngle()));
         // return adjustedVel;
     }
 

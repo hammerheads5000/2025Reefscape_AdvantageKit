@@ -509,8 +509,8 @@ public class Constants {
         public static final Distance L1_HEIGHT = Meters.of(0.83);
         public static final Distance L2_HEIGHT = Meters.of(1.09);
         public static final Distance L3_HEIGHT = Meters.of(1.52);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.24);
-        public static final Distance INTAKE_HEIGHT = Meters.of(0.26);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.235);
+        public static final Distance INTAKE_HEIGHT = Meters.of(0.25);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -716,7 +716,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(6);
+        public static final Voltage HOLD_SPEED = Volts.of(8);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
@@ -890,7 +890,7 @@ public class Constants {
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
         private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-20);
-        public static final Distance BARGE_X = Meters.of(7.7);
+        public static final Distance BARGE_X = Meters.of(7.45);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 '1', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),

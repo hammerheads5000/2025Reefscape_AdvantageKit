@@ -425,7 +425,7 @@ public class RobotContainer {
 
         elevatorUpTrigger.whileTrue(elevator.elevatorUpCommand());
         elevatorDownTrigger.whileTrue(elevator.elevatorDownCommand());
-        elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
+        elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(true));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
         intakeTrigger.toggleOnTrue(intake.deployCommand(true)

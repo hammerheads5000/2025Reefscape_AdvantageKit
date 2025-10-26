@@ -429,7 +429,7 @@ public class RobotContainer {
         // elevatorTrigger.whileTrue(elevatorCommand);
 
         intakeTrigger.toggleOnTrue(intake.deployCommand(true)
-                .andThen(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
+                .andThen(elevator.goToIntakePosCommand(true), endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
                 .alongWith(intake.intakeCommand())
                 .until(endEffector.coralDetectedTrigger)
                 .finallyDo(() -> intake.setGoal(IntakeConstants.STOW_POS)));
@@ -439,8 +439,7 @@ public class RobotContainer {
                 .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
                 .alongWith(intake.ejectCommand()));
 
-        toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake))
-                .andThen(elevator.goToIntakePosCommand(true)));
+        toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
         elevatorZeroTrigger.onTrue(elevator.zeroEncoderCommand());
         autoCoralTrigger.whileTrue(autoCoralCommand);
 

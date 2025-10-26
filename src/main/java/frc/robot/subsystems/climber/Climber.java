@@ -73,9 +73,9 @@ public class Climber extends SubsystemBase {
 
     public Command goToGrabPosCommand() {
         return Commands.sequence(
+            this.runOnce(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED)),
                         reverseCommand().until(() -> inputs.pos.lt(ClimberConstants.GRAB_ANGLE)),
-                        slowClimbCommand().until(() -> inputs.pos.gte(ClimberConstants.GRAB_ANGLE)),
-                        this.runOnce(() -> io.setGrabOutput(ClimberConstants.GRAB_SPEED)))
+                        slowClimbCommand().until(() -> inputs.pos.gte(ClimberConstants.GRAB_ANGLE)))
                 .withName("Go to Cage Grab Pos");
     }
 

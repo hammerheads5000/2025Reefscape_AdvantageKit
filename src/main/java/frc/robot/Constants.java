@@ -716,7 +716,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(8);
+        public static final Voltage HOLD_SPEED = Volts.of(10);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
@@ -727,7 +727,7 @@ public class Constants {
         public static final Time FLIP_UP_TIME = Seconds.of(3);
         public static final Time HOLD_TIME = Seconds.of(3);
         public static final Time HOLD_CYCLE_ON = Seconds.of(1);
-        public static final Time HOLD_CYCLE_OFF = Seconds.of(4);
+        public static final Time HOLD_CYCLE_OFF = Seconds.of(3);
         public static final Time SHOOT_TIME = Seconds.of(0.15);
     }
 

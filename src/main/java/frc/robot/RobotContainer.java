@@ -439,7 +439,7 @@ public class RobotContainer {
                 .runCommand(EndEffectorConstants.INTAKE_SPEED.unaryMinus())
                 .alongWith(intake.ejectCommand()));
 
-        toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
+        toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)).alongWith(elevator.goToIntakePosCommand(true)));
         elevatorZeroTrigger.onTrue(elevator.zeroEncoderCommand());
         autoCoralTrigger.whileTrue(autoCoralCommand);
 

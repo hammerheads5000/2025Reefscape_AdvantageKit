@@ -432,7 +432,11 @@ public class RobotContainer {
                 .andThen(elevator.goToIntakePosCommand(true), endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
                 .alongWith(intake.intakeCommand())
                 .until(endEffector.coralDetectedTrigger)
-                .finallyDo((interrupted) -> {if (!interrupted) {intake.setGoal(IntakeConstants.STOW_POS); }}));
+                .finallyDo((interrupted) -> {
+                    if (!interrupted) {
+                        intake.setGoal(IntakeConstants.STOW_POS);
+                    }
+                }));
         shootTrigger.whileTrue(
                 intake.intakeCommand().alongWith(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)));
         reverseIntakeTrigger.whileTrue(endEffector

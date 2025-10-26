@@ -136,7 +136,7 @@ public class RobotContainer {
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
-    private final Trigger intakeEmergencyStowTrigger = buttonBoardOther.button(1);
+    private final Trigger elevatorZeroTrigger = buttonBoardOther.button(1);
     private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger intakeAndReefTrigger = driveController.a();
@@ -440,7 +440,7 @@ public class RobotContainer {
                 .alongWith(intake.ejectCommand()));
 
         toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
-        intakeEmergencyStowTrigger.onTrue(intake.stowCommand(true));
+        elevatorZeroTrigger.onTrue(elevator.zeroEncoderCommand());
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
         intakeAndReefTrigger.whileTrue(intakeAndReefCommand);

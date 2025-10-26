@@ -177,43 +177,45 @@ public class BoundaryProtections {
 
     // adjust velocity to not go into walls when facing them
     public static Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel, boolean intaking) {
-        Pose2d nearestPoint = nearestBoundaryPose(pose.getTranslation());
+        return desiredVel;
 
-        Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
+        // Pose2d nearestPoint = nearestBoundaryPose(pose.getTranslation());
 
-        Translation2d wallNormalOutwards = new Translation2d(
-                        Math.cos(nearestPoint.getRotation().getRadians()),
-                        Math.sin(nearestPoint.getRotation().getRadians()))
-                .unaryMinus();
+        // Logger.recordOutput("Boundaries/Closest Boundary Point", nearestPoint);
 
-        double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
-        minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
+        // Translation2d wallNormalOutwards = new Translation2d(
+        //                 Math.cos(nearestPoint.getRotation().getRadians()),
+        //                 Math.sin(nearestPoint.getRotation().getRadians()))
+        //         .unaryMinus();
 
-        double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
-                + offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
+        // double minDistanceToWall = offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
+        // minDistanceToWall += IntakeConstants.DISTANCE_TO_KEEP_FROM_WALL.in(Meters);
 
-        // bot is not near wall, or not facing wall, return desired velocity
-        if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > slowDownDistance
-                || Math.abs(pose.getRotation().minus(nearestPoint.getRotation()).getRadians())
-                        > IntakeConstants.ANGLE_TO_FACE_WALL.in(Radians)) {
-            return desiredVel;
-        }
+        // double slowDownDistance = IntakeConstants.SLOWDOWN_DISTANCE.in(Meters)
+        //         + offsetDistanceFromRotation(pose.getRotation(), wallNormalOutwards.unaryMinus());
 
-        double velTowardsWall = desiredVel.getX() * wallNormalOutwards.getX()
-                + desiredVel.getY() * wallNormalOutwards.getY(); // dot product
-        if (velTowardsWall <= 0) { // not going towards wall
-            return desiredVel;
-        }
+        // // bot is not near wall, or not facing wall, return desired velocity
+        // if (nearestPoint.getTranslation().getDistance(pose.getTranslation()) > slowDownDistance
+        //         || Math.abs(pose.getRotation().minus(nearestPoint.getRotation()).getRadians())
+        //                 > IntakeConstants.ANGLE_TO_FACE_WALL.in(Radians)) {
+        //     return desiredVel;
+        // }
 
-        double scaleFactor = nearestPoint.getTranslation().getDistance(pose.getTranslation()) - minDistanceToWall;
-        scaleFactor /= slowDownDistance - minDistanceToWall;
-        scaleFactor = MathUtil.clamp(scaleFactor, 0, 1);
-        scaleFactor = 1 - scaleFactor; // invert, 0 when far, 1 when close
+        // double velTowardsWall = desiredVel.getX() * wallNormalOutwards.getX()
+        //         + desiredVel.getY() * wallNormalOutwards.getY(); // dot product
+        // if (velTowardsWall <= 0) { // not going towards wall
+        //     return desiredVel;
+        // }
 
-        Translation2d adjustedVel = desiredVel.minus(wallNormalOutwards.times(velTowardsWall * scaleFactor));
-        Logger.recordOutput("Boundaries/Desired Velocity", new Pose2d(pose.getTranslation(), desiredVel.getAngle()));
-        Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(), adjustedVel.getAngle()));
-        return adjustedVel;
+        // double scaleFactor = nearestPoint.getTranslation().getDistance(pose.getTranslation()) - minDistanceToWall;
+        // scaleFactor /= slowDownDistance - minDistanceToWall;
+        // scaleFactor = MathUtil.clamp(scaleFactor, 0, 1);
+        // scaleFactor = 1 - scaleFactor; // invert, 0 when far, 1 when close
+
+        // Translation2d adjustedVel = desiredVel.minus(wallNormalOutwards.times(velTowardsWall * scaleFactor));
+        // Logger.recordOutput("Boundaries/Desired Velocity", new Pose2d(pose.getTranslation(), desiredVel.getAngle()));
+        // Logger.recordOutput("Boundaries/Adjusted Velocity", new Pose2d(pose.getTranslation(), adjustedVel.getAngle()));
+        // return adjustedVel;
     }
 
     public static Translation2d adjustVelocity(Pose2d pose, Translation2d desiredVel) {

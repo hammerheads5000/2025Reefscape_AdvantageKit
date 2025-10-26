@@ -507,7 +507,7 @@ public class Constants {
         public static final Distance MIN_HEIGHT = Meters.of(0.229);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
         public static final Distance L1_HEIGHT = Meters.of(0.83);
-        public static final Distance L2_HEIGHT = Meters.of(1.09);
+        public static final Distance L2_HEIGHT = Meters.of(1.08);
         public static final Distance L3_HEIGHT = Meters.of(1.52);
         public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.235);
         public static final Distance INTAKE_HEIGHT = Meters.of(0.25);

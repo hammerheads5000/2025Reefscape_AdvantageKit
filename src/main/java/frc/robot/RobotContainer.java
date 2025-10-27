@@ -136,7 +136,7 @@ public class RobotContainer {
     private final Trigger reverseIntakeTrigger = driveController.leftBumper().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger toggleIntakeDeployTrigger = driveController.povRight();
-    private final Trigger intakeEmergencyStowTrigger = buttonBoardOther.button(1);
+    private final Trigger elevatorZeroTrigger = buttonBoardOther.button(1);
     private final Trigger autoCoralTrigger = driveController.y().and(algaeButtonLayerTrigger.negate());
 
     private final Trigger intakeAndReefTrigger = driveController.a();
@@ -425,14 +425,18 @@ public class RobotContainer {
 
         elevatorUpTrigger.whileTrue(elevator.elevatorUpCommand());
         elevatorDownTrigger.whileTrue(elevator.elevatorDownCommand());
-        elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(false));
+        elevatorIntakeTrigger.whileTrue(elevator.goToIntakePosCommand(true));
         // elevatorTrigger.whileTrue(elevatorCommand);
 
         intakeTrigger.toggleOnTrue(intake.deployCommand(true)
-                .andThen(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
+                .andThen(elevator.goToIntakePosCommand(true), endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED))
                 .alongWith(intake.intakeCommand())
                 .until(endEffector.coralDetectedTrigger)
-                .finallyDo(() -> intake.setGoal(IntakeConstants.STOW_POS)));
+                .finallyDo((interrupted) -> {
+                    if (!interrupted) {
+                        intake.setGoal(IntakeConstants.STOW_POS);
+                    }
+                }));
         shootTrigger.whileTrue(
                 intake.intakeCommand().alongWith(endEffector.runCommand(EndEffectorConstants.INTAKE_SPEED)));
         reverseIntakeTrigger.whileTrue(endEffector
@@ -440,7 +444,7 @@ public class RobotContainer {
                 .alongWith(intake.ejectCommand()));
 
         toggleIntakeDeployTrigger.onTrue(Commands.defer(() -> intake.toggleCommand(false), Set.of(intake)));
-        intakeEmergencyStowTrigger.onTrue(intake.stowCommand(true));
+        elevatorZeroTrigger.onTrue(elevator.zeroEncoderCommand());
         autoCoralTrigger.whileTrue(autoCoralCommand);
 
         intakeAndReefTrigger.whileTrue(intakeAndReefCommand);

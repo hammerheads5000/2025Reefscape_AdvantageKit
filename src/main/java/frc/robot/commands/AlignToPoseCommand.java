@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -15,10 +15,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AlignConstants;
@@ -62,8 +62,8 @@ public class AlignToPoseCommand extends Command {
         pidControllerAngle = angleControlConstants.getPIDController();
         pidControllerAngle.enableContinuousInput(-180, 180);
 
-        pidControllerX.setGoal(targetPose.getX());
-        pidControllerY.setGoal(targetPose.getY());
+        pidControllerX.setGoal(0);
+        pidControllerY.setGoal(0);
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
 
         feedforwardX = linearControlConstants.getSimpleFeedforward();
@@ -80,44 +80,65 @@ public class AlignToPoseCommand extends Command {
     @Override
     public void initialize() {
         // Reset PIDControllers to initial position and velocity
-        ChassisSpeeds chassisSpeeds = swerve.getFieldSpeeds();
-        pidControllerX.reset(swerve.getPose().getX(), chassisSpeeds.vxMetersPerSecond);
-        pidControllerY.reset(swerve.getPose().getY(), chassisSpeeds.vyMetersPerSecond);
+        ChassisSpeeds chassisSpeeds = getRelativeSpeeds(swerve.getFieldSpeeds());
+        pidControllerX.reset(getRelativePose().getX(), chassisSpeeds.vxMetersPerSecond);
+        pidControllerY.reset(getRelativePose().getY(), chassisSpeeds.vyMetersPerSecond);
         pidControllerAngle.reset();
 
-        pidControllerX.setGoal(targetPose.getX());
-        pidControllerY.setGoal(targetPose.getY());
+        pidControllerX.setGoal(0);
+        pidControllerY.setGoal(0);
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
 
         Logger.recordOutput("Alignment/Aligned", false);
         Logger.recordOutput("Alignment/TargetPose", targetPose);
     }
 
+    private ChassisSpeeds getRelativeSpeeds(ChassisSpeeds fieldSpeeds) {
+        return ChassisSpeeds.fromFieldRelativeSpeeds(fieldSpeeds, targetPose.getRotation());
+    }
+
+    private ChassisSpeeds getFieldSpeeds(ChassisSpeeds relativeSpeeds) {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(relativeSpeeds, targetPose.getRotation());
+    }
+
+    private Pose2d getRelativePose() {
+        return swerve.getPose().relativeTo(targetPose);
+    }
+
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        LinearVelocity xVel =
-                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX())
-                        + feedforwardX.calculate(pidControllerX.getSetpoint().velocity));
-        LinearVelocity yVel =
-                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY())
-                        + feedforwardY.calculate(pidControllerY.getSetpoint().velocity));
-        AngularVelocity omega = DegreesPerSecond.of(
-                pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
+        Pose2d relativePose = getRelativePose();
+        double xVel = pidControllerX.calculate(relativePose.getX())
+                + feedforwardX.calculate(pidControllerX.getSetpoint().velocity);
+        double yVel = pidControllerY.calculate(relativePose.getY())
+                + feedforwardY.calculate(pidControllerY.getSetpoint().velocity);
+        double omega = DegreesPerSecond.of(
+                        pidControllerAngle.calculate(swerve.getRotation().getDegrees()))
+                .in(RadiansPerSecond);
 
-        swerve.driveFieldCentric(xVel, yVel, omega);
+        // target pose relative -> field relative -> robot relative
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                getFieldSpeeds(new ChassisSpeeds(xVel, yVel, omega)), swerve.getRotation());
+
+        swerve.drive(speeds);
+
+        Pose2d setpoint = targetPose.transformBy(new Transform2d(
+                new Translation2d(pidControllerX.getSetpoint().position, pidControllerY.getSetpoint().position),
+                Rotation2d.kZero));
 
         Logger.recordOutput(
-                "Alignment/Setpoint",
-                new Pose2d(
-                        pidControllerX.getSetpoint().position,
-                        pidControllerY.getSetpoint().position,
-                        Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
+                "Alignment/Setpoint (field relative)",
+                new Pose2d(setpoint.getX(), setpoint.getY(), Rotation2d.fromDegrees(pidControllerAngle.getSetpoint())));
+        Logger.recordOutput("Alignment/setpointX", pidControllerX.getSetpoint().position);
+        Logger.recordOutput("Alignment/setpointY", pidControllerY.getSetpoint().position);
+        Logger.recordOutput("Alignment/measuredX", relativePose.getX());
+        Logger.recordOutput("Alignment/measuredY", relativePose.getY());
         Logger.recordOutput("Alignment/Distance to Target", getDistanceToTarget());
     }
 
     public Distance getDistanceToTarget() {
-        return Meters.of(swerve.getPose().getTranslation().getDistance(targetPose.getTranslation()));
+        return Meters.of(getRelativePose().getTranslation().getNorm());
     }
 
     public Trigger withinDistanceToTarget(Distance distance) {

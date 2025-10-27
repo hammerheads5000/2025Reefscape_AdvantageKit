@@ -33,10 +33,13 @@ public class Intake extends SubsystemBase {
     @AutoLogOutput
     Trigger stowedTrigger = new Trigger(this::isStowed).debounce(0.1);
 
+    public Trigger currentCoralDetectedTrigger = new Trigger(this::currentCoralDetection).debounce(0.1);
+
     @AutoLogOutput
-    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).debounce(0.15);
+    public Trigger coralDetectedTrigger = new Trigger(this::rawCoralDetected).and(currentCoralDetectedTrigger);
 
     private Timer jamTimer = new Timer();
+    private Timer intakingTimer = new Timer();
 
     private Trigger stalledTrigger = new Trigger(this::isStalled).debounce(0.1);
 
@@ -101,6 +104,12 @@ public class Intake extends SubsystemBase {
         return inputs.alignLidar || inputs.coralDetected;
     }
 
+    private boolean currentCoralDetection() {
+        return intakingTimer.isRunning()
+                && intakingTimer.hasElapsed(IntakeConstants.INTAKE_STARTUP_TIME.in(Seconds))
+                && inputs.intakeCurrent.gt(IntakeConstants.CORAL_DETECTION_CURRENT);
+    }
+
     private boolean isStalled() {
         return (inputs.intakeVelocity.lte(IntakeConstants.MAX_STALL_VELOCITY)
                         && inputs.alignCurrent.gte(IntakeConstants.MIN_STALL_CURRENT))
@@ -150,6 +159,7 @@ public class Intake extends SubsystemBase {
 
     public Command startIntakeCommand() {
         return Commands.runOnce(() -> {
+                    intakingTimer.restart();
                     setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
                     setAlignSpeed(IntakeConstants.ALIGN_SPEED);
                 })
@@ -175,10 +185,12 @@ public class Intake extends SubsystemBase {
     public Command intakeCommand() {
         return Commands.startEnd(
                         () -> {
+                            intakingTimer.restart();
                             setIntakeSpeed(IntakeConstants.INTAKE_SPEED);
                             setAlignSpeed(IntakeConstants.ALIGN_SPEED);
                         },
                         () -> {
+                            intakingTimer.stop();
                             setIntakeSpeed(Volts.zero());
                             setAlignSpeed(Volts.zero());
                         })
@@ -200,6 +212,7 @@ public class Intake extends SubsystemBase {
 
     public Command stopIntake() {
         return Commands.runOnce(() -> {
+            intakingTimer.stop();
             setIntakeSpeed(Volts.zero());
             setAlignSpeed(Volts.zero());
         });

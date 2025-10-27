@@ -348,7 +348,7 @@ public class Constants {
                 .withPID(8, 0.1, 0.05)
                 .withFeedforward(0.8, 0.0)
                 .withTolerance(Inches.of(1.0).in(Meters), 0.05)
-                .withProfile(2.0, 1.5);
+                .withProfile(2.0, 2.5);
 
         public static final ControlConstants ALGAE_PICK_PID_TRANSLATION = new ControlConstants(SCORING_PID_TRANSLATION)
                 .withProfile(2, 6)
@@ -485,7 +485,7 @@ public class Constants {
                 .withSlot2(STAGE1_GAINS);
 
         public static final MagnetSensorConfigs ENCODER_CONFIGS = new MagnetSensorConfigs()
-                .withMagnetOffset(0.152587890625)
+                .withMagnetOffset(0.278076171875)
                 .withAbsoluteSensorDiscontinuityPoint(0.5)
                 .withSensorDirection(SensorDirectionValue.Clockwise_Positive);
 
@@ -507,10 +507,10 @@ public class Constants {
         public static final Distance MIN_HEIGHT = Meters.of(0.229);
         public static final Distance MAX_HEIGHT = Meters.of(2.263);
         public static final Distance L1_HEIGHT = Meters.of(0.83);
-        public static final Distance L2_HEIGHT = Meters.of(1.03);
-        public static final Distance L3_HEIGHT = Meters.of(1.45);
-        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.24);
-        public static final Distance INTAKE_HEIGHT = Meters.of(0.27);
+        public static final Distance L2_HEIGHT = Meters.of(1.08);
+        public static final Distance L3_HEIGHT = Meters.of(1.52);
+        public static final LoggedTunableNumber L4_HEIGHT = new LoggedTunableNumber("L4 Height", 2.235);
+        public static final Distance INTAKE_HEIGHT = Meters.of(0.25);
 
         public static final Distance STAGE2_HEIGHT = Inches.of(30.54); // height when stage 2 starts being lifted
         public static final Distance STAGE1_HEIGHT = Inches.of(56.68); // height when stage 1 starts being lifted
@@ -661,7 +661,7 @@ public class Constants {
                 .withS1CloseState(S1CloseStateValue.CloseWhenLow)
                 .withS2CloseState(S2CloseStateValue.CloseWhenNotLow);
 
-        public static final Voltage INTAKE_SPEED = Volts.of(8);
+        public static final Voltage INTAKE_SPEED = Volts.of(10);
         public static final Voltage SLOW_INTAKE_SPEED = Volts.of(3);
         public static final Voltage EJECT_SPEED = Volts.of(-6);
         public static final Voltage DEPLOY_SPEED = Volts.of(12);
@@ -675,13 +675,13 @@ public class Constants {
         public static final Angle DEPLOY_TOLERANCE = Degrees.of(20);
         public static final Angle STOW_TOLERANCE = Degrees.of(20);
 
-        public static final Current CORAL_DETECTION_CURRENT = Amps.of(38);
+        public static final Current CORAL_DETECTION_CURRENT = Amps.of(41);
 
-        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(3);
+        public static final LinearVelocity PICKUP_SPEED = MetersPerSecond.of(2);
         public static final AngularVelocity CORAL_SCAN_SPEED = DegreesPerSecond.of(50);
 
         public static final Time CORAL_TIMEOUT = Seconds.of(4);
-        public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.4);
+        public static final Time INTAKE_STARTUP_TIME = Seconds.of(0.3);
         public static final Time JAM_TIME = Seconds.of(1);
         public static final Time UNJAM_TIME = Seconds.of(0.15);
         // time from coral detected in aligner to stop before end effector
@@ -716,7 +716,7 @@ public class Constants {
 
         // Speed (voltage)
         public static final Voltage INTAKE_SPEED = Volts.of(12);
-        public static final Voltage HOLD_SPEED = Volts.of(6);
+        public static final Voltage HOLD_SPEED = Volts.of(10);
         public static final Voltage EJECT_SPEED = Volts.of(-12);
         public static final Voltage FLIP_UP_SPEED = Volts.of(-10);
         public static final Voltage HOLD_UP_SPEED = Volts.of(-3.5);
@@ -727,7 +727,7 @@ public class Constants {
         public static final Time FLIP_UP_TIME = Seconds.of(3);
         public static final Time HOLD_TIME = Seconds.of(3);
         public static final Time HOLD_CYCLE_ON = Seconds.of(1);
-        public static final Time HOLD_CYCLE_OFF = Seconds.of(4);
+        public static final Time HOLD_CYCLE_OFF = Seconds.of(3);
         public static final Time SHOOT_TIME = Seconds.of(0.15);
     }
 
@@ -890,7 +890,7 @@ public class Constants {
                 new Translation2d(Meters.of(0), Inches.of(12.94 / 2));
 
         private static final Rotation2d BARGE_SHOOT_ROTATION = Rotation2d.fromDegrees(-20);
-        public static final Distance BARGE_X = Meters.of(7.7);
+        public static final Distance BARGE_X = Meters.of(7.45);
 
         public static final Map<Character, Pose2d> BARGE_POSES = Map.of(
                 '1', new Pose2d(BARGE_X, Meters.of(7.4), BARGE_SHOOT_ROTATION),
@@ -941,10 +941,10 @@ public class Constants {
         public static final LinearVelocity MIN_PATH_SPEED = MetersPerSecond.of(1.5);
 
         public static final LoggedTunableNumber APPROACH_PROPORTION = new LoggedTunableNumber(
-                "Approach Proportion (1-2)", 1.1); // proportion of distance to final waypoint to use approach
+                "Approach Proportion (1-2)", 1.25); // proportion of distance to final waypoint to use approach
         // constraints
         public static final LoggedTunableNumber FAST_PROPORTION = new LoggedTunableNumber(
-                "Fast Proportion (0-1)", 0.8); // proportion of first waypoint to use fast constraints
+                "Fast Proportion (0-1)", 0.5); // proportion of first waypoint to use fast constraints
 
         public static final Distance SWEEP_SIDE_DISTANCE = Inches.of(40);
         public static final Distance SWEEP_OFFSET = Inches.of(2);
@@ -964,13 +964,13 @@ public class Constants {
         public static final PIDConstants PP_ROTATIONAL_PID = new PIDConstants(2, 0.1, 0.05);
 
         public static final PathConstraints FAST_CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(5.0),
-                MetersPerSecondPerSecond.of(15.0),
+                MetersPerSecond.of(4.4),
+                MetersPerSecondPerSecond.of(10.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));
 
         public static final PathConstraints CONSTRAINTS = new PathConstraints(
-                MetersPerSecond.of(4.0),
+                MetersPerSecond.of(3.5),
                 MetersPerSecondPerSecond.of(6.0),
                 RotationsPerSecond.of(1.25),
                 RotationsPerSecondPerSecond.of(1.25));

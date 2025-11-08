@@ -18,6 +18,7 @@ public class ControlConstants {
     double iZone = Double.POSITIVE_INFINITY;
     double iMin = Double.NEGATIVE_INFINITY;
     double iMax = Double.POSITIVE_INFINITY;
+    double period = 0.02;
 
     // feedforward gains
     double kV, kA = 0;
@@ -28,6 +29,11 @@ public class ControlConstants {
     // trapezoid profile
     double maxVel = 0;
     double maxAcc = 0;
+
+    // continuous control
+    boolean isContinuous = false;
+    double maxInput;
+    double minInput;
 
     public ControlConstants() {}
 
@@ -40,12 +46,16 @@ public class ControlConstants {
         this.iZone = constants.iZone;
         this.iMax = constants.iMax;
         this.iMin = constants.iMin;
+        this.period = constants.period;
         this.kV = constants.kV;
         this.kA = constants.kA;
         this.kS = constants.kS;
         this.kG = constants.kG;
         this.maxVel = constants.maxVel;
         this.maxAcc = constants.maxAcc;
+        this.isContinuous = constants.isContinuous;
+        this.maxInput = constants.maxInput;
+        this.minInput = constants.minInput;
     }
 
     public ControlConstants withPID(double kP, double kI, double kD) {
@@ -93,6 +103,11 @@ public class ControlConstants {
     public ControlConstants withIRange(double iMin, double iMax) {
         this.iMin = iMin;
         this.iMax = iMax;
+        return this;
+    }
+
+    public ControlConstants withPeriod(double period) {
+        this.period = period;
         return this;
     }
 

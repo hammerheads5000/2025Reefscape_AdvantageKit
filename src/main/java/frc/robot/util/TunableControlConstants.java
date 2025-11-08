@@ -60,30 +60,37 @@ public class TunableControlConstants {
         this.minInput = constants.minInput;
     }
 
+    public LoggedTunableNumber[] getAllTunableNumbers() {
+        return new LoggedTunableNumber[] {
+            kP, kI, kD, tolerance, velTolerance, iZone, iMin, iMax,
+            kV, kA, kS, kG, maxVel, maxAcc
+        };
+    }
+
     public PIDController getPIDController() {
-        PIDController controller = new PIDController(kP, kI, kD);
-        controller.setTolerance(tolerance);
-        controller.setIntegratorRange(iMin, iMax);
-        controller.setIZone(iZone);
+        PIDController controller = new PIDController(kP.get(), kI.get(), kD.get());
+        controller.setTolerance(tolerance.get());
+        controller.setIntegratorRange(iMin.get(), iMax.get());
+        controller.setIZone(iZone.get());
 
         return controller;
     }
 
     public ProfiledPIDController getProfiledPIDController() {
         ProfiledPIDController controller =
-                new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(maxVel, maxAcc));
-        controller.setTolerance(tolerance);
-        controller.setIntegratorRange(iMin, iMax);
-        controller.setIZone(iZone);
+                new ProfiledPIDController(kP.get(), kI.get(), kD.get(), new TrapezoidProfile.Constraints(maxVel.get(), maxAcc.get()));
+        controller.setTolerance(tolerance.get());
+        controller.setIntegratorRange(iMin.get(), iMax.get());
+        controller.setIZone(iZone.get());
 
         return controller;
     }
 
     public ElevatorFeedforward getElevatorFeedforward() {
-        return new ElevatorFeedforward(kS, kG, kV, kA);
+        return new ElevatorFeedforward(kS.get(), kG.get(), kV.get(), kA.get());
     }
 
     public SimpleMotorFeedforward getSimpleFeedforward() {
-        return new SimpleMotorFeedforward(kS, kV, kA);
+        return new SimpleMotorFeedforward(kS.get(), kV.get(), kA.get());
     }
 }

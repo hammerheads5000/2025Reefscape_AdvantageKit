@@ -121,6 +121,7 @@ public class TunableController {
     public double calculateFeedforward() {
         State setpoint = profiledPIDController.getSetpoint();
         double accel = (setpoint.velocity - previousVelocity) / profiledPIDController.getPeriod();
+        previousVelocity = setpoint.velocity;
 
         return params.kS.get() * Math.signum(setpoint.velocity) + params.kG.get() + params.kV.get() * setpoint.velocity
                 + params.kA.get() * accel;

@@ -1,1 +1,1 @@
-FRC Team 5000's code for the 2025 offseason, based on AdvantageKit.
+FRC Team 5000's code for the 2025 offseason, based on AdvantageKit. Main code is in [src/main/java/frc/robot/](https://github.com/hammerheads5000/2025Reefscape_AdvantageKit/tree/main/src/main/java/frc/robot)

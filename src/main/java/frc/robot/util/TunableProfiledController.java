@@ -86,6 +86,7 @@ public class TunableProfiledController {
      */
     public void setGoal(double goal) {
         profiledPIDController.setGoal(goal);
+        previousVelocity = profiledPIDController.getSetpoint().velocity;
         updateParams();
     }
 

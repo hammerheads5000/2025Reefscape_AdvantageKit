@@ -11,23 +11,14 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 /**
  * TunableController
  *
- * <p>
- * Lightweight wrapper around WPILib's {@link ProfiledPIDController} that
- * configures the
- * controller using runtime-tunable values provided by a
- * {@link frc.robot.util.TunableControlConstants}.
- * This class centralizes ProfiledPIDController setup (gains, motion
- * constraints, tolerances,
- * and continuous input) and stores auxiliary state used by higher-level control
- * helpers.
+ * <p>Lightweight wrapper around WPILib's {@link ProfiledPIDController} that configures the controller using
+ * runtime-tunable values provided by a {@link frc.robot.util.TunableControlConstants}. This class centralizes
+ * ProfiledPIDController setup (gains, motion constraints, tolerances, and continuous input) and stores auxiliary state
+ * used by higher-level control helpers.
  *
- * <p>
- * Intended usage: pass a {@code TunableControlConstants} instance that exposes
- * tunable
- * parameters (kP, kI, kD, maxVel, maxAcc, tolerance, velTolerance, period,
- * isContinuous,
- * minInput, maxInput). The wrapper will construct and configure the internal
- * {@link ProfiledPIDController} accordingly.
+ * <p>Intended usage: pass a {@code TunableControlConstants} instance that exposes tunable parameters (kP, kI, kD,
+ * maxVel, maxAcc, tolerance, velTolerance, period, isContinuous, minInput, maxInput). The wrapper will construct and
+ * configure the internal {@link ProfiledPIDController} accordingly.
  */
 public class TunableProfiledController {
     private final ProfiledPIDController profiledPIDController;
@@ -39,26 +30,21 @@ public class TunableProfiledController {
         this.params = tunableParams;
 
         if (!tunableParams.profiled) {
-            throw new IllegalArgumentException("TunableControlConstants must be profiled to use TunableProfiledController");
+            throw new IllegalArgumentException(
+                    "TunableControlConstants must be profiled to use TunableProfiledController");
         }
 
         profiledPIDController = new ProfiledPIDController(
                 tunableParams.kP.get(),
                 tunableParams.kI.get(),
                 tunableParams.kD.get(),
-                new TrapezoidProfile.Constraints(
-                        tunableParams.maxVel.get(),
-                        tunableParams.maxAcc.get()),
+                new TrapezoidProfile.Constraints(tunableParams.maxVel.get(), tunableParams.maxAcc.get()),
                 tunableParams.period);
 
-        profiledPIDController.setTolerance(
-                tunableParams.tolerance.get(),
-                tunableParams.velTolerance.get());
+        profiledPIDController.setTolerance(tunableParams.tolerance.get(), tunableParams.velTolerance.get());
 
         if (tunableParams.isContinuous) {
-            profiledPIDController.enableContinuousInput(
-                    tunableParams.minInput,
-                    tunableParams.maxInput);
+            profiledPIDController.enableContinuousInput(tunableParams.minInput, tunableParams.maxInput);
         }
     }
 
@@ -71,9 +57,21 @@ public class TunableProfiledController {
         return params;
     }
 
+    /** Updates the controller's parameters based on the current values in the TunableControlConstants. */
+    public void updateParams() {
+        profiledPIDController.setP(params.kP.get());
+        profiledPIDController.setI(params.kI.get());
+        profiledPIDController.setD(params.kD.get());
+
+        profiledPIDController.setConstraints(
+                new TrapezoidProfile.Constraints(params.maxVel.get(), params.maxAcc.get()));
+        profiledPIDController.setIZone(params.iZone.get());
+        profiledPIDController.setIntegratorRange(params.iMin.get(), params.iMax.get());
+        profiledPIDController.setTolerance(params.tolerance.get(), params.velTolerance.get());
+    }
+
     /**
-     * Returns the accumulated error used in the integral calculation of this
-     * controller.
+     * Returns the accumulated error used in the integral calculation of this controller.
      *
      * @return The accumulated error of this controller.
      */
@@ -88,6 +86,7 @@ public class TunableProfiledController {
      */
     public void setGoal(double goal) {
         profiledPIDController.setGoal(goal);
+        updateParams();
     }
 
     /**
@@ -104,12 +103,10 @@ public class TunableProfiledController {
     }
 
     /**
-     * Returns true if the error is within the tolerance of the goal. The error
-     * tolerance defaults
-     * to 0.05, and the error derivative tolerance defaults to ∞.
+     * Returns true if the error is within the tolerance of the goal. The error tolerance defaults to 0.05, and the
+     * error derivative tolerance defaults to ∞.
      *
-     * <p>
-     * This will return false until at least one input value has been computed.
+     * <p>This will return false until at least one input value has been computed.
      *
      * @return Whether the error is within the acceptable bounds.
      */
@@ -140,7 +137,9 @@ public class TunableProfiledController {
         double accel = (setpoint.velocity - previousVelocity) / profiledPIDController.getPeriod();
         previousVelocity = setpoint.velocity;
 
-        return params.kS.get() * Math.signum(setpoint.velocity) + params.kG.get() + params.kV.get() * setpoint.velocity
+        return params.kS.get() * Math.signum(setpoint.velocity)
+                + params.kG.get()
+                + params.kV.get() * setpoint.velocity
                 + params.kA.get() * accel;
     }
 
@@ -148,7 +147,7 @@ public class TunableProfiledController {
      * Returns the next output of the PID controller.
      *
      * @param measurement The current measurement of the process variable.
-     * @param goal        The new goal of the controller.
+     * @param goal The new goal of the controller.
      * @return The next controller output.
      */
     public double calculate(double measurement, double goal) {

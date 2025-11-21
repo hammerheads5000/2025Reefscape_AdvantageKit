@@ -36,7 +36,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
 import frc.robot.util.TunablePIDController;
-
 import java.util.Set;
 
 /** Ends right after coral detected, without stopping */
@@ -48,7 +47,8 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     private final CoralDetection coralDetection;
 
     private SlewRateLimiter2d accelerationLimiter = new SlewRateLimiter2d(2);
-    private TunablePIDController rotationController = new TunablePIDController(AlignConstants.CORAL_PICKUP_ANGLE); // in radians
+    private TunablePIDController rotationController =
+            new TunablePIDController(AlignConstants.CORAL_PICKUP_ANGLE); // in radians
 
     private Distance distanceToCoral = Meters.of(100); // default very far away
     private final boolean ignoreWall;

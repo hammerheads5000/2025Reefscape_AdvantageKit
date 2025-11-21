@@ -72,7 +72,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.ControlConstants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.TunableControlConstants;
-
 import java.util.Map;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
@@ -353,65 +352,82 @@ public class Constants {
                 .withTolerance(Inches.of(1.0).in(Meters), 0.05)
                 .withProfile(2.0, 2.5);
 
-        public static final TunableControlConstants SCORING_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Scoring", BASE_TRANSLATION);
+        public static final TunableControlConstants SCORING_TRANSLATION =
+                new TunableControlConstants(TABLE_NAME + "Translation/Scoring", BASE_TRANSLATION);
 
-        public static final TunableControlConstants ALGAE_PICK_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Algae Pick", new ControlConstants(BASE_TRANSLATION)
-                .withProfile(2, 6)
-                .withTolerance(Inches.of(3).in(Meters)));
-        
-        public static final TunableControlConstants ALGAE_PULL_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Algae Pull", new ControlConstants(BASE_TRANSLATION)
-                .withProfile(3.5, 6)
-                .withTolerance(Inches.of(4).in(Meters)));
+        public static final TunableControlConstants ALGAE_PICK_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Algae Pick",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withProfile(2, 6)
+                        .withTolerance(Inches.of(3).in(Meters)));
 
-        public static final TunableControlConstants CORAL_PULL_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Coral Pull",
+        public static final TunableControlConstants ALGAE_PULL_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Algae Pull",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withProfile(3.5, 6)
+                        .withTolerance(Inches.of(4).in(Meters)));
+
+        public static final TunableControlConstants CORAL_PULL_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Coral Pull",
                 new ControlConstants(BASE_TRANSLATION)
                         .withProfile(3.5, 6)
                         .withTolerance(Inches.of(8).in(Meters)));
 
-        public static final TunableControlConstants PROCESS_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Process", new ControlConstants(BASE_TRANSLATION)
-                .withTolerance(Inches.of(4).in(Meters)));
+        public static final TunableControlConstants PROCESS_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Process",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withTolerance(Inches.of(4).in(Meters)));
 
-        public static final TunableControlConstants SWEEP_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Sweep", new ControlConstants(BASE_TRANSLATION)
-                .withTolerance(Inches.of(4).in(Meters)));
+        public static final TunableControlConstants SWEEP_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Sweep",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withTolerance(Inches.of(4).in(Meters)));
 
-        public static final TunableControlConstants LOLLIPOP_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Lollipop", new ControlConstants(BASE_TRANSLATION)
-                .withProfile(3, 7)
-                .withTolerance(Inches.of(4).in(Meters)));
+        public static final TunableControlConstants LOLLIPOP_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Lollipop",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withProfile(3, 7)
+                        .withTolerance(Inches.of(4).in(Meters)));
 
-        public static final TunableControlConstants CORAL_PICKUP_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Coral Pickup", new ControlConstants(
-                        BASE_TRANSLATION)
-                .withProfile(3, 6)
-                .withTolerance(Inches.of(4).in(Meters)));
+        public static final TunableControlConstants CORAL_PICKUP_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Coral Pickup",
+                new ControlConstants(BASE_TRANSLATION)
+                        .withProfile(3, 6)
+                        .withTolerance(Inches.of(4).in(Meters)));
 
-        public static final TunableControlConstants APPROACH_TRANSLATION = new TunableControlConstants(TABLE_NAME+"Translation/Approach",
-                new ControlConstants(BASE_TRANSLATION).withTolerance(0.3, 10));
+        public static final TunableControlConstants APPROACH_TRANSLATION = new TunableControlConstants(
+                TABLE_NAME + "Translation/Approach", new ControlConstants(BASE_TRANSLATION).withTolerance(0.3, 10));
 
         // output: deg/s, measure: deg
         private static final ControlConstants BASE_ANGLE =
                 new ControlConstants().withPID(3, 0.05, 0.0).withTolerance(1.2).withContinuous(-180, 180);
 
-        public static final TunableControlConstants SCORING_ANGLE = new TunableControlConstants(TABLE_NAME+"Angle/Scoring", BASE_ANGLE);
+        public static final TunableControlConstants SCORING_ANGLE =
+                new TunableControlConstants(TABLE_NAME + "Angle/Scoring", BASE_ANGLE);
 
-        public static final TunableControlConstants ALGAE_PICK_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Algae Pick", new ControlConstants(BASE_ANGLE).withTolerance(3));
-        public static final TunableControlConstants ALGAE_PULL_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Algae Pull", new ControlConstants(BASE_ANGLE).withTolerance(6));
+        public static final TunableControlConstants ALGAE_PICK_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Algae Pick", new ControlConstants(BASE_ANGLE).withTolerance(3));
+        public static final TunableControlConstants ALGAE_PULL_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Algae Pull", new ControlConstants(BASE_ANGLE).withTolerance(6));
 
-        public static final TunableControlConstants CORAL_PULL_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Coral Pull", new ControlConstants(BASE_ANGLE).withTolerance(10));
+        public static final TunableControlConstants CORAL_PULL_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Coral Pull", new ControlConstants(BASE_ANGLE).withTolerance(10));
 
-        public static final TunableControlConstants PROCESS_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Process", new ControlConstants(BASE_ANGLE).withTolerance(4));
+        public static final TunableControlConstants PROCESS_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Process", new ControlConstants(BASE_ANGLE).withTolerance(4));
 
-        public static final TunableControlConstants SWEEP_ANGLE = new TunableControlConstants(TABLE_NAME+"Angle/Sweep", new ControlConstants(BASE_ANGLE).withTolerance(5));
+        public static final TunableControlConstants SWEEP_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Sweep", new ControlConstants(BASE_ANGLE).withTolerance(5));
 
-        public static final TunableControlConstants LOLLIPOP_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Lollipop", new ControlConstants(BASE_ANGLE).withTolerance(5));
+        public static final TunableControlConstants LOLLIPOP_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Lollipop", new ControlConstants(BASE_ANGLE).withTolerance(5));
 
-        public static final TunableControlConstants CORAL_PICKUP_ANGLE = new TunableControlConstants(TABLE_NAME+"Angle/Coral Pickup", new ControlConstants().withPID(6, 2, 0.0).withContinuous(0, 2*Math.PI));
+        public static final TunableControlConstants CORAL_PICKUP_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Coral Pickup",
+                new ControlConstants().withPID(6, 2, 0.0).withContinuous(0, 2 * Math.PI));
 
-        public static final TunableControlConstants APPROACH_ANGLE =
-                new TunableControlConstants(TABLE_NAME+"Angle/Approach", new ControlConstants(BASE_ANGLE).withTolerance(20, 180));
+        public static final TunableControlConstants APPROACH_ANGLE = new TunableControlConstants(
+                TABLE_NAME + "Angle/Approach", new ControlConstants(BASE_ANGLE).withTolerance(20, 180));
 
         public static final Time ALIGN_TIME = Seconds.of(0.1); // amount to wait to make sure aligned
     }
@@ -701,11 +717,13 @@ public class Constants {
         public static final Distance MAX_CORAL_DISTANCE = Feet.of(15);
 
         // radians -> volts
-        public static final TunableControlConstants DEPLOY_PID_SIM = new TunableControlConstants("Intake/Deploy (sim)", new ControlConstants()
-                .withPID(0.1, 0, 0)
-                .withTolerance(Degrees.of(10).in(Radians))
-                .withFeedforward(6, 0)
-                .withProfile(Math.PI / 2, Math.PI));
+        public static final TunableControlConstants DEPLOY_PID_SIM = new TunableControlConstants(
+                "Intake/Deploy (sim)",
+                new ControlConstants()
+                        .withPID(0.1, 0, 0)
+                        .withTolerance(Degrees.of(10).in(Radians))
+                        .withFeedforward(6, 0)
+                        .withProfile(Math.PI / 2, Math.PI));
     }
 
     public static class AlgaeManipulatorConstants {

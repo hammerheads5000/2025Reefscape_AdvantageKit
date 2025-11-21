@@ -41,22 +41,22 @@ public class TunableControlConstants {
     double minInput;
 
     public TunableControlConstants(String key, ControlConstants constants) {
-        this.kP = new LoggedTunableNumber(key+"/kP", constants.kP);
-        this.kI = new LoggedTunableNumber(key+"/kI", constants.kI);
-        this.kD = new LoggedTunableNumber(key+"/kD", constants.kD);
-        this.tolerance = new LoggedTunableNumber(key+"/tolerance", constants.tolerance);
-        this.velTolerance = new LoggedTunableNumber(key+"/velTolerance", constants.velTolerance);
-        this.iZone = new LoggedTunableNumber(key+"/iZone", constants.iZone);
-        this.iMax = new LoggedTunableNumber(key+"/maxIntegral", constants.iMax);
-        this.iMin = new LoggedTunableNumber(key+"/minIntegral", constants.iMin);
+        this.kP = new LoggedTunableNumber(key + "/kP", constants.kP);
+        this.kI = new LoggedTunableNumber(key + "/kI", constants.kI);
+        this.kD = new LoggedTunableNumber(key + "/kD", constants.kD);
+        this.tolerance = new LoggedTunableNumber(key + "/tolerance", constants.tolerance);
+        this.velTolerance = new LoggedTunableNumber(key + "/velTolerance", constants.velTolerance);
+        this.iZone = new LoggedTunableNumber(key + "/iZone", constants.iZone);
+        this.iMax = new LoggedTunableNumber(key + "/maxIntegral", constants.iMax);
+        this.iMin = new LoggedTunableNumber(key + "/minIntegral", constants.iMin);
         this.period = constants.period;
-        this.kV = new LoggedTunableNumber(key+"/kV", constants.kV);
-        this.kA = new LoggedTunableNumber(key+"/kA", constants.kA);
-        this.kS = new LoggedTunableNumber(key+"/kS", constants.kS);
-        this.kG = new LoggedTunableNumber(key+"/kG", constants.kG);
+        this.kV = new LoggedTunableNumber(key + "/kV", constants.kV);
+        this.kA = new LoggedTunableNumber(key + "/kA", constants.kA);
+        this.kS = new LoggedTunableNumber(key + "/kS", constants.kS);
+        this.kG = new LoggedTunableNumber(key + "/kG", constants.kG);
         this.profiled = constants.profiled;
-        this.maxVel = new LoggedTunableNumber(key+"/maxVel", constants.maxVel);
-        this.maxAcc = new LoggedTunableNumber(key+"/maxAcc", constants.maxAcc);
+        this.maxVel = new LoggedTunableNumber(key + "/maxVel", constants.maxVel);
+        this.maxAcc = new LoggedTunableNumber(key + "/maxAcc", constants.maxAcc);
         this.isContinuous = constants.isContinuous;
         this.maxInput = constants.maxInput;
         this.minInput = constants.minInput;
@@ -64,8 +64,7 @@ public class TunableControlConstants {
 
     public LoggedTunableNumber[] getAllTunableNumbers() {
         return new LoggedTunableNumber[] {
-            kP, kI, kD, tolerance, velTolerance, iZone, iMin, iMax,
-            kV, kA, kS, kG, maxVel, maxAcc
+            kP, kI, kD, tolerance, velTolerance, iZone, iMin, iMax, kV, kA, kS, kG, maxVel, maxAcc
         };
     }
 
@@ -79,8 +78,8 @@ public class TunableControlConstants {
     }
 
     public ProfiledPIDController getProfiledPIDController() {
-        ProfiledPIDController controller =
-                new ProfiledPIDController(kP.get(), kI.get(), kD.get(), new TrapezoidProfile.Constraints(maxVel.get(), maxAcc.get()));
+        ProfiledPIDController controller = new ProfiledPIDController(
+                kP.get(), kI.get(), kD.get(), new TrapezoidProfile.Constraints(maxVel.get(), maxAcc.get()));
         controller.setTolerance(tolerance.get());
         controller.setIntegratorRange(iMin.get(), iMax.get());
         controller.setIZone(iZone.get());

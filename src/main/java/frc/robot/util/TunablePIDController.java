@@ -9,23 +9,14 @@ import edu.wpi.first.math.controller.PIDController;
 /**
  * TunableController
  *
- * <p>
- * Lightweight wrapper around WPILib's {@link PIDController} that
- * configures the
- * controller using runtime-tunable values provided by a
- * {@link frc.robot.util.TunableControlConstants}.
- * This class centralizes PIDController setup (gains, motion
- * constraints, tolerances,
- * and continuous input) and stores auxiliary state used by higher-level control
+ * <p>Lightweight wrapper around WPILib's {@link PIDController} that configures the controller using runtime-tunable
+ * values provided by a {@link frc.robot.util.TunableControlConstants}. This class centralizes PIDController setup
+ * (gains, motion constraints, tolerances, and continuous input) and stores auxiliary state used by higher-level control
  * helpers.
  *
- * <p>
- * Intended usage: pass a {@code TunableControlConstants} instance that exposes
- * tunable
- * parameters (kP, kI, kD, maxVel, maxAcc, tolerance, velTolerance, period,
- * isContinuous,
- * minInput, maxInput). The wrapper will construct and configure the internal
- * {@link PIDController} accordingly.
+ * <p>Intended usage: pass a {@code TunableControlConstants} instance that exposes tunable parameters (kP, kI, kD,
+ * tolerance, velTolerance, period, isContinuous, minInput, maxInput). The wrapper will construct and configure the
+ * internal {@link PIDController} accordingly.
  */
 public class TunablePIDController {
     private final TunableControlConstants params;
@@ -35,19 +26,12 @@ public class TunablePIDController {
         this.params = tunableParams;
 
         pidController = new PIDController(
-                tunableParams.kP.get(),
-                tunableParams.kI.get(),
-                tunableParams.kD.get(),
-                tunableParams.period);
+                tunableParams.kP.get(), tunableParams.kI.get(), tunableParams.kD.get(), tunableParams.period);
 
-        pidController.setTolerance(
-                tunableParams.tolerance.get(),
-                tunableParams.velTolerance.get());
+        pidController.setTolerance(tunableParams.tolerance.get(), tunableParams.velTolerance.get());
 
         if (tunableParams.isContinuous) {
-            pidController.enableContinuousInput(
-                    tunableParams.minInput,
-                    tunableParams.maxInput);
+            pidController.enableContinuousInput(tunableParams.minInput, tunableParams.maxInput);
         }
     }
 
@@ -60,9 +44,19 @@ public class TunablePIDController {
         return params;
     }
 
+    /** Updates the PIDController's parameters from the TunableControlConstants. */
+    public void updateParams() {
+        pidController.setP(params.kP.get());
+        pidController.setI(params.kI.get());
+        pidController.setD(params.kD.get());
+        pidController.setTolerance(params.tolerance.get(), params.velTolerance.get());
+        pidController.setIZone(params.iZone.get());
+        pidController.setIntegratorRange(params.iMin.get(), params.iMax.get());
+        pidController.setTolerance(params.tolerance.get(), params.velTolerance.get());
+    }
+
     /**
-     * Returns the accumulated error used in the integral calculation of this
-     * controller.
+     * Returns the accumulated error used in the integral calculation of this controller.
      *
      * @return The accumulated error of this controller.
      */
@@ -77,6 +71,7 @@ public class TunablePIDController {
      */
     public void setSetpoint(double goal) {
         pidController.setSetpoint(goal);
+        updateParams();
     }
 
     /**
@@ -89,12 +84,10 @@ public class TunablePIDController {
     }
 
     /**
-     * Returns true if the error is within the tolerance of the goal. The error
-     * tolerance defaults
-     * to 0.05, and the error derivative tolerance defaults to ∞.
+     * Returns true if the error is within the tolerance of the goal. The error tolerance defaults to 0.05, and the
+     * error derivative tolerance defaults to ∞.
      *
-     * <p>
-     * This will return false until at least one input value has been computed.
+     * <p>This will return false until at least one input value has been computed.
      *
      * @return Whether the error is within the acceptable bounds.
      */
@@ -108,7 +101,7 @@ public class TunablePIDController {
      * @return The error.
      */
     public double getPositionError() {
-        return pidController.getPositionError();
+        return pidController.getError();
     }
 
     /**
@@ -117,14 +110,14 @@ public class TunablePIDController {
      * @return The error derivative.
      */
     public double getVelocityError() {
-        return pidController.getVelocityError();
+        return pidController.getErrorDerivative();
     }
 
     /**
      * Returns the next output of the PID controller.
      *
      * @param measurement The current measurement of the process variable.
-     * @param goal        The new goal of the controller.
+     * @param goal The new goal of the controller.
      * @return The next controller output.
      */
     public double calculate(double measurement, double goal) {

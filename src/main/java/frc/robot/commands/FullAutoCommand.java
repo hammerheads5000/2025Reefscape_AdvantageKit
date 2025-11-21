@@ -56,7 +56,7 @@ public class FullAutoCommand extends SequentialCommandGroup {
 
         // ran when bot loses coral it was going for
         Command alignCommand = new AlignToPoseCommand(
-                searchPose, AlignConstants.CORAL_PICKUP_PID_TRANSLATION, AlignConstants.CORAL_PICKUP_PID_ANGLE, swerve);
+                searchPose, AlignConstants.CORAL_PICKUP_TRANSLATION, AlignConstants.CORAL_PICKUP_ANGLE, swerve);
 
         finishedAutoCoral = false;
 

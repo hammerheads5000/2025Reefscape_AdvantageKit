@@ -9,9 +9,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +20,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.ControlConstants;
+import frc.robot.util.TunableControlConstants;
+import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableProfiledController;
+
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -35,11 +35,9 @@ public class AlignAndFacePoseCommand extends Command {
     public final Pose2d targetPose;
     private Supplier<Pose2d> poseToFaceSupplier;
     private Pose2d poseToFace;
-    private final ProfiledPIDController pidControllerX;
-    private final ProfiledPIDController pidControllerY;
-    private final SimpleMotorFeedforward feedforwardX;
-    private final SimpleMotorFeedforward feedforwardY;
-    private final PIDController pidControllerAngle;
+    private final TunableProfiledController pidControllerX;
+    private final TunableProfiledController pidControllerY;
+    private final TunablePIDController pidControllerAngle;
     private final Trigger alignedTrigger;
 
     private final Swerve swerve;
@@ -59,25 +57,21 @@ public class AlignAndFacePoseCommand extends Command {
             Pose2d targetPose,
             Pose2d defaultPoseToFace,
             Supplier<Pose2d> poseToFaceSupplier,
-            ControlConstants linearControlConstants,
-            ControlConstants angleControlConstants,
+            TunableControlConstants linearControlConstants,
+            TunableControlConstants angleControlConstants,
             Swerve swerve) {
         this.targetPose = targetPose;
         this.poseToFaceSupplier = poseToFaceSupplier;
         this.poseToFace = defaultPoseToFace;
         this.swerve = swerve;
 
-        pidControllerX = linearControlConstants.getProfiledPIDController();
-        pidControllerY = linearControlConstants.getProfiledPIDController();
-        pidControllerAngle = angleControlConstants.getPIDController();
-        pidControllerAngle.enableContinuousInput(-180, 180);
+        pidControllerX = new TunableProfiledController(linearControlConstants);
+        pidControllerY = new TunableProfiledController(linearControlConstants);
+        pidControllerAngle = new TunablePIDController(angleControlConstants);
 
         pidControllerX.setGoal(targetPose.getX());
         pidControllerY.setGoal(targetPose.getY());
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
-
-        feedforwardX = linearControlConstants.getSimpleFeedforward();
-        feedforwardY = linearControlConstants.getSimpleFeedforward();
 
         alignedTrigger = new Trigger(
                         () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
@@ -98,8 +92,8 @@ public class AlignAndFacePoseCommand extends Command {
     public AlignAndFacePoseCommand(
             Pose2d targetPose,
             Pose2d poseToFace,
-            ControlConstants linearControlConstants,
-            ControlConstants angleControlConstants,
+            TunableControlConstants linearControlConstants,
+            TunableControlConstants angleControlConstants,
             Swerve swerve) {
         this(targetPose, poseToFace, () -> poseToFace, linearControlConstants, angleControlConstants, swerve);
     }
@@ -133,11 +127,9 @@ public class AlignAndFacePoseCommand extends Command {
                 .getDegrees());
 
         LinearVelocity xVel =
-                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX())
-                        + feedforwardX.calculate(pidControllerX.getSetpoint().velocity));
+                MetersPerSecond.of(pidControllerX.calculate(swerve.getPose().getX()));
         LinearVelocity yVel =
-                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY())
-                        + feedforwardY.calculate(pidControllerY.getSetpoint().velocity));
+                MetersPerSecond.of(pidControllerY.calculate(swerve.getPose().getY()));
         AngularVelocity omega = DegreesPerSecond.of(
                 pidControllerAngle.calculate(swerve.getRotation().getDegrees()));
 
@@ -152,17 +144,16 @@ public class AlignAndFacePoseCommand extends Command {
 
         Logger.recordOutput("Alignment/Distance to Target", getDistanceToTarget());
 
-        Logger.recordOutput("Alignment/Output/xP", pidControllerX.getPositionError() * pidControllerX.getP());
-        Logger.recordOutput("Alignment/Output/xI", pidControllerX.getVelocityError() * pidControllerX.getI());
-        Logger.recordOutput("Alignment/Output/xD", pidControllerX.getAccumulatedError() * pidControllerX.getD());
+        Logger.recordOutput("Alignment/Error/xP", pidControllerX.getPositionError());
+        Logger.recordOutput("Alignment/Error/xI", pidControllerX.getAccumulatedError());
+        Logger.recordOutput("Alignment/Error/xD", pidControllerX.getVelocityError());
 
-        Logger.recordOutput("Alignment/Output/yP", pidControllerY.getPositionError() * pidControllerY.getP());
-        Logger.recordOutput("Alignment/Output/yI", pidControllerY.getVelocityError() * pidControllerY.getI());
-        Logger.recordOutput("Alignment/Output/yD", pidControllerY.getAccumulatedError() * pidControllerY.getD());
+        Logger.recordOutput("Alignment/Error/yP", pidControllerY.getPositionError());
+        Logger.recordOutput("Alignment/Error/yI", pidControllerY.getAccumulatedError());
+        Logger.recordOutput("Alignment/Error/yD", pidControllerY.getVelocityError());
 
-        Logger.recordOutput("Alignment/Output/angleP", pidControllerAngle.getError() * pidControllerAngle.getP());
-        Logger.recordOutput(
-                "Alignment/Output/angleI", pidControllerAngle.getAccumulatedError() * pidControllerAngle.getI());
+        Logger.recordOutput("Alignment/Error/angleP", pidControllerAngle.getPositionError());
+        Logger.recordOutput("Alignment/Error/angleI", pidControllerAngle.getAccumulatedError());
     }
 
     public Distance getDistanceToTarget() {

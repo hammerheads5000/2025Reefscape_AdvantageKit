@@ -25,8 +25,8 @@ public class ProcessCommand extends SequentialCommandGroup {
                 AutoBuilder.shouldFlip()
                         ? FlippingUtil.flipFieldPose(FieldConstants.PROCESSOR)
                         : FieldConstants.PROCESSOR,
-                AlignConstants.PROCESS_PID_TRANSLATION,
-                AlignConstants.PROCESS_PID_ANGLE,
+                AlignConstants.PROCESS_TRANSLATION,
+                AlignConstants.PROCESS_ANGLE,
                 swerve);
 
         Command pathfindCommand = Commands.none();

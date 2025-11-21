@@ -13,7 +13,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -36,6 +35,8 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
+import frc.robot.util.TunablePIDController;
+
 import java.util.Set;
 
 /** Ends right after coral detected, without stopping */
@@ -47,7 +48,7 @@ public class AutoCoralCommand extends SequentialCommandGroup {
     private final CoralDetection coralDetection;
 
     private SlewRateLimiter2d accelerationLimiter = new SlewRateLimiter2d(2);
-    private PIDController rotationController = AlignConstants.CORAL_PICKUP_PID_ANGLE.getPIDController(); // in radians
+    private TunablePIDController rotationController = new TunablePIDController(AlignConstants.CORAL_PICKUP_ANGLE); // in radians
 
     private Distance distanceToCoral = Meters.of(100); // default very far away
     private final boolean ignoreWall;
@@ -70,8 +71,6 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         this.elevator = elevator;
         this.coralDetection = coralDetection;
         this.ignoreWall = ignoreWall;
-
-        rotationController.enableContinuousInput(0, 2 * Math.PI);
 
         addCommands(
                 this.intake.deployCommand(true),
@@ -161,8 +160,8 @@ public class AutoCoralCommand extends SequentialCommandGroup {
         return AutoBuilder.followPath(path)
                 .andThen(new AlignToPoseCommand(
                         approachPose.rotateAround(approachPose.getTranslation(), Rotation2d.k180deg),
-                        AlignConstants.CORAL_PULL_PID_TRANSLATION,
-                        AlignConstants.CORAL_PULL_PID_ANGLE,
+                        AlignConstants.APPROACH_TRANSLATION,
+                        AlignConstants.APPROACH_ANGLE,
                         swerve));
     }
 }

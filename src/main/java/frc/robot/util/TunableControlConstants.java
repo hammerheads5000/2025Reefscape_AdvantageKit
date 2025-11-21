@@ -31,11 +31,12 @@ public class TunableControlConstants {
     LoggedTunableNumber kG;
 
     // trapezoid profile
+    boolean profiled;
     LoggedTunableNumber maxVel;
     LoggedTunableNumber maxAcc;
 
     // continuous control
-    boolean isContinuous = false;
+    boolean isContinuous;
     double maxInput;
     double minInput;
 
@@ -53,6 +54,7 @@ public class TunableControlConstants {
         this.kA = new LoggedTunableNumber(key+"/kA", constants.kA);
         this.kS = new LoggedTunableNumber(key+"/kS", constants.kS);
         this.kG = new LoggedTunableNumber(key+"/kG", constants.kG);
+        this.profiled = constants.profiled;
         this.maxVel = new LoggedTunableNumber(key+"/maxVel", constants.maxVel);
         this.maxAcc = new LoggedTunableNumber(key+"/maxAcc", constants.maxAcc);
         this.isContinuous = constants.isContinuous;

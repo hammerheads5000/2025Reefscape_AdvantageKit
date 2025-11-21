@@ -35,8 +35,8 @@ public class SweepCommand extends SequentialCommandGroup {
                 new Translation2d(PathConstants.SWEEP_OFFSET.unaryMinus(), Meters.zero()), Rotation2d.kZero));
         addCommands(
                 new AlignToPoseCommand(
-                        pose1, AlignConstants.SWEEP_PID_TRANSLATION, AlignConstants.SWEEP_PID_ANGLE, swerve),
+                        pose1, AlignConstants.SWEEP_TRANSLATION, AlignConstants.SWEEP_ANGLE, swerve),
                 new AlignToPoseCommand(
-                        centerPose, AlignConstants.SWEEP_PID_TRANSLATION, AlignConstants.SWEEP_PID_ANGLE, swerve));
+                        centerPose, AlignConstants.SWEEP_TRANSLATION, AlignConstants.SWEEP_ANGLE, swerve));
     }
 }

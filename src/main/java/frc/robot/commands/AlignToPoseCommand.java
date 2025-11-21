@@ -9,9 +9,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +20,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.ControlConstants;
+import frc.robot.util.TunableControlConstants;
+import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableProfiledController;
+
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -32,11 +32,9 @@ import org.littletonrobotics.junction.Logger;
  */
 public class AlignToPoseCommand extends Command {
     public final Pose2d targetPose;
-    private final ProfiledPIDController pidControllerX;
-    private final ProfiledPIDController pidControllerY;
-    private final SimpleMotorFeedforward feedforwardX;
-    private final SimpleMotorFeedforward feedforwardY;
-    private final PIDController pidControllerAngle;
+    private final TunableProfiledController pidControllerX;
+    private final TunableProfiledController pidControllerY;
+    private final TunablePIDController pidControllerAngle;
     private final Trigger alignedTrigger;
 
     private final Swerve swerve;
@@ -51,23 +49,19 @@ public class AlignToPoseCommand extends Command {
      */
     public AlignToPoseCommand(
             Pose2d targetPose,
-            ControlConstants linearControlConstants,
-            ControlConstants angleControlConstants,
+            TunableControlConstants linearControlConstants,
+            TunableControlConstants angleControlConstants,
             Swerve swerve) {
         this.targetPose = targetPose;
         this.swerve = swerve;
 
-        pidControllerX = linearControlConstants.getProfiledPIDController();
-        pidControllerY = linearControlConstants.getProfiledPIDController();
-        pidControllerAngle = angleControlConstants.getPIDController();
-        pidControllerAngle.enableContinuousInput(-180, 180);
+        pidControllerX = new TunableProfiledController(linearControlConstants);
+        pidControllerY = new TunableProfiledController(linearControlConstants);
+        pidControllerAngle = new TunablePIDController(angleControlConstants);
 
         pidControllerX.setGoal(0);
         pidControllerY.setGoal(0);
         pidControllerAngle.setSetpoint(targetPose.getRotation().getDegrees());
-
-        feedforwardX = linearControlConstants.getSimpleFeedforward();
-        feedforwardY = linearControlConstants.getSimpleFeedforward();
 
         alignedTrigger = new Trigger(
                         () -> pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerAngle.atSetpoint())
@@ -109,10 +103,8 @@ public class AlignToPoseCommand extends Command {
     @Override
     public void execute() {
         Pose2d relativePose = getRelativePose();
-        double xVel = pidControllerX.calculate(relativePose.getX())
-                + feedforwardX.calculate(pidControllerX.getSetpoint().velocity);
-        double yVel = pidControllerY.calculate(relativePose.getY())
-                + feedforwardY.calculate(pidControllerY.getSetpoint().velocity);
+        double xVel = pidControllerX.calculate(relativePose.getX());
+        double yVel = pidControllerY.calculate(relativePose.getY());
         double omega = DegreesPerSecond.of(
                         pidControllerAngle.calculate(swerve.getRotation().getDegrees()))
                 .in(RadiansPerSecond);

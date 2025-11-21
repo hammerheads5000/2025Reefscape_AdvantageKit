@@ -112,8 +112,8 @@ public class AlignToReefCommands {
     public static AlignToPoseCommand alignToReef(int side, double relativePos, Swerve swerve) {
         return new AlignToPoseCommand(
                 getReefPose(side, relativePos),
-                AlignConstants.SCORING_PID_TRANSLATION,
-                AlignConstants.SCORING_PID_ANGLE,
+                AlignConstants.SCORING_TRANSLATION,
+                AlignConstants.SCORING_ANGLE,
                 swerve);
     }
 
@@ -121,8 +121,8 @@ public class AlignToReefCommands {
         return new AlignAndFacePoseCommand(
                 getReefPose(side, relativePos),
                 getBranchPose(side, relativePos),
-                AlignConstants.SCORING_PID_TRANSLATION,
-                AlignConstants.SCORING_PID_ANGLE,
+                AlignConstants.SCORING_TRANSLATION,
+                AlignConstants.SCORING_ANGLE,
                 swerve);
     }
 

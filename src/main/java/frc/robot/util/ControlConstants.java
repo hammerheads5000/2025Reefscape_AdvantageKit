@@ -27,6 +27,7 @@ public class ControlConstants {
     double kS, kG = 0;
 
     // trapezoid profile
+    boolean profiled = false;
     double maxVel = 0;
     double maxAcc = 0;
 
@@ -78,8 +79,14 @@ public class ControlConstants {
     }
 
     public ControlConstants withProfile(double maxVel, double maxAcc) {
+        this.profiled = true;
         this.maxVel = maxVel;
         this.maxAcc = maxAcc;
+        return this;
+    }
+
+    public ControlConstants withProfiled(boolean profiled) {
+        this.profiled = profiled;
         return this;
     }
 
@@ -108,6 +115,13 @@ public class ControlConstants {
 
     public ControlConstants withPeriod(double period) {
         this.period = period;
+        return this;
+    }
+
+    public ControlConstants withContinuous(double minInput, double maxInput) {
+        this.isContinuous = true;
+        this.minInput = minInput;
+        this.maxInput = maxInput;
         return this;
     }
 

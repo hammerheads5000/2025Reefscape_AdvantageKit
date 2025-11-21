@@ -29,7 +29,7 @@ public class LollipopCommands {
                 lollipopPose.getTranslation(),
                 Pathfinding.pointPoseTowards(swerve.getPose(), lollipopPose).getRotation());
         AlignToPoseCommand align = new AlignToPoseCommand(
-                lollipopPose, AlignConstants.LOLLIPOP_PID_TRANSLATION, AlignConstants.LOLLIPOP_PID_ANGLE, swerve);
+                lollipopPose, AlignConstants.LOLLIPOP_TRANSLATION, AlignConstants.LOLLIPOP_ANGLE, swerve);
         return Commands.parallel(
                         elevator.goToLollipopCommand(true),
                         align,

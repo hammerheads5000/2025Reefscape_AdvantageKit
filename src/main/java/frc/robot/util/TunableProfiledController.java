@@ -29,14 +29,18 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
  * minInput, maxInput). The wrapper will construct and configure the internal
  * {@link ProfiledPIDController} accordingly.
  */
-public class TunableController {
+public class TunableProfiledController {
     private final ProfiledPIDController profiledPIDController;
     private final TunableControlConstants params;
 
     private double previousVelocity = 0;
 
-    public TunableController(TunableControlConstants tunableParams) {
+    public TunableProfiledController(TunableControlConstants tunableParams) {
         this.params = tunableParams;
+
+        if (!tunableParams.profiled) {
+            throw new IllegalArgumentException("TunableControlConstants must be profiled to use TunableProfiledController");
+        }
 
         profiledPIDController = new ProfiledPIDController(
                 tunableParams.kP.get(),
@@ -56,6 +60,15 @@ public class TunableController {
                     tunableParams.minInput,
                     tunableParams.maxInput);
         }
+    }
+
+    /**
+     * Returns the TunableControlConstants used to configure this controller.
+     *
+     * @return The TunableControlConstants of this controller.
+     */
+    public TunableControlConstants getParams() {
+        return params;
     }
 
     /**
@@ -84,6 +97,10 @@ public class TunableController {
      */
     public double getGoal() {
         return profiledPIDController.getGoal().position;
+    }
+
+    public State getSetpoint() {
+        return profiledPIDController.getSetpoint();
     }
 
     /**

@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AlignConstants;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.util.TunableControlConstants;
-import frc.robot.util.TunablePIDController;
-import frc.robot.util.TunableProfiledController;
+import frc.robot.util.TunableControls.TunableControlConstants;
+import frc.robot.util.TunableControls.TunablePIDController;
+import frc.robot.util.TunableControls.TunableProfiledController;
 import org.littletonrobotics.junction.Logger;
 
 /**

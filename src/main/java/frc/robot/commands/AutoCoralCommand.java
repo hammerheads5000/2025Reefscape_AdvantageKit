@@ -35,7 +35,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.BoundaryProtections;
 import frc.robot.util.SlewRateLimiter2d;
-import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableControls.TunablePIDController;
 import java.util.Set;
 
 /** Ends right after coral detected, without stopping */
